@@ -1,47 +1,58 @@
 <x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <div class="text-center mb-4">
+        <div class="metric-icon mx-auto mb-3"><i class="bi bi-shield-lock"></i></div>
+        <h2 class="fw-bold mb-2">Ingreso seguro al sistema</h2>
+        <p class="text-muted-soft mb-0">Accede a tu panel de bienestar con una interfaz tranquila, protegida y adaptada a tu rol institucional.</p>
+    </div>
+
+    <x-auth-session-status class="mb-3" :status="session('status')" />
 
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <div class="mb-3">
+            <label for="email" class="form-label fw-semibold">Correo institucional</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="bi bi-envelope"></i></span>
+                <input id="email" class="form-control" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" placeholder="nombre@universidad.edu">
+            </div>
+            <x-input-error :messages="$errors->get('email')" class="mt-2 text-danger small" />
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <div class="mb-3">
+            <label for="password" class="form-label fw-semibold">Contraseña</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="bi bi-key"></i></span>
+                <input id="password" class="form-control" type="password" name="password" required autocomplete="current-password" placeholder="Ingresa tu contraseña">
+            </div>
+            <x-input-error :messages="$errors->get('password')" class="mt-2 text-danger small" />
         </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
-                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+            <div class="form-check m-0">
+                <input id="remember_me" type="checkbox" class="form-check-input" name="remember">
+                <label for="remember_me" class="form-check-label text-muted-soft">Mantener sesión activa</label>
+            </div>
 
-        <div class="flex items-center justify-end mt-4">
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
+                <a class="text-decoration-none fw-semibold" href="{{ route('password.request') }}" style="color: #7B53B5;">
+                    ¿Olvidaste tu contraseña?
                 </a>
             @endif
+        </div>
 
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
+        <button type="submit" class="btn btn-primary w-100 mb-3">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar sesión
+        </button>
+
+        <div class="app-card-soft p-3">
+            <div class="d-flex gap-3">
+                <div class="metric-icon flex-shrink-0" style="width:44px;height:44px;"><i class="bi bi-info-circle"></i></div>
+                <div>
+                    <div class="fw-semibold mb-1">Tu privacidad está protegida</div>
+                    <small class="text-muted-soft">Después del primer ingreso, deberás aceptar el consentimiento informado sobre el uso del código anónimo y el resguardo de tus respuestas clínicas.</small>
+                </div>
+            </div>
         </div>
     </form>
 </x-guest-layout>
