@@ -7,12 +7,15 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+    use HasRoles;
 
+    protected string $guard_name = 'web';
     /**
      * The attributes that are mass assignable.
      *
@@ -22,7 +25,19 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'acepto_consentimiento',
+        'consentimiento_aceptado_at',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'acepto_consentimiento' => 'boolean',
+            'consentimiento_aceptado_at' => 'datetime',
+        ];
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -39,11 +54,9 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
-    protected function casts(): array
+    public function persona()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasOne(Persona::class);
     }
+
 }

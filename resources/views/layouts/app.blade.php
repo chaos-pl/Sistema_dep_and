@@ -3,186 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Sistema de Tamizaje')</title>
+    <title>@yield('title', 'PROMETEO')</title>
 
-    {{-- Bootstrap 5 --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    {{-- Bootstrap Icons --}}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
         :root{
-            --bs-primary: #9B72CF;
-            --bs-primary-rgb: 155, 114, 207;
-            --bs-secondary: #A388D4;
-            --bs-secondary-rgb: 163, 136, 212;
-            --bs-body-bg: #F4F4F8;
-            --bs-body-color: #374151;
-            --bs-border-color: #E9DFF7;
-            --bs-light: #FAF5FF;
-            --bs-light-rgb: 250, 245, 255;
-            --app-bg: #F4F4F8;
-            --app-surface: #FFFFFF;
-            --app-sidebar: #9B72CF;
-            --app-sidebar-dark: #8C66BC;
-            --app-sidebar-text: #F9F7FD;
+            --app-bg: #f7f4fb;
+            --app-surface: #ffffff;
+            --app-primary: #9b72cf;
+            --app-primary-dark: #8258bb;
+            --app-primary-soft: #efe6fb;
             --app-text: #374151;
-            --app-muted: #6B7280;
-            --app-border: #E9DFF7;
-            --app-hover: #F3ECFB;
-            --app-card: #FFFFFF;
-            --app-warning-soft: #FFF4D6;
-            --app-success-soft: #EAF7EE;
-            --app-danger-soft: #FCEDEE;
-            --app-info-soft: #EEF2FF;
+            --app-muted: #6b7280;
+            --app-border: #eadff7;
+            --app-sidebar-text: #f8f5ff;
+            --app-success-soft: #eaf7ee;
+            --app-warning-soft: #fff5db;
+            --app-danger-soft: #fdecef;
+            --app-info-soft: #edf2ff;
         }
 
         body{
             background: var(--app-bg);
             color: var(--app-text);
-            font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            font-family: "Inter", "Segoe UI", sans-serif;
         }
 
-        .app-wrapper{
+        .app-shell{
             min-height: 100vh;
             display: flex;
-            background: var(--app-bg);
         }
 
-        .sidebar-desktop{
-            width: 270px;
+        .sidebar{
+            width: 280px;
             min-height: 100vh;
-            background: linear-gradient(180deg, var(--app-sidebar) 0%, var(--app-sidebar-dark) 100%);
+            background: linear-gradient(180deg, var(--app-primary) 0%, var(--app-primary-dark) 100%);
             color: var(--app-sidebar-text);
             position: fixed;
             top: 0;
             left: 0;
             z-index: 1030;
             padding: 1.25rem 1rem;
-            box-shadow: 0 10px 30px rgba(76, 29, 149, .12);
+            box-shadow: 0 12px 30px rgba(107, 70, 193, .15);
+            overflow-y: auto;
         }
 
         .sidebar-brand{
-            font-weight: 700;
             font-size: 1.1rem;
-            letter-spacing: .3px;
+            font-weight: 700;
         }
 
-        .sidebar-subtitle{
-            font-size: .88rem;
+        .sidebar-sub{
+            font-size: .9rem;
             opacity: .9;
         }
 
-        .sidebar-nav .nav-link{
-            color: rgba(255,255,255,.92);
-            border-radius: 1rem;
+        .sidebar .nav-link{
+            color: rgba(255,255,255,.95);
+            border-radius: 16px;
             padding: .85rem 1rem;
             margin-bottom: .35rem;
             display: flex;
             align-items: center;
             gap: .75rem;
-            transition: .25s ease;
             font-weight: 500;
+            transition: .2s ease;
         }
 
-        .sidebar-nav .nav-link:hover,
-        .sidebar-nav .nav-link.active{
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active{
             background: rgba(255,255,255,.16);
             color: #fff;
         }
 
-        .main-content{
+        .main-panel{
             flex: 1;
-            margin-left: 270px;
+            margin-left: 280px;
             min-height: 100vh;
         }
 
         .topbar{
-            background: rgba(255,255,255,.78);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--app-border);
-            padding: 1rem 1.25rem;
             position: sticky;
             top: 0;
             z-index: 1020;
+            background: rgba(255,255,255,.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--app-border);
+            padding: 1rem 1.25rem;
         }
 
-        .content-area{
+        .content-wrapper{
             padding: 1.5rem;
         }
 
         .app-card{
-            background: var(--app-card);
+            background: var(--app-surface);
             border: 1px solid var(--app-border);
-            border-radius: 1.25rem;
-            box-shadow: 0 10px 30px rgba(155,114,207,.08);
+            border-radius: 24px;
+            box-shadow: 0 10px 24px rgba(155,114,207,.06);
+        }
+
+        .welcome-card{
+            background: linear-gradient(135deg, #f6f0ff 0%, #ffffff 100%);
+        }
+
+        .metric-icon{
+            width: 52px;
+            height: 52px;
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--app-primary-soft);
+            color: var(--app-primary-dark);
+            font-size: 1.25rem;
         }
 
         .soft-badge{
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
             border-radius: 999px;
             padding: .45rem .8rem;
             font-size: .8rem;
-            font-weight: 600;
+            font-weight: 700;
         }
 
-        .soft-primary{
-            background: #F2EAFE;
-            color: #7C4DB6;
-        }
-
-        .soft-warning{
-            background: var(--app-warning-soft);
-            color: #8A6300;
-        }
-
-        .soft-danger{
-            background: var(--app-danger-soft);
-            color: #9E2F3E;
-        }
-
-        .soft-success{
-            background: var(--app-success-soft);
-            color: #217A43;
-        }
-
-        .soft-info{
-            background: var(--app-info-soft);
-            color: #4B59B7;
-        }
+        .soft-primary{ background: var(--app-primary-soft); color: var(--app-primary-dark); }
+        .soft-success{ background: var(--app-success-soft); color: #18794e; }
+        .soft-warning{ background: var(--app-warning-soft); color: #946200; }
+        .soft-danger{ background: var(--app-danger-soft); color: #b42318; }
+        .soft-info{ background: var(--app-info-soft); color: #3b5bcc; }
 
         .btn{
-            border-radius: 1rem;
-            padding: .72rem 1rem;
+            border-radius: 16px;
             font-weight: 600;
+            padding: .72rem 1rem;
         }
 
         .btn-primary{
-            background-color: var(--bs-primary);
-            border-color: var(--bs-primary);
+            background: var(--app-primary);
+            border-color: var(--app-primary);
         }
 
         .btn-primary:hover{
-            background-color: #875dc0;
-            border-color: #875dc0;
+            background: var(--app-primary-dark);
+            border-color: var(--app-primary-dark);
         }
 
         .form-control,
-        .form-select{
-            border-radius: 1rem;
-            padding: .85rem 1rem;
-            border: 1px solid var(--app-border);
+        .form-select,
+        textarea{
+            border-radius: 16px !important;
+            border: 1px solid var(--app-border) !important;
+            padding: .85rem 1rem !important;
             box-shadow: none !important;
         }
 
         .form-control:focus,
-        .form-select:focus{
-            border-color: #BEA1E7;
-            box-shadow: 0 0 0 .2rem rgba(155, 114, 207, .15) !important;
-        }
-
-        .table{
-            --bs-table-bg: transparent;
+        .form-select:focus,
+        textarea:focus{
+            border-color: #bea1e7 !important;
+            box-shadow: 0 0 0 .2rem rgba(155,114,207,.14) !important;
         }
 
         .table thead th{
@@ -193,55 +177,24 @@
 
         .table tbody td{
             vertical-align: middle;
-            border-color: #F1E9FB;
+            border-color: #f2ebfb;
         }
 
-        .welcome-panel{
-            background: linear-gradient(135deg, #F7F0FF 0%, #FFFFFF 100%);
-        }
-
-        .metric-icon{
-            width: 52px;
-            height: 52px;
-            border-radius: 1rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            background: #F2EAFE;
-            color: #7C4DB6;
-        }
-
-        .journal-box{
-            min-height: 180px;
-            resize: none;
-        }
-
-        .offcanvas-custom{
-            background: linear-gradient(180deg, var(--app-sidebar) 0%, var(--app-sidebar-dark) 100%);
+        .offcanvas-sidebar{
+            background: linear-gradient(180deg, var(--app-primary) 0%, var(--app-primary-dark) 100%);
             color: #fff;
         }
 
-        .privacy-link{
-            color: #6D4BAE;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .privacy-link:hover{
-            text-decoration: underline;
-        }
-
         @media (max-width: 991.98px){
-            .sidebar-desktop{
+            .sidebar{
                 display: none;
             }
 
-            .main-content{
+            .main-panel{
                 margin-left: 0;
             }
 
-            .content-area{
+            .content-wrapper{
                 padding: 1rem;
             }
         }
@@ -250,118 +203,171 @@
     @stack('styles')
 </head>
 <body>
-<div class="app-wrapper">
-    {{-- Sidebar escritorio --}}
-    <aside class="sidebar-desktop d-none d-lg-flex flex-column">
+<div class="app-shell">
+    <aside class="sidebar d-none d-lg-flex flex-column">
         <div class="mb-4">
             <div class="d-flex align-items-center gap-3 mb-2">
                 <div class="bg-white text-primary rounded-4 d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
                     <i class="bi bi-heart-pulse-fill fs-4"></i>
                 </div>
                 <div>
-                    <div class="sidebar-brand">Tamizaje Mental</div>
-                    <div class="sidebar-subtitle">Entorno seguro y confidencial</div>
+                    <div class="sidebar-brand">PROMETEO</div>
+                    <div class="sidebar-sub">Monitoreo emocional estudiantil</div>
                 </div>
             </div>
         </div>
 
-        <nav class="sidebar-nav nav flex-column">
+        <nav class="nav flex-column">
             @auth
-                @if(auth()->user()->rol === 'estudiante')
-                    <a href="{{ route('estudiante.dashboard') }}" class="nav-link {{ request()->routeIs('estudiante.dashboard') ? 'active' : '' }}">
-                        <i class="bi bi-house-door"></i> Inicio
+                @role('admin')
+                <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <i class="bi bi-speedometer2"></i> Panel admin
+                </a>
+
+                @can('usuarios.ver')
+                    <a href="{{ route('admin.usuarios.index') }}" class="nav-link {{ request()->routeIs('admin.usuarios.*') ? 'active' : '' }}">
+                        <i class="bi bi-people"></i> Usuarios
                     </a>
-                    <a href="{{ route('evaluaciones.index') }}" class="nav-link">
+                @endcan
+
+                @can('personas.ver')
+                    <a href="{{ route('admin.personas.index') }}" class="nav-link {{ request()->routeIs('admin.personas.*') ? 'active' : '' }}">
+                        <i class="bi bi-person-vcard"></i> Personas
+                    </a>
+                @endcan
+
+                @can('roles.ver')
+                    <a href="{{ route('admin.roles.index') }}" class="nav-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
+                        <i class="bi bi-shield-check"></i> Roles
+                    </a>
+                @endcan
+
+                @can('permisos.ver')
+                    <a href="{{ route('admin.permisos.index') }}" class="nav-link {{ request()->routeIs('admin.permisos.*') ? 'active' : '' }}">
+                        <i class="bi bi-key"></i> Permisos
+                    </a>
+                @endcan
+                @elserole('estudiante')
+                <a href="{{ route('estudiante.dashboard') }}" class="nav-link {{ request()->routeIs('estudiante.dashboard') ? 'active' : '' }}">
+                    <i class="bi bi-house-door"></i> Inicio
+                </a>
+
+                @can('evaluaciones.realizar')
+                    <a href="{{ route('evaluaciones.index') }}" class="nav-link {{ request()->routeIs('evaluaciones.*') ? 'active' : '' }}">
                         <i class="bi bi-clipboard-check"></i> Evaluaciones
                     </a>
-                    <a href="{{ route('diario.index') }}" class="nav-link">
-                        <i class="bi bi-journal-text"></i> Diario emocional
-                    </a>
-                    <a href="{{ route('perfil.index') }}" class="nav-link">
-                        <i class="bi bi-person-circle"></i> Mi perfil
-                    </a>
-                @endif
+                @endcan
 
-                @if(auth()->user()->rol === 'tutor')
-                    <a href="{{ route('tutor.dashboard') }}" class="nav-link {{ request()->routeIs('tutor.dashboard') ? 'active' : '' }}">
-                        <i class="bi bi-speedometer2"></i> Panel general
+                @can('diario_ia.ver.propio')
+                    <a href="{{ route('diario.index') }}" class="nav-link {{ request()->routeIs('diario.*') ? 'active' : '' }}">
+                        <i class="bi bi-journal-text"></i> Diario IA
                     </a>
-                    <a href="{{ route('grupos.index') }}" class="nav-link">
-                        <i class="bi bi-people"></i> Grupos
-                    </a>
-                    <a href="{{ route('reportes.tutor') }}" class="nav-link">
-                        <i class="bi bi-bar-chart-line"></i> Métricas
-                    </a>
-                @endif
+                @endcan
 
-                @if(auth()->user()->rol === 'psicologo')
-                    <a href="{{ route('psicologo.dashboard') }}" class="nav-link {{ request()->routeIs('psicologo.dashboard') ? 'active' : '' }}">
-                        <i class="bi bi-activity"></i> Panel clínico
+                @can('consentimiento.ver')
+                    <a href="{{ route('consentimiento.create') }}" class="nav-link {{ request()->routeIs('consentimiento.*') ? 'active' : '' }}">
+                        <i class="bi bi-shield-check"></i> Consentimiento
                     </a>
-                    <a href="{{ route('alertas.index') }}" class="nav-link">
+                @endcan
+                @elserole('tutor')
+                <a href="{{ route('tutor.dashboard') }}" class="nav-link {{ request()->routeIs('tutor.dashboard') ? 'active' : '' }}">
+                    <i class="bi bi-speedometer2"></i> Panel tutor
+                </a>
+
+                @can('grupos.ver.asignados')
+                    <a href="{{ route('grupos.index') }}" class="nav-link {{ request()->routeIs('grupos.*') ? 'active' : '' }}">
+                        <i class="bi bi-people"></i> Mis grupos
+                    </a>
+                @endcan
+                @elserole('psicologo')
+                <a href="{{ route('psicologo.dashboard') }}" class="nav-link {{ request()->routeIs('psicologo.dashboard') ? 'active' : '' }}">
+                    <i class="bi bi-activity"></i> Panel clínico
+                </a>
+
+                @can('alertas.ver.clinicas')
+                    <a href="{{ route('alertas.index') }}" class="nav-link {{ request()->routeIs('alertas.*') ? 'active' : '' }}">
                         <i class="bi bi-exclamation-triangle"></i> Alertas
                     </a>
-                    <a href="{{ route('diagnosticos.index') }}" class="nav-link">
-                        <i class="bi bi-file-medical"></i> Diagnósticos
+                @endcan
+
+                @can('diagnosticos.ver')
+                    <a href="{{ route('diagnosticos.index') }}" class="nav-link {{ request()->routeIs('diagnosticos.*') ? 'active' : '' }}">
+                        <i class="bi bi-file-earmark-medical"></i> Diagnósticos
                     </a>
-                    <a href="{{ route('analisis.index') }}" class="nav-link">
-                        <i class="bi bi-robot"></i> Análisis NLP
+                @endcan
+
+                @can('resultados_ia.ver')
+                    <a href="{{ route('analisis.index') }}" class="nav-link {{ request()->routeIs('analisis.*') ? 'active' : '' }}">
+                        <i class="bi bi-robot"></i> Resultados IA
                     </a>
-                @endif
+                @endcan
+                @endrole
+
+                @can('perfil.ver')
+                    <a href="{{ route('perfil.index') }}" class="nav-link {{ request()->routeIs('perfil.*') ? 'active' : '' }}">
+                        <i class="bi bi-person-circle"></i> Perfil
+                    </a>
+                @endcan
             @endauth
+
+            <a href="{{ route('aviso.privacidad') }}" class="nav-link {{ request()->routeIs('aviso.privacidad') ? 'active' : '' }}">
+                <i class="bi bi-file-earmark-lock"></i> Aviso de privacidad
+            </a>
         </nav>
 
         <div class="mt-auto pt-4">
-            <div class="small opacity-75 mb-2">Privacidad y consentimiento</div>
-            <a href="{{ route('aviso.privacidad') }}" class="nav-link">
-                <i class="bi bi-shield-lock"></i> Aviso de privacidad
-            </a>
-            <form action="{{ route('logout') }}" method="POST" class="mt-3">
-                @csrf
-                <button class="btn btn-light w-100 rounded-4 fw-semibold">
+            @auth
+                <div class="bg-white bg-opacity-10 rounded-4 p-3 mb-3">
+                    <div class="fw-semibold">{{ auth()->user()->name }}</div>
+                    <small class="opacity-75">
+                        {{ auth()->user()->getRoleNames()->map(fn($role) => ucfirst($role))->implode(', ') ?: 'Sin rol' }}
+                    </small>
+                </div>
+            @endauth
+
+                <a href="{{ route('logout.view') }}" class="btn btn-light w-100">
                     <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
-                </button>
-            </form>
+                </a>
         </div>
     </aside>
 
-    <div class="main-content">
-        {{-- Topbar --}}
+    <div class="main-panel">
         <header class="topbar">
-            <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-2">
-                    <button class="btn btn-light d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+                    <button class="btn btn-light d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
                         <i class="bi bi-list fs-5"></i>
                     </button>
                     <div>
-                        <h1 class="h5 mb-0 fw-bold">@yield('page-title', 'Panel principal')</h1>
-                        <small class="text-muted">@yield('page-subtitle', 'Bienvenido al sistema')</small>
+                        <h1 class="h5 fw-bold mb-0">@yield('page-title', 'Panel')</h1>
+                        <small class="text-muted">@yield('page-subtitle', 'Bienvenido')</small>
                     </div>
                 </div>
 
                 @auth
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="soft-badge soft-primary text-capitalize">
-                            <i class="bi bi-person-badge me-1"></i>{{ auth()->user()->rol }}
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="soft-badge soft-primary d-none d-md-inline-flex">
+                            <i class="bi bi-person-badge"></i>
+                            {{ auth()->user()->getRoleNames()->map(fn($role) => ucfirst($role))->implode(', ') ?: 'Sin rol' }}
                         </span>
-                        <div class="text-end d-none d-sm-block">
-                            <div class="fw-semibold">{{ auth()->user()->name }}</div>
-                            <small class="text-muted">{{ auth()->user()->email }}</small>
-                        </div>
+
+                        <a href="{{ route('logout.view') }}" class="btn btn-light w-100">
+                            <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
+                        </a>
                     </div>
                 @endauth
             </div>
         </header>
 
-        <main class="content-area">
+        <main class="content-wrapper">
             @if(session('success'))
-                <div class="alert border-0 rounded-4 app-card mb-4" style="background:#ECFDF3; color:#166534;">
+                <div class="alert alert-success border-0 rounded-4 mb-4">
                     {{ session('success') }}
                 </div>
             @endif
 
             @if(session('error'))
-                <div class="alert border-0 rounded-4 app-card mb-4" style="background:#FEF2F2; color:#991B1B;">
+                <div class="alert alert-danger border-0 rounded-4 mb-4">
                     {{ session('error') }}
                 </div>
             @endif
@@ -371,53 +377,121 @@
     </div>
 </div>
 
-{{-- Sidebar móvil --}}
-<div class="offcanvas offcanvas-start offcanvas-custom" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+<div class="offcanvas offcanvas-start offcanvas-sidebar" tabindex="-1" id="mobileSidebar">
     <div class="offcanvas-header border-bottom border-light border-opacity-25">
-        <h5 class="offcanvas-title fw-bold" id="mobileSidebarLabel">Tamizaje Mental</h5>
-        <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+        <h5 class="offcanvas-title fw-bold">PROMETEO</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
     </div>
+
     <div class="offcanvas-body d-flex flex-column">
-        <nav class="nav flex-column sidebar-nav">
+        <nav class="nav flex-column">
             @auth
-                @if(auth()->user()->rol === 'estudiante')
-                    <a href="{{ route('estudiante.dashboard') }}" class="nav-link"><i class="bi bi-house-door"></i> Inicio</a>
-                    <a href="{{ route('evaluaciones.index') }}" class="nav-link"><i class="bi bi-clipboard-check"></i> Evaluaciones</a>
-                    <a href="{{ route('diario.index') }}" class="nav-link"><i class="bi bi-journal-text"></i> Diario emocional</a>
-                    <a href="{{ route('perfil.index') }}" class="nav-link"><i class="bi bi-person-circle"></i> Mi perfil</a>
-                @endif
+                @role('admin')
+                <a href="{{ route('admin.dashboard') }}" class="nav-link text-white">
+                    <i class="bi bi-speedometer2"></i> Panel admin
+                </a>
 
-                @if(auth()->user()->rol === 'tutor')
-                    <a href="{{ route('tutor.dashboard') }}" class="nav-link"><i class="bi bi-speedometer2"></i> Panel general</a>
-                    <a href="{{ route('grupos.index') }}" class="nav-link"><i class="bi bi-people"></i> Grupos</a>
-                    <a href="{{ route('reportes.tutor') }}" class="nav-link"><i class="bi bi-bar-chart-line"></i> Métricas</a>
-                @endif
+                @can('usuarios.ver')
+                    <a href="{{ route('admin.usuarios.index') }}" class="nav-link text-white">
+                        <i class="bi bi-people"></i> Usuarios
+                    </a>
+                @endcan
 
-                @if(auth()->user()->rol === 'psicologo')
-                    <a href="{{ route('psicologo.dashboard') }}" class="nav-link"><i class="bi bi-activity"></i> Panel clínico</a>
-                    <a href="{{ route('alertas.index') }}" class="nav-link"><i class="bi bi-exclamation-triangle"></i> Alertas</a>
-                    <a href="{{ route('diagnosticos.index') }}" class="nav-link"><i class="bi bi-file-medical"></i> Diagnósticos</a>
-                    <a href="{{ route('analisis.index') }}" class="nav-link"><i class="bi bi-robot"></i> Análisis NLP</a>
-                @endif
+                @can('personas.ver')
+                    <a href="{{ route('admin.personas.index') }}" class="nav-link text-white">
+                        <i class="bi bi-person-vcard"></i> Personas
+                    </a>
+                @endcan
+
+                @can('roles.ver')
+                    <a href="{{ route('admin.roles.index') }}" class="nav-link text-white">
+                        <i class="bi bi-shield-check"></i> Roles
+                    </a>
+                @endcan
+
+                @can('permisos.ver')
+                    <a href="{{ route('admin.permisos.index') }}" class="nav-link text-white">
+                        <i class="bi bi-key"></i> Permisos
+                    </a>
+                @endcan
+                @elserole('estudiante')
+                <a href="{{ route('estudiante.dashboard') }}" class="nav-link text-white">
+                    <i class="bi bi-house-door"></i> Inicio
+                </a>
+
+                @can('evaluaciones.realizar')
+                    <a href="{{ route('evaluaciones.index') }}" class="nav-link text-white">
+                        <i class="bi bi-clipboard-check"></i> Evaluaciones
+                    </a>
+                @endcan
+
+                @can('diario_ia.ver.propio')
+                    <a href="{{ route('diario.index') }}" class="nav-link text-white">
+                        <i class="bi bi-journal-text"></i> Diario IA
+                    </a>
+                @endcan
+
+                @can('consentimiento.ver')
+                    <a href="{{ route('consentimiento.create') }}" class="nav-link text-white">
+                        <i class="bi bi-shield-check"></i> Consentimiento
+                    </a>
+                @endcan
+                @elserole('tutor')
+                <a href="{{ route('tutor.dashboard') }}" class="nav-link text-white">
+                    <i class="bi bi-speedometer2"></i> Panel tutor
+                </a>
+
+                @can('grupos.ver.asignados')
+                    <a href="{{ route('grupos.index') }}" class="nav-link text-white">
+                        <i class="bi bi-people"></i> Mis grupos
+                    </a>
+                @endcan
+                @elserole('psicologo')
+                <a href="{{ route('psicologo.dashboard') }}" class="nav-link text-white">
+                    <i class="bi bi-activity"></i> Panel clínico
+                </a>
+
+                @can('alertas.ver.clinicas')
+                    <a href="{{ route('alertas.index') }}" class="nav-link text-white">
+                        <i class="bi bi-exclamation-triangle"></i> Alertas
+                    </a>
+                @endcan
+
+                @can('diagnosticos.ver')
+                    <a href="{{ route('diagnosticos.index') }}" class="nav-link text-white">
+                        <i class="bi bi-file-earmark-medical"></i> Diagnósticos
+                    </a>
+                @endcan
+
+                @can('resultados_ia.ver')
+                    <a href="{{ route('analisis.index') }}" class="nav-link text-white">
+                        <i class="bi bi-robot"></i> Resultados IA
+                    </a>
+                @endcan
+                @endrole
+
+                @can('perfil.ver')
+                    <a href="{{ route('perfil.index') }}" class="nav-link text-white">
+                        <i class="bi bi-person-circle"></i> Perfil
+                    </a>
+                @endcan
             @endauth
+
+            <a href="{{ route('aviso.privacidad') }}" class="nav-link text-white">
+                <i class="bi bi-file-earmark-lock"></i> Aviso de privacidad
+            </a>
         </nav>
 
         <div class="mt-auto">
-            <a href="{{ route('aviso.privacidad') }}" class="nav-link">
-                <i class="bi bi-shield-lock"></i> Aviso de privacidad
+            <a href="{{ route('logout.view') }}" class="btn btn-light w-100">
+                <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
             </a>
-
-            <form action="{{ route('logout') }}" method="POST" class="mt-3">
-                @csrf
-                <button class="btn btn-light w-100 rounded-4 fw-semibold">
-                    <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
-                </button>
-            </form>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+@include('sweetalert::alert')
 @stack('scripts')
 </body>
 </html>

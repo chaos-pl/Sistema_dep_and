@@ -1,20 +1,308 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use App\Models\User;
+use App\Models\Persona;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\PersonaController;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use RealRashid\SweetAlert\Facades\Alert;
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    return auth()->check()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
+})->name('home');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::view('/aviso-privacidad', 'aviso.privacidad')->name('aviso.privacidad');
 
 Route::middleware('auth')->group(function () {
+
+    Route::get('/dashboard', function () {
+        $user = auth()->user();
+
+        if (!$user->acepto_consentimiento) {
+            return redirect()->route('consentimiento.create');
+        }
+
+        if ($user->hasRole('admin')) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        if ($user->hasRole('psicologo')) {
+            return redirect()->route('psicologo.dashboard');
+        }
+
+        if ($user->hasRole('tutor')) {
+            return redirect()->route('tutor.dashboard');
+        }
+
+        if ($user->hasRole('estudiante')) {
+            return redirect()->route('estudiante.dashboard');
+        }
+
+        abort(403, 'No tienes un rol asignado.');
+    })->name('dashboard');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Perfil
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/perfil', [ProfileController::class, 'edit'])->name('perfil.index');
+    Route::patch('/perfil', [ProfileController::class, 'update'])->name('perfil.update');
+    Route::delete('/perfil', [ProfileController::class, 'destroy'])->name('perfil.destroy');
+
+    // Compatibilidad con Breeze
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Consentimiento
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/consentimiento', function () {
+        if (auth()->user()->acepto_consentimiento) {
+            return redirect()->route('dashboard');
+        }
+
+        return view('consentimiento.create');
+    })->name('consentimiento.create');
+
+    Route::post('/consentimiento', function () {
+        auth()->user()->update([
+            'acepto_consentimiento' => true,
+            'consentimiento_aceptado_at' => now(),
+        ]);
+
+        Alert::success('Consentimiento aceptado', 'Ya puedes ingresar a PROMETEO.');
+
+        return redirect()->route('dashboard');
+    })->name('consentimiento.store');
+
+    Route::post('/consentimiento/rechazar', function () {
+        auth()->logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        Alert::warning('Acceso cancelado', 'Debes aceptar el consentimiento para usar el sistema.');
+
+        return redirect()->route('login');
+    })->name('consentimiento.rechazar');
+    /*
+    |--------------------------------------------------------------------------
+    | Estudiante
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('estudiante')
+        ->name('estudiante.')
+        ->middleware('role:estudiante')
+        ->group(function () {
+            Route::get('/dashboard', function () {
+                return view('estudiante.dashboard');
+            })->name('dashboard');
+        });
+
+    Route::prefix('evaluaciones')
+        ->name('evaluaciones.')
+        ->middleware(['role:estudiante', 'permission:evaluaciones.realizar'])
+        ->group(function () {
+            Route::get('/', function () {
+                return view('evaluaciones.index');
+            })->name('index');
+
+            Route::get('/{tipo}/aplicar', function ($tipo) {
+                return view('evaluaciones.aplicar', compact('tipo'));
+            })->name('aplicar');
+
+            Route::post('/{tipo}/responder', function ($tipo) {
+                Alert::success('Evaluación enviada', 'Tu respuesta fue registrada correctamente.');
+
+                return redirect()
+                    ->route('evaluaciones.aplicar', $tipo);
+            })->name('responder');
+        });
+
+    Route::prefix('diario')
+        ->name('diario.')
+        ->middleware('role:estudiante')
+        ->group(function () {
+            Route::get('/', function () {
+                return view('diario.index');
+            })->middleware('permission:diario_ia.ver.propio')->name('index');
+
+            Route::post('/', function () {
+                Alert::success('Entrada guardada', 'Tu texto fue registrado correctamente.');
+
+                return redirect()
+                    ->route('diario.index');
+            })->middleware('permission:diario_ia.crear')->name('store');
+        });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tutor
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('tutor')
+        ->name('tutor.')
+        ->middleware('role:tutor')
+        ->group(function () {
+            Route::get('/dashboard', function () {
+                $totalGrupos = 0;
+                $completadas = 0;
+                $abandonadas = 0;
+                $grupos = collect();
+
+                return view('tutor.dashboard', compact('totalGrupos', 'completadas', 'abandonadas', 'grupos'));
+            })->name('dashboard');
+        });
+
+    Route::prefix('grupos')
+        ->name('grupos.')
+        ->middleware(['role:tutor', 'permission:grupos.ver.asignados'])
+        ->group(function () {
+            Route::get('/', function () {
+                $grupos = collect();
+
+                return view('tutor.dashboard', [
+                    'totalGrupos' => 0,
+                    'completadas' => 0,
+                    'abandonadas' => 0,
+                    'grupos' => $grupos,
+                ]);
+            })->name('index');
+
+            Route::get('/{id}', function ($id) {
+                return redirect()->route('grupos.index');
+            })->name('show');
+        });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Psicólogo
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('psicologo')
+        ->name('psicologo.')
+        ->middleware('role:psicologo')
+        ->group(function () {
+            Route::get('/dashboard', function () {
+                $alertas = collect();
+                $resultados = collect();
+
+                return view('psicologo.dashboard', compact('alertas', 'resultados'));
+            })->name('dashboard');
+        });
+
+    Route::prefix('alertas')
+        ->name('alertas.')
+        ->middleware(['role:psicologo', 'permission:alertas.ver.clinicas'])
+        ->group(function () {
+            Route::get('/', function () {
+                $alertas = collect();
+                $resultados = collect();
+
+                return view('psicologo.dashboard', compact('alertas', 'resultados'));
+            })->name('index');
+
+            Route::get('/{id}', function ($id) {
+                return redirect()->route('alertas.index');
+            })->name('show');
+        });
+
+    Route::prefix('diagnosticos')
+        ->name('diagnosticos.')
+        ->middleware('role:psicologo')
+        ->group(function () {
+            Route::get('/', function () {
+                $alertas = collect();
+                $resultados = collect();
+
+                return view('psicologo.dashboard', compact('alertas', 'resultados'));
+            })->middleware('permission:diagnosticos.ver')->name('index');
+
+            Route::post('/', function () {
+                Alert::success('Diagnóstico guardado', 'El diagnóstico fue registrado correctamente.');
+
+                return redirect()
+                    ->route('diagnosticos.index');
+            })->middleware('permission:diagnosticos.crear')->name('store');
+        });
+
+    Route::prefix('analisis')
+        ->name('analisis.')
+        ->middleware(['role:psicologo', 'permission:resultados_ia.ver'])
+        ->group(function () {
+            Route::get('/', function () {
+                $alertas = collect();
+                $resultados = collect();
+
+                return view('psicologo.dashboard', compact('alertas', 'resultados'));
+            })->name('index');
+        });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('admin')
+        ->name('admin.')
+        ->middleware('role:admin')
+        ->group(function () {
+
+            Route::get('/dashboard', function () {
+                $totalUsuarios = User::count();
+                $totalPersonas = Persona::count();
+                $totalRoles = Role::count();
+                $totalPermisos = Permission::count();
+
+                return view('admin.dashboard', compact(
+                    'totalUsuarios',
+                    'totalPersonas',
+                    'totalRoles',
+                    'totalPermisos'
+                ));
+            })->middleware('permission:usuarios.ver')->name('dashboard');
+
+            Route::resource('usuarios', UserController::class)
+                ->parameters(['usuarios' => 'user'])
+                ->names('usuarios')
+                ->except(['show']);
+
+            Route::resource('personas', PersonaController::class)
+                ->parameters(['personas' => 'persona'])
+                ->names('personas')
+                ->except(['show']);
+
+            Route::get('/roles', function () {
+                $roles = Role::with('permissions')
+                    ->orderBy('name')
+                    ->get();
+
+                return view('admin.roles.index', compact('roles'));
+            })->middleware('permission:roles.ver')->name('roles.index');
+
+            Route::get('/permisos', function () {
+                $permisos = Permission::orderBy('name')->get();
+
+                return view('admin.permisos.index', compact('permisos'));
+            })->middleware('permission:permisos.ver')->name('permisos.index');
+        });
+
+    Route::get('/cerrar-sesion', function () {
+        return view('auth.logout');
+    })->middleware('auth')->name('logout.view');
 });
 
+/*
+|--------------------------------------------------------------------------
+| Auth Routes
+|--------------------------------------------------------------------------
+*/
 require __DIR__.'/auth.php';
