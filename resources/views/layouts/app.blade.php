@@ -263,12 +263,6 @@
                         <i class="bi bi-journal-text"></i> Diario IA
                     </a>
                 @endcan
-
-                @can('consentimiento.ver')
-                    <a href="{{ route('consentimiento.create') }}" class="nav-link {{ request()->routeIs('consentimiento.*') ? 'active' : '' }}">
-                        <i class="bi bi-shield-check"></i> Consentimiento
-                    </a>
-                @endcan
                 @elserole('tutor')
                 <a href="{{ route('tutor.dashboard') }}" class="nav-link {{ request()->routeIs('tutor.dashboard') ? 'active' : '' }}">
                     <i class="bi bi-speedometer2"></i> Panel tutor
@@ -325,9 +319,9 @@
                 </div>
             @endauth
 
-                <a href="{{ route('logout.view') }}" class="btn btn-light w-100">
-                    <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
-                </a>
+            <a href="{{ route('logout.view') }}" class="btn btn-light w-100">
+                <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
+            </a>
         </div>
     </aside>
 
@@ -351,8 +345,8 @@
                             {{ auth()->user()->getRoleNames()->map(fn($role) => ucfirst($role))->implode(', ') ?: 'Sin rol' }}
                         </span>
 
-                        <a href="{{ route('logout.view') }}" class="btn btn-light w-100">
-                            <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
+                        <a href="{{ route('logout.view') }}" class="btn btn-outline-secondary d-none d-lg-inline-flex align-items-center">
+                            <i class="bi bi-box-arrow-right me-2"></i>Salir
                         </a>
                     </div>
                 @endauth
@@ -360,18 +354,6 @@
         </header>
 
         <main class="content-wrapper">
-            @if(session('success'))
-                <div class="alert alert-success border-0 rounded-4 mb-4">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div class="alert alert-danger border-0 rounded-4 mb-4">
-                    {{ session('error') }}
-                </div>
-            @endif
-
             @yield('content')
         </main>
     </div>
@@ -428,12 +410,6 @@
                 @can('diario_ia.ver.propio')
                     <a href="{{ route('diario.index') }}" class="nav-link text-white">
                         <i class="bi bi-journal-text"></i> Diario IA
-                    </a>
-                @endcan
-
-                @can('consentimiento.ver')
-                    <a href="{{ route('consentimiento.create') }}" class="nav-link text-white">
-                        <i class="bi bi-shield-check"></i> Consentimiento
                     </a>
                 @endcan
                 @elserole('tutor')

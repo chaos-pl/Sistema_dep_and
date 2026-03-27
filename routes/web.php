@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use App\Models\Persona;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController;
@@ -18,14 +19,50 @@ Route::get('/', function () {
 
 Route::view('/aviso-privacidad', 'aviso.privacidad')->name('aviso.privacidad');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'no.cache'])->group(function () {
+
+    Route::get('/consentimiento', function () {
+        if (auth()->user()->acepto_consentimiento) {
+            return redirect()->route('dashboard');
+        }
+
+        return view('consentimiento.create');
+    })->name('consentimiento.create');
+
+    Route::post('/consentimiento', function (Request $request) {
+        $request->validate([
+            'acepta' => ['required', 'accepted'],
+        ]);
+
+        auth()->user()->update([
+            'acepto_consentimiento' => true,
+            'consentimiento_aceptado_at' => now(),
+        ]);
+
+        Alert::success('Consentimiento aceptado', 'Ya puedes ingresar a PROMETEO.');
+
+        return redirect()->route('dashboard');
+    })->name('consentimiento.store');
+
+    Route::post('/consentimiento/rechazar', function () {
+        auth()->logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        Alert::warning('Acceso cancelado', 'Debes aceptar el consentimiento para usar el sistema.');
+
+        return redirect()->route('login');
+    })->name('consentimiento.rechazar');
+
+    Route::get('/cerrar-sesion', function () {
+        return view('auth.logout');
+    })->name('logout.view');
+});
+
+Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
 
     Route::get('/dashboard', function () {
         $user = auth()->user();
-
-        if (!$user->acepto_consentimiento) {
-            return redirect()->route('consentimiento.create');
-        }
 
         if ($user->hasRole('admin')) {
             return redirect()->route('admin.dashboard');
@@ -46,58 +83,14 @@ Route::middleware('auth')->group(function () {
         abort(403, 'No tienes un rol asignado.');
     })->name('dashboard');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Perfil
-    |--------------------------------------------------------------------------
-    */
     Route::get('/perfil', [ProfileController::class, 'edit'])->name('perfil.index');
     Route::patch('/perfil', [ProfileController::class, 'update'])->name('perfil.update');
     Route::delete('/perfil', [ProfileController::class, 'destroy'])->name('perfil.destroy');
 
-    // Compatibilidad con Breeze
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Consentimiento
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/consentimiento', function () {
-        if (auth()->user()->acepto_consentimiento) {
-            return redirect()->route('dashboard');
-        }
-
-        return view('consentimiento.create');
-    })->name('consentimiento.create');
-
-    Route::post('/consentimiento', function () {
-        auth()->user()->update([
-            'acepto_consentimiento' => true,
-            'consentimiento_aceptado_at' => now(),
-        ]);
-
-        Alert::success('Consentimiento aceptado', 'Ya puedes ingresar a PROMETEO.');
-
-        return redirect()->route('dashboard');
-    })->name('consentimiento.store');
-
-    Route::post('/consentimiento/rechazar', function () {
-        auth()->logout();
-        request()->session()->invalidate();
-        request()->session()->regenerateToken();
-
-        Alert::warning('Acceso cancelado', 'Debes aceptar el consentimiento para usar el sistema.');
-
-        return redirect()->route('login');
-    })->name('consentimiento.rechazar');
-    /*
-    |--------------------------------------------------------------------------
-    | Estudiante
-    |--------------------------------------------------------------------------
-    */
     Route::prefix('estudiante')
         ->name('estudiante.')
         ->middleware('role:estudiante')
@@ -121,9 +114,7 @@ Route::middleware('auth')->group(function () {
 
             Route::post('/{tipo}/responder', function ($tipo) {
                 Alert::success('Evaluación enviada', 'Tu respuesta fue registrada correctamente.');
-
-                return redirect()
-                    ->route('evaluaciones.aplicar', $tipo);
+                return redirect()->route('evaluaciones.aplicar', $tipo);
             })->name('responder');
         });
 
@@ -137,17 +128,10 @@ Route::middleware('auth')->group(function () {
 
             Route::post('/', function () {
                 Alert::success('Entrada guardada', 'Tu texto fue registrado correctamente.');
-
-                return redirect()
-                    ->route('diario.index');
+                return redirect()->route('diario.index');
             })->middleware('permission:diario_ia.crear')->name('store');
         });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Tutor
-    |--------------------------------------------------------------------------
-    */
     Route::prefix('tutor')
         ->name('tutor.')
         ->middleware('role:tutor')
@@ -182,11 +166,6 @@ Route::middleware('auth')->group(function () {
             })->name('show');
         });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Psicólogo
-    |--------------------------------------------------------------------------
-    */
     Route::prefix('psicologo')
         ->name('psicologo.')
         ->middleware('role:psicologo')
@@ -228,9 +207,7 @@ Route::middleware('auth')->group(function () {
 
             Route::post('/', function () {
                 Alert::success('Diagnóstico guardado', 'El diagnóstico fue registrado correctamente.');
-
-                return redirect()
-                    ->route('diagnosticos.index');
+                return redirect()->route('diagnosticos.index');
             })->middleware('permission:diagnosticos.crear')->name('store');
         });
 
@@ -246,16 +223,10 @@ Route::middleware('auth')->group(function () {
             })->name('index');
         });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Admin
-    |--------------------------------------------------------------------------
-    */
     Route::prefix('admin')
         ->name('admin.')
         ->middleware('role:admin')
         ->group(function () {
-
             Route::get('/dashboard', function () {
                 $totalUsuarios = User::count();
                 $totalPersonas = Persona::count();
@@ -281,28 +252,15 @@ Route::middleware('auth')->group(function () {
                 ->except(['show']);
 
             Route::get('/roles', function () {
-                $roles = Role::with('permissions')
-                    ->orderBy('name')
-                    ->get();
-
+                $roles = Role::with('permissions')->orderBy('name')->get();
                 return view('admin.roles.index', compact('roles'));
             })->middleware('permission:roles.ver')->name('roles.index');
 
             Route::get('/permisos', function () {
                 $permisos = Permission::orderBy('name')->get();
-
                 return view('admin.permisos.index', compact('permisos'));
             })->middleware('permission:permisos.ver')->name('permisos.index');
         });
-
-    Route::get('/cerrar-sesion', function () {
-        return view('auth.logout');
-    })->middleware('auth')->name('logout.view');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Auth Routes
-|--------------------------------------------------------------------------
-*/
 require __DIR__.'/auth.php';
