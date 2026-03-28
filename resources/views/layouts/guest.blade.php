@@ -3,219 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'PROMETEO') }}</title>
+    <title>@yield('title', config('app.name', 'PROMETEO'))</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
-        :root{
-            --app-bg-1:#f7f2ff;
-            --app-bg-2:#fdfcff;
-            --app-primary:#9b72cf;
-            --app-primary-dark:#7f58b7;
-            --app-secondary:#b99ae7;
-            --app-text:#374151;
-            --app-muted:#6b7280;
-            --app-border:#eadff7;
-            --app-surface:#ffffff;
-            --app-glow:rgba(155,114,207,.22);
+        /* ==========================================
+           1. DEFINICIÓN DE FUENTES LOCALES (.ttf)
+           ========================================== */
+
+        /* --- INTER (Para textos generales y legibilidad) --- */
+        @font-face { font-family: 'Inter'; src: url('/fonts/inter/Inter_18pt-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+        @font-face { font-family: 'Inter'; src: url('/fonts/inter/Inter_18pt-SemiBold.ttf') format('truetype'); font-weight: 600; font-style: normal; font-display: swap; }
+        @font-face { font-family: 'Inter'; src: url('/fonts/inter/Inter_18pt-Bold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+
+        /* --- MONTSERRAT (Para títulos y el logo de PROMETEO) --- */
+        @font-face { font-family: 'Montserrat'; src: url('/fonts/montserrat/Montserrat-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+        @font-face { font-family: 'Montserrat'; src: url('/fonts/montserrat/Montserrat-SemiBold.ttf') format('truetype'); font-weight: 600; font-style: normal; font-display: swap; }
+        @font-face { font-family: 'Montserrat'; src: url('/fonts/montserrat/Montserrat-Bold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+        @font-face { font-family: 'Montserrat'; src: url('/fonts/montserrat/Montserrat-ExtraBold.ttf') format('truetype'); font-weight: 800; font-style: normal; font-display: swap; }
+        @font-face { font-family: 'Montserrat'; src: url('/fonts/montserrat/Montserrat-Black.ttf') format('truetype'); font-weight: 900; font-style: normal; font-display: swap; }
+
+        /* VARIABLES DE COLOR Y FUENTES */
+        :root {
+            --app-font-base: 'Inter', sans-serif;
+            --app-font-title: 'Montserrat', sans-serif;
+
+            /* Colores Base (Adaptados al nuevo diseño profundo) */
+            --app-bg: #f8fafc; /* Fondo general muy claro (casi blanco) */
+            --app-surface: #ffffff; /* Superficie de tarjetas */
+            --app-primary: #7c3aed; /* Púrpura principal */
+            --app-primary-dark: #6d28d9;
+            --app-primary-soft: #ede9fe;
+            --app-text: #1e293b; /* Texto muy oscuro */
+            --app-muted: #64748b; /* Texto secundario */
         }
 
-        *{ box-sizing:border-box; }
-
-        body{
-            min-height:100vh;
-            margin:0;
-            font-family:"Inter","Segoe UI",sans-serif;
-            color:var(--app-text);
-            background:
-                radial-gradient(circle at top left, rgba(185,154,231,.35), transparent 35%),
-                radial-gradient(circle at bottom right, rgba(155,114,207,.18), transparent 30%),
-                linear-gradient(135deg, var(--app-bg-1) 0%, var(--app-bg-2) 100%);
-            overflow-x:hidden;
+        body {
+            font-family: var(--app-font-base);
+            color: var(--app-text);
+            background-color: var(--app-bg);
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        .auth-page{
-            position:relative;
-            min-height:100vh;
+        h1, h2, h3, h4, h5, h6, .fw-bold, .modal-title {
+            font-family: var(--app-font-title);
         }
 
-        .floating-shape{
-            position:absolute;
-            border-radius:50%;
-            filter:blur(6px);
-            opacity:.55;
-            animation: floatY 7s ease-in-out infinite;
+        /* Clases de utilidad para pesos gruesos */
+        .fw-extrabold { font-weight: 800 !important; }
+        .fw-black { font-weight: 900 !important; }
+
+        /* ==========================================
+           2. ENTORNO VISUAL Y PARTICULAS
+           ========================================== */
+
+        /* Contenedor principal que envuelve toda la página pública */
+        .auth-page {
+            position: relative;
+            min-height: 100vh;
+            /* Un sutil gradiente radial en el fondo general para dar profundidad */
+            background: radial-gradient(circle at top right, rgba(124, 58, 237, 0.05), transparent 40%),
+            radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.05), transparent 40%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .shape-1{
-            width:180px;
-            height:180px;
-            background:rgba(185,154,231,.28);
-            top:7%;
-            left:6%;
+        /* Contenedor de las partículas de fondo animadas */
+        .particle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Detrás de todo el contenido */
+            pointer-events: none; /* No interfiere con clics */
+            overflow: hidden;
         }
 
-        .shape-2{
-            width:120px;
-            height:120px;
-            background:rgba(155,114,207,.24);
-            bottom:12%;
-            right:8%;
-            animation-delay:1.2s;
+        /* Estilo base para cada partícula */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(167, 139, 250, 0.15));
+            filter: blur(40px); /* Borrosidad extrema para que parezcan "auras" */
         }
 
-        .shape-3{
-            width:90px;
-            height:90px;
-            background:rgba(155,114,207,.18);
-            top:22%;
-            right:20%;
-            animation-delay:2s;
-        }
-
-        @keyframes floatY{
-            0%,100%{ transform:translateY(0px); }
-            50%{ transform:translateY(-16px); }
-        }
-
-        .auth-shell{
-            position:relative;
-            z-index:2;
-        }
-
-        .auth-card{
-            background:rgba(255,255,255,.78);
-            border:1px solid rgba(255,255,255,.65);
-            border-radius:28px;
-            box-shadow:
-                0 20px 60px rgba(155,114,207,.15),
-                0 8px 20px rgba(0,0,0,.04);
-            backdrop-filter:blur(18px);
-        }
-
-        .auth-side{
-            background:
-                radial-gradient(circle at top left, rgba(255,255,255,.24), transparent 35%),
-                linear-gradient(135deg, #9b72cf 0%, #b99ae7 100%);
-            position:relative;
-            overflow:hidden;
-        }
-
-        .auth-side::before,
-        .auth-side::after{
-            content:"";
-            position:absolute;
-            border-radius:50%;
-            background:rgba(255,255,255,.12);
-        }
-
-        .auth-side::before{
-            width:220px;
-            height:220px;
-            top:-70px;
-            right:-40px;
-        }
-
-        .auth-side::after{
-            width:160px;
-            height:160px;
-            bottom:-50px;
-            left:-30px;
-        }
-
-        .brand-icon{
-            width:74px;
-            height:74px;
-            border-radius:22px;
-        }
-
-        .form-control{
-            border-radius:18px;
-            border:1px solid var(--app-border);
-            padding:.95rem 1rem;
-            transition:.25s ease;
-        }
-
-        .form-control:focus{
-            border-color:#c5aae9;
-            box-shadow:0 0 0 .25rem rgba(155,114,207,.14);
-        }
-
-        .input-group-modern{
-            position:relative;
-        }
-
-        .input-group-modern .bi{
-            position:absolute;
-            top:50%;
-            left:14px;
-            transform:translateY(-50%);
-            color:#8e79b8;
-            z-index:3;
-        }
-
-        .input-group-modern .form-control{
-            padding-left:2.7rem;
-        }
-
-        .btn{
-            border-radius:18px;
-            font-weight:700;
-            transition:.25s ease;
-        }
-
-        .btn-primary{
-            background:linear-gradient(135deg, var(--app-primary) 0%, var(--app-primary-dark) 100%);
-            border:none;
-            box-shadow:0 10px 22px var(--app-glow);
-        }
-
-        .btn-primary:hover{
-            transform:translateY(-1px);
-            box-shadow:0 14px 28px rgba(155,114,207,.28);
-        }
-
-        .auth-link{
-            color:var(--app-primary-dark);
-            text-decoration:none;
-            font-weight:600;
-        }
-
-        .auth-link:hover{
-            text-decoration:underline;
-        }
-
-        .auth-tag{
-            display:inline-flex;
-            align-items:center;
-            gap:.4rem;
-            padding:.45rem .8rem;
-            border-radius:999px;
-            background:rgba(255,255,255,.2);
-            color:#fff;
-            font-weight:600;
-            font-size:.82rem;
-        }
-
-        .fade-up{
-            animation: fadeUp .55s ease;
-        }
-
-        @keyframes fadeUp{
-            from{ opacity:0; transform:translateY(18px); }
-            to{ opacity:1; transform:translateY(0); }
+        /* El cascarón que contiene el formulario (login/registro) */
+        .auth-shell {
+            position: relative;
+            z-index: 10; /* Siempre por encima de las partículas */
+            width: 100%;
         }
     </style>
 
     @stack('styles')
 </head>
 <body>
+
 <div class="auth-page">
-    <div class="floating-shape shape-1"></div>
-    <div class="floating-shape shape-2"></div>
-    <div class="floating-shape shape-3"></div>
+    <div class="particle-container" id="particles">
+        <div class="particle" style="width: 400px; height: 400px; top: -10%; left: -5%;"></div>
+        <div class="particle" style="width: 300px; height: 300px; bottom: 10%; right: -5%; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 197, 253, 0.15));"></div>
+        <div class="particle" style="width: 200px; height: 200px; top: 40%; left: 45%;"></div>
+    </div>
 
     <div class="auth-shell">
         @yield('content')
@@ -223,6 +119,31 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Animamos las 3 auras de luz del fondo para que floten lentamente
+        anime({
+            targets: '.particle',
+            translateX: function() {
+                return anime.random(-50, 50); // Se mueven al azar en X
+            },
+            translateY: function() {
+                return anime.random(-50, 50); // Se mueven al azar en Y
+            },
+            scale: function() {
+                return anime.random(8, 12) / 10; // Crecen y se encogen ligeramente (0.8 a 1.2)
+            },
+            easing: 'easeInOutSine',
+            duration: function() {
+                return anime.random(8000, 12000); // Tardan entre 8 y 12 segundos (muy suave)
+            },
+            direction: 'alternate',
+            loop: true
+        });
+    });
+</script>
 
 @include('sweetalert::alert')
 

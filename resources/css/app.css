@@ -1,3 +1,100 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ==========================================
+   1. DEFINICIÓN DE FUENTES LOCALES (.ttf)
+   ========================================== */
+
+/* --- INTER (Para textos generales y legibilidad) --- */
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/inter/Inter_18pt-Regular.ttf') format('truetype');
+    font-weight: 400; /* Regular */
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/inter/Inter_18pt-SemiBold.ttf') format('truetype');
+    font-weight: 600; /* SemiBold */
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/inter/Inter_18pt-Bold.ttf') format('truetype');
+    font-weight: 700; /* Bold */
+    font-style: normal;
+    font-display: swap;
+}
+
+/* --- MONTSERRAT (Para títulos y el logo de PROMETEO) --- */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/fonts/montserrat/Montserrat-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/fonts/montserrat/Montserrat-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/fonts/montserrat/Montserrat-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+/* ... tus fuentes anteriores (Regular, SemiBold, Bold) ... */
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/fonts/montserrat/Montserrat-ExtraBold.ttf') format('truetype');
+    font-weight: 800; /* Extra ancho */
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('/fonts/montserrat/Montserrat-Black.ttf') format('truetype');
+    font-weight: 900; /* El más ancho posible */
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Clases de utilidad para usarlas rápido en el HTML */
+.fw-extrabold { font-weight: 800 !important; }
+.fw-black { font-weight: 900 !important; }
+
+/* ==========================================
+   2. APLICACIÓN DE LAS FUENTES AL SISTEMA
+   ========================================== */
+:root {
+    /* Variables para usarlas fácilmente en cualquier parte */
+    --app-font-base: 'Inter', sans-serif;
+    --app-font-title: 'Montserrat', sans-serif;
+}
+
+body {
+    font-family: var(--app-font-base);
+}
+
+h1, h2, h3, h4, h5, h6, .fw-bold, .modal-title {
+    font-family: var(--app-font-title);
+}
+
+/* Clase especial por si quieres forzar Montserrat en algún texto que no sea título */
+.font-montserrat {
+    font-family: var(--app-font-title);
+}
