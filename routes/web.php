@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PersonaController;
+use App\Http\Controllers\Admin\RoleController;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -251,10 +252,33 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
                 ->names('personas')
                 ->except(['show']);
 
-            Route::get('/roles', function () {
-                $roles = Role::with('permissions')->orderBy('name')->get();
-                return view('admin.roles.index', compact('roles'));
-            })->middleware('permission:roles.ver')->name('roles.index');
+            Route::get('/roles', [RoleController::class, 'index'])
+                ->middleware('permission:roles.ver')
+                ->name('roles.index');
+
+            Route::get('/roles/create', [RoleController::class, 'create'])
+                ->middleware('permission:roles.crear')
+                ->name('roles.create');
+
+            Route::post('/roles', [RoleController::class, 'store'])
+                ->middleware('permission:roles.crear')
+                ->name('roles.store');
+
+            Route::get('/roles/{role}', [RoleController::class, 'show'])
+                ->middleware('permission:roles.ver')
+                ->name('roles.show');
+
+            Route::get('/roles/{role}/edit', [RoleController::class, 'edit'])
+                ->middleware('permission:roles.editar')
+                ->name('roles.edit');
+
+            Route::put('/roles/{role}', [RoleController::class, 'update'])
+                ->middleware('permission:roles.editar')
+                ->name('roles.update');
+
+            Route::delete('/roles/{role}', [RoleController::class, 'destroy'])
+                ->middleware('permission:roles.eliminar')
+                ->name('roles.destroy');
 
             Route::get('/permisos', function () {
                 $permisos = Permission::orderBy('name')->get();
