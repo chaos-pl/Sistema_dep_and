@@ -4,18 +4,30 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Validation\Rule;
 use RealRashid\SweetAlert\Facades\Alert;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
-class RoleController extends Controller
+class RoleController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:roles.ver', only: ['index', 'show']),
+            new Middleware('permission:roles.crear', only: ['create', 'store']),
+            new Middleware('permission:roles.editar', only: ['edit', 'update']),
+            new Middleware('permission:roles.eliminar', only: ['destroy']),
+        ];
+    }
+
     public function index()
     {
-        // Cambiamos a withCount para optimizar las consultas y que coincida con la vista
-        $roles = Role::withCount(['permissions', 'users'])
-            ->orderBy('id', 'asc')
+        $roles = Role::with('permissions')
+            ->withCount('users')
+            ->orderBy('name')
             ->paginate(10);
 
         return view('admin.roles.index', compact('roles'));
@@ -23,9 +35,11 @@ class RoleController extends Controller
 
     public function create()
     {
-        $permissions = Permission::orderBy('name')->get()->groupBy(function ($permission) {
-            return explode('.', $permission->name)[0];
-        });
+        $permissions = Permission::orderBy('name')
+            ->get()
+            ->groupBy(function ($permission) {
+                return explode('.', $permission->name)[0];
+            });
 
         return view('admin.roles.create', compact('permissions'));
     }
@@ -54,27 +68,20 @@ class RoleController extends Controller
     {
         $role->load('permissions', 'users');
 
-        // Agrupamos los permisos para que la vista show los renderice en tarjetas
-        $groupedPermissions = $role->permissions->groupBy(function($perm) {
-            return explode('.', $perm->name)[0];
-        });
-
-        return view('admin.roles.show', compact('role', 'groupedPermissions'));
+        return view('admin.roles.show', compact('role'));
     }
 
     public function edit(Role $role)
     {
-        // Agrupamos todos los permisos disponibles del sistema
-        $permissions = Permission::orderBy('name')->get()->groupBy(function ($permission) {
-            return explode('.', $permission->name)[0];
-        });
+        $permissions = Permission::orderBy('name')
+            ->get()
+            ->groupBy(function ($permission) {
+                return explode('.', $permission->name)[0];
+            });
 
         $role->load('permissions');
 
-        // Extraemos solo los nombres de los permisos que ya tiene este rol
-        $rolePermissions = $role->permissions->pluck('name')->toArray();
-
-        return view('admin.roles.edit', compact('role', 'permissions', 'rolePermissions'));
+        return view('admin.roles.edit', compact('role', 'permissions'));
     }
 
     public function update(Request $request, Role $role)

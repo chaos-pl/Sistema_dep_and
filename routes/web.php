@@ -8,6 +8,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PersonaController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\PermissionController;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -84,14 +85,22 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
         abort(403, 'No tienes un rol asignado.');
     })->name('dashboard');
 
+    // RUTAS DEL PERFIL
     Route::get('/perfil', [ProfileController::class, 'edit'])->name('perfil.index');
     Route::patch('/perfil', [ProfileController::class, 'update'])->name('perfil.update');
+    Route::put('/perfil/persona', [ProfileController::class, 'updatePersona'])->name('perfil.persona.update'); // <-- NUEVA RUTA AQUÍ
+    Route::put('/perfil/password', [ProfileController::class, 'updatePassword'])->name('perfil.password.update');
+    Route::put('/perfil/apariencia', [ProfileController::class, 'updateAppearance'])->name('perfil.appearance.update');
     Route::delete('/perfil', [ProfileController::class, 'destroy'])->name('perfil.destroy');
 
+    // RUTAS DE PROFILE (Alias en caso de usar Jetstream/Breeze por defecto)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+    Route::put('/profile/appearance', [ProfileController::class, 'updateAppearance'])->name('profile.appearance.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // MÓDULO ESTUDIANTE
     Route::prefix('estudiante')
         ->name('estudiante.')
         ->middleware('role:estudiante')
@@ -133,6 +142,7 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
             })->middleware('permission:diario_ia.crear')->name('store');
         });
 
+    // MÓDULO TUTOR
     Route::prefix('tutor')
         ->name('tutor.')
         ->middleware('role:tutor')
@@ -167,6 +177,7 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
             })->name('show');
         });
 
+    // MÓDULO PSICÓLOGO
     Route::prefix('psicologo')
         ->name('psicologo.')
         ->middleware('role:psicologo')
@@ -224,21 +235,35 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
             })->name('index');
         });
 
+    // MÓDULO ADMINISTRADOR
     Route::prefix('admin')
         ->name('admin.')
         ->middleware('role:admin')
         ->group(function () {
+
             Route::get('/dashboard', function () {
                 $totalUsuarios = User::count();
                 $totalPersonas = Persona::count();
                 $totalRoles = Role::count();
                 $totalPermisos = Permission::count();
 
+                $usuariosSinPersona = User::doesntHave('persona')->count();
+                $rolesSinPermisos = Role::doesntHave('permissions')->count();
+
+                $estudiantesCount = User::role('estudiante')->count();
+                $psicologosCount = User::role('psicologo')->count();
+                $tutoresCount = User::role('tutor')->count();
+
                 return view('admin.dashboard', compact(
                     'totalUsuarios',
                     'totalPersonas',
                     'totalRoles',
-                    'totalPermisos'
+                    'totalPermisos',
+                    'usuariosSinPersona',
+                    'rolesSinPermisos',
+                    'estudiantesCount',
+                    'psicologosCount',
+                    'tutoresCount'
                 ));
             })->middleware('permission:usuarios.ver')->name('dashboard');
 
@@ -252,38 +277,13 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
                 ->names('personas')
                 ->except(['show']);
 
-            Route::get('/roles', [RoleController::class, 'index'])
-                ->middleware('permission:roles.ver')
-                ->name('roles.index');
+            Route::resource('roles', RoleController::class)
+                ->parameters(['roles' => 'role'])
+                ->names('roles');
 
-            Route::get('/roles/create', [RoleController::class, 'create'])
-                ->middleware('permission:roles.crear')
-                ->name('roles.create');
-
-            Route::post('/roles', [RoleController::class, 'store'])
-                ->middleware('permission:roles.crear')
-                ->name('roles.store');
-
-            Route::get('/roles/{role}', [RoleController::class, 'show'])
-                ->middleware('permission:roles.ver')
-                ->name('roles.show');
-
-            Route::get('/roles/{role}/edit', [RoleController::class, 'edit'])
-                ->middleware('permission:roles.editar')
-                ->name('roles.edit');
-
-            Route::put('/roles/{role}', [RoleController::class, 'update'])
-                ->middleware('permission:roles.editar')
-                ->name('roles.update');
-
-            Route::delete('/roles/{role}', [RoleController::class, 'destroy'])
-                ->middleware('permission:roles.eliminar')
-                ->name('roles.destroy');
-
-            Route::get('/permisos', function () {
-                $permisos = Permission::orderBy('name')->get();
-                return view('admin.permisos.index', compact('permisos'));
-            })->middleware('permission:permisos.ver')->name('permisos.index');
+            Route::resource('permisos', PermissionController::class)
+                ->parameters(['permisos' => 'permiso'])
+                ->names('permisos');
         });
 });
 

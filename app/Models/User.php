@@ -12,10 +12,10 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
-    use HasRoles;
+    use HasFactory, Notifiable, HasRoles;
 
     protected string $guard_name = 'web';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -27,17 +27,9 @@ class User extends Authenticatable
         'password',
         'acepto_consentimiento',
         'consentimiento_aceptado_at',
+        'avatar_icon',
+        'appearance_settings',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'acepto_consentimiento' => 'boolean',
-            'consentimiento_aceptado_at' => 'datetime',
-        ];
-    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -50,13 +42,49 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast.
      *
      * @return array<string, string>
      */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'acepto_consentimiento' => 'boolean',
+            'consentimiento_aceptado_at' => 'datetime',
+            'appearance_settings' => 'array',
+        ];
+    }
+
     public function persona()
     {
         return $this->hasOne(Persona::class);
     }
 
+    /**
+     * Accesor para obtener la configuración de apariencia
+     * con valores por defecto.
+     */
+    public function getAppearanceAttribute(): array
+    {
+        return array_merge([
+            'theme' => 'light',
+            'accent_color' => 'purple',
+            'density' => 'comfortable',
+            'reduced_motion' => false,
+        ], $this->appearance_settings ?? []);
+    }
+
+    /**
+     * Accesor para obtener la clase Bootstrap Icons
+     * correspondiente al icono seleccionado.
+     */
+    public function getAvatarIconClassAttribute(): string
+    {
+        return config(
+            'appearance.avatar_icons.' . $this->avatar_icon . '.class',
+            'bi bi-person-circle'
+        );
+    }
 }
