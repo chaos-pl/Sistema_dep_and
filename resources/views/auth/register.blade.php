@@ -187,13 +187,23 @@
 
                             <div class="col-md-6 anime-input">
                                 <label class="form-label fw-bold text-secondary">Contraseña</label>
-                                <input type="password" name="password" class="form-control" placeholder="Mínimo 8 caracteres" required>
+                                <div class="position-relative">
+                                    <input type="password" name="password" id="password" class="form-control pe-5" placeholder="Mínimo 8 caracteres" required>
+                                    <button type="button" class="btn position-absolute end-0 top-50 translate-middle-y text-muted border-0 bg-transparent me-2" onclick="togglePasswordVisibility('password', 'togglePasswordIcon')">
+                                        <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                                    </button>
+                                </div>
                                 @error('password')<small class="text-danger fw-bold mt-1 d-block"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</small>@enderror
                             </div>
 
                             <div class="col-md-6 anime-input">
                                 <label class="form-label fw-bold text-secondary">Confirmar contraseña</label>
-                                <input type="password" name="password_confirmation" class="form-control" placeholder="Repite la contraseña" required>
+                                <div class="position-relative">
+                                    <input type="password" name="password_confirmation" id="password_confirmation" class="form-control pe-5" placeholder="Repite la contraseña" required>
+                                    <button type="button" class="btn position-absolute end-0 top-50 translate-middle-y text-muted border-0 bg-transparent me-2" onclick="togglePasswordVisibility('password_confirmation', 'toggleConfirmPasswordIcon')">
+                                        <i class="bi bi-eye" id="toggleConfirmPasswordIcon"></i>
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="col-12 anime-input">
@@ -263,6 +273,22 @@
 @push('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <script>
+        // Función reutilizable para alternar visibilidad en cualquier campo de contraseña
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('bi-eye', 'bi-eye-slash');
+                icon.style.color = 'var(--app-primary)'; // Se pone morado al mostrar
+            } else {
+                input.type = 'password';
+                icon.classList.replace('bi-eye-slash', 'bi-eye');
+                icon.style.color = ''; // Vuelve al gris original
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             // Aparece la tarjeta flotando hacia arriba con fade
             anime({
