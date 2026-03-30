@@ -130,7 +130,9 @@
             display: flex;
         }
 
-        /* 3. TEMA OSCURO */
+        /* -----------------------------------------------------
+           3. TEMA OSCURO (Corrección Total de Tablas y Fondos)
+           ----------------------------------------------------- */
         body.theme-dark{
             --app-bg: #0f172a;
             --app-surface: #111827;
@@ -139,46 +141,45 @@
             --app-border: #1f2937;
         }
 
-        body.theme-dark .topbar{
-            background: rgba(17, 24, 39, 0.88);
-            border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+        body.theme-dark .topbar{ background: rgba(17, 24, 39, 0.88); border-bottom: 1px solid rgba(31, 41, 55, 0.9); }
+        body.theme-dark .app-card{ background: var(--app-surface); color: var(--app-text); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20); }
+
+        /* Textos y fondos utilitarios */
+        body.theme-dark .text-dark, body.theme-dark .text-body { color: #f8fafc !important; }
+        body.theme-dark .text-secondary { color: #cbd5e1 !important; }
+        body.theme-dark .text-muted, body.theme-dark .text-body-secondary { color: #94a3b8 !important; }
+        body.theme-dark .bg-light, body.theme-dark .bg-body { background-color: rgba(255, 255, 255, 0.03) !important; }
+        body.theme-dark .bg-white { background-color: rgba(255, 255, 255, 0.05) !important; }
+        body.theme-dark .bg-body-tertiary { background-color: rgba(0, 0, 0, 0.2) !important; }
+        body.theme-dark .border-light, body.theme-dark .border-secondary { border-color: rgba(255, 255, 255, 0.1) !important; }
+
+        /* Corrección de Inputs */
+        body.theme-dark .form-control, body.theme-dark .form-select, body.theme-dark .input-group-text, body.theme-dark textarea {
+            background-color: rgba(0, 0, 0, 0.2) !important; color: #f8fafc !important; border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+        body.theme-dark .form-control::placeholder, body.theme-dark textarea::placeholder { color: rgba(255, 255, 255, 0.4) !important; }
+
+        /* Corrección Botones - AQUÍ QUITAMOS EL !important AL COLOR */
+        body.theme-dark .btn-light { background: #1f2937 !important; border-color: #374151 !important; color: #e5e7eb; }
+        body.theme-dark .btn-outline-danger{ color: #fca5a5; border-color: #7f1d1d; }
+        body.theme-dark .btn-outline-danger:hover{ background: #7f1d1d; color: #fff; }
+
+        /* ====================================================
+           CORRECCIÓN ESTRICTA DE TABLAS BOOTSTRAP MODO OSCURO
+           ==================================================== */
+        body.theme-dark .table {
+            --bs-table-bg: transparent !important;
+            --bs-table-color: #f8fafc !important;
+        }
+        body.theme-dark .table > :not(caption) > * > * {
+            background-color: transparent !important;
+            color: #f8fafc !important;
+            border-bottom-color: rgba(255, 255, 255, 0.08) !important;
         }
 
-        body.theme-dark .app-card{
-            background: var(--app-surface);
-            color: var(--app-text);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20);
-        }
-
-        body.theme-dark .form-control,
-        body.theme-dark .form-select,
-        body.theme-dark textarea{
-            background: #0f172a !important;
-            color: #e5e7eb !important;
-            border-color: #334155 !important;
-        }
-
-        body.theme-dark .text-muted{
-            color: var(--app-muted) !important;
-        }
-
-        body.theme-dark .btn-light{
-            background: #1f2937;
-            border-color: #374151;
-            color: #e5e7eb;
-        }
-
-        body.theme-dark .btn-outline-danger{
-            color: #fca5a5;
-            border-color: #7f1d1d;
-        }
-
-        body.theme-dark .btn-outline-danger:hover{
-            background: #7f1d1d;
-            color: #fff;
-        }
-
-        /* 4. TEMA SISTEMA */
+        /* -----------------------------------------------------
+           4. TEMA SISTEMA AUTOMÁTICO
+           ----------------------------------------------------- */
         @media (prefers-color-scheme: dark) {
             body.theme-system{
                 --app-bg: #0f172a;
@@ -188,37 +189,67 @@
                 --app-border: #1f2937;
             }
 
-            body.theme-system .topbar{
-                background: rgba(17, 24, 39, 0.88);
-                border-bottom: 1px solid rgba(31, 41, 55, 0.9);
-            }
+            body.theme-system .topbar{ background: rgba(17, 24, 39, 0.88); border-bottom: 1px solid rgba(31, 41, 55, 0.9); }
+            body.theme-system .app-card{ background: var(--app-surface); color: var(--app-text); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20); }
 
-            body.theme-system .app-card{
-                background: var(--app-surface);
-                color: var(--app-text);
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20);
-            }
+            body.theme-system .text-dark, body.theme-system .text-body { color: #f8fafc !important; }
+            body.theme-system .text-secondary { color: #cbd5e1 !important; }
+            body.theme-system .text-muted, body.theme-system .text-body-secondary { color: #94a3b8 !important; }
+            body.theme-system .bg-light, body.theme-system .bg-body { background-color: rgba(255, 255, 255, 0.03) !important; }
+            body.theme-system .bg-white { background-color: rgba(255, 255, 255, 0.05) !important; }
+            body.theme-system .bg-body-tertiary { background-color: rgba(0, 0, 0, 0.2) !important; }
+            body.theme-system .border-light, body.theme-system .border-secondary { border-color: rgba(255, 255, 255, 0.1) !important; }
 
-            body.theme-system .form-control,
-            body.theme-system .form-select,
-            body.theme-system textarea{
-                background: #0f172a !important;
-                color: #e5e7eb !important;
-                border-color: #334155 !important;
+            body.theme-system .form-control, body.theme-system .form-select, body.theme-system .input-group-text, body.theme-system textarea {
+                background-color: rgba(0, 0, 0, 0.2) !important; color: #e5e7eb !important; border-color: rgba(255, 255, 255, 0.1) !important;
             }
+            body.theme-system .form-control::placeholder, body.theme-system textarea::placeholder { color: rgba(255, 255, 255, 0.4) !important; }
 
-            body.theme-system .text-muted{
-                color: var(--app-muted) !important;
+            /* Corrección Botones Sistema Automático - AQUÍ QUITAMOS EL !important AL COLOR */
+            body.theme-system .btn-light{ background: #1f2937 !important; border-color: #374151 !important; color: #e5e7eb; }
+
+            /* Corrección Estricta Tablas Theme System */
+            body.theme-system .table {
+                --bs-table-bg: transparent !important;
+                --bs-table-color: #f8fafc !important;
             }
-
-            body.theme-system .btn-light{
-                background: #1f2937;
-                border-color: #374151;
-                color: #e5e7eb;
+            body.theme-system .table > :not(caption) > * > * {
+                background-color: transparent !important;
+                color: #f8fafc !important;
+                border-bottom-color: rgba(255, 255, 255, 0.08) !important;
             }
         }
 
-        /* 5. MENÚ LATERAL */
+        /* -----------------------------------------------------
+           EFECTO HOVER PREMIUM PARA TABLAS
+           ----------------------------------------------------- */
+        .table-prometeo tbody tr {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .table-prometeo tbody tr td {
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        /* Iluminación en Modo Claro */
+        .table-prometeo tbody tr:hover td {
+            background-color: rgba(124, 58, 237, 0.05) !important;
+        }
+
+        /* Iluminación en Modo Oscuro */
+        body.theme-dark .table-prometeo tbody tr:hover td,
+        body.theme-system .table-prometeo tbody tr:hover td {
+            background-color: rgba(124, 58, 237, 0.15) !important;
+        }
+
+        /* Deslizamiento del primer elemento (nombre/avatar) al hacer hover */
+        .table-prometeo tbody tr:hover td:first-child div {
+            transform: translateX(8px);
+        }
+
+        /* -----------------------------------------------------
+           5. MENÚ LATERAL Y DEMÁS ESTILOS
+           ----------------------------------------------------- */
         .sidebar{
             width: 280px;
             min-height: 100vh;
@@ -257,200 +288,36 @@
             padding-left: 1.5rem;
         }
 
-        .sidebar .nav-link i {
-            font-size: 1.15rem;
-            transition: transform 0.3s ease;
-        }
+        .sidebar .nav-link i { font-size: 1.15rem; transition: transform 0.3s ease; }
+        .sidebar .nav-link:hover i, .sidebar .nav-link.active i { transform: scale(1.15); }
 
-        .sidebar .nav-link:hover i,
-        .sidebar .nav-link.active i {
-            transform: scale(1.15);
-        }
+        .main-panel{ flex: 1; margin-left: 280px; min-height: 100vh; display: flex; flex-direction: column; }
+        .topbar{ position: sticky; top: 0; z-index: 1020; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(226, 232, 240, 0.8); padding: 1rem 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
+        .content-wrapper{ padding: 2rem; flex-grow: 1; }
 
-        /* 6. PANEL PRINCIPAL Y TOPBAR */
-        .main-panel{
-            flex: 1;
-            margin-left: 280px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+        .metric-icon{ width: 56px; height: 56px; border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; background: var(--app-primary-soft); color: var(--app-primary-dark); font-size: 1.5rem; }
+        .soft-badge{ display: inline-flex; align-items: center; gap: .4rem; border-radius: 999px; padding: .4rem .85rem; font-size: .85rem; font-weight: 700; }
+        .soft-primary{ background: var(--app-primary-soft); color: var(--app-primary-dark); }
 
-        .topbar{
-            position: sticky;
-            top: 0;
-            z-index: 1020;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-            padding: 1rem 1.5rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
-        }
+        .btn{ border-radius: 12px; font-weight: 600; padding: .6rem 1.2rem; transition: .25s ease; }
+        .btn-primary{ background: var(--app-primary); border-color: var(--app-primary); }
+        .btn-primary:hover{ background: var(--app-primary-dark); border-color: var(--app-primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2); }
 
-        .content-wrapper{
-            padding: 2rem;
-            flex-grow: 1;
-        }
+        .profile-avatar-circle{ width: 92px; height: 92px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--app-primary), var(--app-primary-dark)); color: #fff; font-size: 2rem; box-shadow: 0 14px 30px rgba(124, 58, 237, .22); }
+        .sidebar-user-icon{ width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.18); color: #fff; font-size: 1.35rem; flex-shrink: 0; }
 
-        /* 7. TARJETAS Y COMPONENTES */
-        .app-card{
-            background: var(--app-surface);
-            border: 1px solid var(--app-border);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(148, 163, 184, 0.08);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
+        .appearance-icon-option{ transition: .2s ease; cursor: pointer; background: #fff; }
+        .appearance-icon-option:hover{ transform: translateY(-2px); border-color: #b89ae6 !important; box-shadow: 0 8px 24px rgba(155,114,207,.10); }
+        .appearance-icon-input:checked + .appearance-icon-option{ border-color: var(--app-primary) !important; background: var(--app-primary-soft); box-shadow: 0 0 0 .2rem rgba(155,114,207,.12); }
+        .appearance-icon-preview{ width: 52px; height: 52px; border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; background: var(--app-primary-soft); color: var(--app-primary-dark); font-size: 1.35rem; }
 
-        .metric-icon{
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--app-primary-soft);
-            color: var(--app-primary-dark);
-            font-size: 1.5rem;
-        }
+        body.density-compact .content-wrapper{ padding: 1.2rem; }
+        body.density-compact .app-card{ border-radius: 16px; }
+        body.density-compact .btn{ padding: .45rem .9rem; font-size: .92rem; }
+        body.density-compact .form-control, body.density-compact .form-select, body.density-compact textarea{ padding: .6rem .85rem !important; }
+        body.density-compact .sidebar .nav-link{ padding: .7rem .9rem; }
 
-        .soft-badge{
-            display: inline-flex;
-            align-items: center;
-            gap: .4rem;
-            border-radius: 999px;
-            padding: .4rem .85rem;
-            font-size: .85rem;
-            font-weight: 700;
-        }
-
-        .soft-primary{
-            background: var(--app-primary-soft);
-            color: var(--app-primary-dark);
-        }
-
-        .btn{
-            border-radius: 12px;
-            font-weight: 600;
-            padding: .6rem 1.2rem;
-            transition: .25s ease;
-        }
-
-        .btn-primary{
-            background: var(--app-primary);
-            border-color: var(--app-primary);
-        }
-
-        .btn-primary:hover{
-            background: var(--app-primary-dark);
-            border-color: var(--app-primary-dark);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
-        }
-
-        .form-control,
-        .form-select,
-        textarea{
-            border-radius: 12px !important;
-            border: 2px solid var(--app-border) !important;
-            padding: .75rem 1rem !important;
-            box-shadow: none !important;
-            transition: border-color 0.2s;
-        }
-
-        .form-control:focus,
-        .form-select:focus,
-        textarea:focus{
-            border-color: var(--app-primary) !important;
-            box-shadow: 0 0 0 .25rem rgba(124, 58, 237, .1) !important;
-        }
-
-        /* 8. AVATAR E ICONOS DE APARIENCIA */
-        .profile-avatar-circle{
-            width: 92px;
-            height: 92px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--app-primary), var(--app-primary-dark));
-            color: #fff;
-            font-size: 2rem;
-            box-shadow: 0 14px 30px rgba(124, 58, 237, .22);
-        }
-
-        .sidebar-user-icon{
-            width: 52px;
-            height: 52px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255,255,255,.18);
-            color: #fff;
-            font-size: 1.35rem;
-            flex-shrink: 0;
-        }
-
-        .appearance-icon-option{
-            transition: .2s ease;
-            cursor: pointer;
-            background: #fff;
-        }
-
-        .appearance-icon-option:hover{
-            transform: translateY(-2px);
-            border-color: #b89ae6 !important;
-            box-shadow: 0 8px 24px rgba(155,114,207,.10);
-        }
-
-        .appearance-icon-input:checked + .appearance-icon-option{
-            border-color: var(--app-primary) !important;
-            background: var(--app-primary-soft);
-            box-shadow: 0 0 0 .2rem rgba(155,114,207,.12);
-        }
-
-        .appearance-icon-preview{
-            width: 52px;
-            height: 52px;
-            border-radius: 16px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--app-primary-soft);
-            color: var(--app-primary-dark);
-            font-size: 1.35rem;
-        }
-
-        /* 9. MODO COMPACTO */
-        body.density-compact .content-wrapper{
-            padding: 1.2rem;
-        }
-
-        body.density-compact .app-card{
-            border-radius: 16px;
-        }
-
-        body.density-compact .btn{
-            padding: .45rem .9rem;
-            font-size: .92rem;
-        }
-
-        body.density-compact .form-control,
-        body.density-compact .form-select,
-        body.density-compact textarea{
-            padding: .6rem .85rem !important;
-        }
-
-        body.density-compact .sidebar .nav-link{
-            padding: .7rem .9rem;
-        }
-
-        /* 10. RESPONSIVE */
-        .offcanvas-sidebar{
-            background: linear-gradient(180deg, {{ $accent['sidebar_start'] }} 0%, {{ $accent['sidebar_end'] }} 100%);
-            color: #fff;
-        }
+        .offcanvas-sidebar{ background: linear-gradient(180deg, {{ $accent['sidebar_start'] }} 0%, {{ $accent['sidebar_end'] }} 100%); color: #fff; }
 
         @media (max-width: 991.98px){
             .sidebar{ display: none; }
@@ -458,19 +325,10 @@
             .content-wrapper{ padding: 1.25rem; }
         }
 
-        /* 11. ANIMACIONES */
-        .anime-topbar,
-        .anime-sidebar-item,
-        .anime-content {
-            opacity: 0;
-        }
+        .anime-topbar, .anime-sidebar-item, .anime-content { opacity: 0; }
 
-        body.reduced-motion *,
-        body.reduced-motion *::before,
-        body.reduced-motion *::after{
-            animation: none !important;
-            transition: none !important;
-            scroll-behavior: auto !important;
+        body.reduced-motion *, body.reduced-motion *::before, body.reduced-motion *::after{
+            animation: none !important; transition: none !important; scroll-behavior: auto !important;
         }
     </style>
 
@@ -679,101 +537,31 @@
                     <a href="{{ route('admin.dashboard') }}" class="nav-link text-white bg-white bg-opacity-10 rounded-3 px-3 py-2">
                         <i class="bi bi-grid-1x2-fill me-2"></i> Panel admin
                     </a>
-
-                    @can('usuarios.ver')
-                        <a href="{{ route('admin.usuarios.index') }}" class="nav-link text-white opacity-75 px-3 py-2">
-                            <i class="bi bi-people-fill me-2"></i> Usuarios
-                        </a>
-                    @endcan
-
-                    @can('personas.ver')
-                        <a href="{{ route('admin.personas.index') }}" class="nav-link text-white opacity-75 px-3 py-2">
-                            <i class="bi bi-person-vcard-fill me-2"></i> Personas
-                        </a>
-                    @endcan
-
-                    @can('roles.ver')
-                        <a href="{{ route('admin.roles.index') }}" class="nav-link text-white opacity-75 px-3 py-2">
-                            <i class="bi bi-shield-lock-fill me-2"></i> Roles
-                        </a>
-                    @endcan
-
-                    @can('permisos.ver')
-                        <a href="{{ route('admin.permisos.index') }}" class="nav-link text-white opacity-75 px-3 py-2">
-                            <i class="bi bi-key-fill me-2"></i> Permisos
-                        </a>
-                    @endcan
-
+                    @can('usuarios.ver')<a href="{{ route('admin.usuarios.index') }}" class="nav-link text-white opacity-75 px-3 py-2"><i class="bi bi-people-fill me-2"></i> Usuarios</a>@endcan
+                    @can('personas.ver')<a href="{{ route('admin.personas.index') }}" class="nav-link text-white opacity-75 px-3 py-2"><i class="bi bi-person-vcard-fill me-2"></i> Personas</a>@endcan
+                    @can('roles.ver')<a href="{{ route('admin.roles.index') }}" class="nav-link text-white opacity-75 px-3 py-2"><i class="bi bi-shield-lock-fill me-2"></i> Roles</a>@endcan
+                    @can('permisos.ver')<a href="{{ route('admin.permisos.index') }}" class="nav-link text-white opacity-75 px-3 py-2"><i class="bi bi-key-fill me-2"></i> Permisos</a>@endcan
                 @elseif(auth()->user()->hasRole('estudiante'))
-                    <a href="{{ route('estudiante.dashboard') }}" class="nav-link text-white bg-white bg-opacity-10 rounded-3 px-3 py-2">
-                        <i class="bi bi-house-door-fill me-2"></i> Inicio
-                    </a>
-
-                    @can('evaluaciones.realizar')
-                        <a href="{{ route('evaluaciones.index') }}" class="nav-link text-white opacity-75 px-3 py-2">
-                            <i class="bi bi-clipboard2-check-fill me-2"></i> Evaluaciones
-                        </a>
-                    @endcan
-
-                    @can('diario_ia.ver.propio')
-                        <a href="{{ route('diario.index') }}" class="nav-link text-white opacity-75 px-3 py-2">
-                            <i class="bi bi-journal-text me-2"></i> Diario IA
-                        </a>
-                    @endcan
-
+                    <a href="{{ route('estudiante.dashboard') }}" class="nav-link text-white bg-white bg-opacity-10 rounded-3 px-3 py-2"><i class="bi bi-house-door-fill me-2"></i> Inicio</a>
+                    @can('evaluaciones.realizar')<a href="{{ route('evaluaciones.index') }}" class="nav-link text-white opacity-75 px-3 py-2"><i class="bi bi-clipboard2-check-fill me-2"></i> Evaluaciones</a>@endcan
+                    @can('diario_ia.ver.propio')<a href="{{ route('diario.index') }}" class="nav-link text-white opacity-75 px-3 py-2"><i class="bi bi-journal-text me-2"></i> Diario IA</a>@endcan
                 @elseif(auth()->user()->hasRole('tutor'))
-                    <a href="{{ route('tutor.dashboard') }}" class="nav-link text-white bg-white bg-opacity-10 rounded-3 px-3 py-2">
-                        <i class="bi bi-grid-1x2-fill me-2"></i> Panel tutor
-                    </a>
-
-                    @can('grupos.ver.asignados')
-                        <a href="{{ route('grupos.index') }}" class="nav-link text-white opacity-75 px-3 py-2">
-                            <i class="bi bi-people-fill me-2"></i> Mis grupos
-                        </a>
-                    @endcan
-
+                    <a href="{{ route('tutor.dashboard') }}" class="nav-link text-white bg-white bg-opacity-10 rounded-3 px-3 py-2"><i class="bi bi-grid-1x2-fill me-2"></i> Panel tutor</a>
+                    @can('grupos.ver.asignados')<a href="{{ route('grupos.index') }}" class="nav-link text-white opacity-75 px-3 py-2"><i class="bi bi-people-fill me-2"></i> Mis grupos</a>@endcan
                 @elseif(auth()->user()->hasRole('psicologo'))
-                    <a href="{{ route('psicologo.dashboard') }}" class="nav-link text-white bg-white bg-opacity-10 rounded-3 px-3 py-2">
-                        <i class="bi bi-activity me-2"></i> Panel clínico
-                    </a>
-
-                    @can('alertas.ver.clinicas')
-                        <a href="{{ route('alertas.index') }}" class="nav-link text-white opacity-75 px-3 py-2">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i> Alertas
-                        </a>
-                    @endcan
-
-                    @can('diagnosticos.ver')
-                        <a href="{{ route('diagnosticos.index') }}" class="nav-link text-white opacity-75 px-3 py-2">
-                            <i class="bi bi-file-earmark-medical-fill me-2"></i> Diagnósticos
-                        </a>
-                    @endcan
-
-                    @can('resultados_ia.ver')
-                        <a href="{{ route('analisis.index') }}" class="nav-link text-white opacity-75 px-3 py-2">
-                            <i class="bi bi-robot me-2"></i> Resultados IA
-                        </a>
-                    @endcan
+                    <a href="{{ route('psicologo.dashboard') }}" class="nav-link text-white bg-white bg-opacity-10 rounded-3 px-3 py-2"><i class="bi bi-activity me-2"></i> Panel clínico</a>
+                    @can('alertas.ver.clinicas')<a href="{{ route('alertas.index') }}" class="nav-link text-white opacity-75 px-3 py-2"><i class="bi bi-exclamation-triangle-fill me-2"></i> Alertas</a>@endcan
+                    @can('diagnosticos.ver')<a href="{{ route('diagnosticos.index') }}" class="nav-link text-white opacity-75 px-3 py-2"><i class="bi bi-file-earmark-medical-fill me-2"></i> Diagnósticos</a>@endcan
+                    @can('resultados_ia.ver')<a href="{{ route('analisis.index') }}" class="nav-link text-white opacity-75 px-3 py-2"><i class="bi bi-robot me-2"></i> Resultados IA</a>@endcan
                 @endif
-
                 <div class="my-2 border-top border-light border-opacity-25"></div>
-
-                @can('perfil.ver')
-                    <a href="{{ route('perfil.index') }}" class="nav-link text-white opacity-75 px-3 py-2">
-                        <i class="bi bi-person-circle me-2"></i> Perfil
-                    </a>
-                @endcan
+                @can('perfil.ver')<a href="{{ route('perfil.index') }}" class="nav-link text-white opacity-75 px-3 py-2"><i class="bi bi-person-circle me-2"></i> Perfil</a>@endcan
             @endauth
-
-            <a href="{{ route('aviso.privacidad') }}" class="nav-link text-white opacity-75 px-3 py-2">
-                <i class="bi bi-shield-check me-2"></i> Aviso de privacidad
-            </a>
+            <a href="{{ route('aviso.privacidad') }}" class="nav-link text-white opacity-75 px-3 py-2"><i class="bi bi-shield-check me-2"></i> Aviso de privacidad</a>
         </nav>
 
         <div class="mt-auto pt-4">
-            <a href="{{ route('logout.view') }}" class="btn btn-light w-100 fw-bold">
-                <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
-            </a>
+            <a href="{{ route('logout.view') }}" class="btn btn-light w-100 fw-bold"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</a>
         </div>
     </div>
 </div>
@@ -782,39 +570,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 
 <script>
-    /* global anime */
     document.addEventListener('DOMContentLoaded', () => {
         const reducedMotion = document.body.classList.contains('reduced-motion');
-
         if (reducedMotion) {
             document.querySelectorAll('.anime-topbar, .anime-sidebar-item, .anime-content').forEach(el => {
-                el.style.opacity = '1';
-                el.style.transform = 'none';
+                el.style.opacity = '1'; el.style.transform = 'none';
             });
             return;
         }
 
         const tl = anime.timeline({ easing: 'easeOutExpo' });
-
-        tl.add({
-            targets: '.anime-topbar',
-            translateY: [-20, 0],
-            opacity: [0, 1],
-            duration: 800
-        })
-            .add({
-                targets: '.anime-sidebar-item',
-                translateX: [-20, 0],
-                opacity: [0, 1],
-                delay: anime.stagger(60),
-                duration: 600
-            }, '-=600')
-            .add({
-                targets: '.anime-content',
-                translateY: [20, 0],
-                opacity: [0, 1],
-                duration: 800
-            }, '-=400');
+        tl.add({ targets: '.anime-topbar', translateY: [-20, 0], opacity: [0, 1], duration: 800 })
+            .add({ targets: '.anime-sidebar-item', translateX: [-20, 0], opacity: [0, 1], delay: anime.stagger(60), duration: 600 }, '-=600')
+            .add({ targets: '.anime-content', translateY: [20, 0], opacity: [0, 1], duration: 800 }, '-=400');
     });
 </script>
 

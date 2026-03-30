@@ -16,7 +16,7 @@
             </div>
         </div>
 
-        <form action="{{ route('admin.usuarios.update', $user) }}" method="POST">
+        <form action="{{ route('admin.usuarios.update', $user) }}" method="POST" autocomplete="off">
             @csrf
             @method('PUT')
             @include('admin.usuarios.partials.form', ['user' => $user])

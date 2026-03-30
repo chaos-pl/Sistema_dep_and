@@ -20,23 +20,19 @@
             padding-left: 2.8rem !important;
         }
 
-        /* --- NUEVO ESTILO PARA LAS CATEGORÍAS --- */
+        /* --- ESTILO PARA LAS CATEGORÍAS ADAPTADO A MODO OSCURO --- */
         .category-header-row td {
-            /* Gradiente morado muy suave a blanco */
-            background: linear-gradient(90deg, #f5f3ff 0%, #ffffff 100%) !important;
-            /* Línea gruesa a la izquierda para enmarcar */
-            border-left: 5px solid #7c3aed !important;
-            border-bottom: 1px solid #ede9fe !important;
+            /* Usamos rgba para que se adapte al fondo oscuro o claro mágicamente */
+            background: linear-gradient(90deg, rgba(124, 58, 237, 0.08) 0%, transparent 100%) !important;
+            border-left: 5px solid var(--app-primary) !important;
+            border-bottom: 1px solid rgba(124, 58, 237, 0.1) !important;
             border-top: none !important;
             transition: all 0.3s ease !important;
             cursor: default;
         }
 
-        /* Efecto al pasar el mouse por la fila del título */
         .category-header-row:hover td {
-            /* Oscurecemos ligeramente el gradiente */
-            background: linear-gradient(90deg, #ede9fe 0%, #ffffff 100%) !important;
-            /* Hacemos que el contenido se deslice un poco a la derecha */
+            background: linear-gradient(90deg, rgba(124, 58, 237, 0.15) 0%, transparent 100%) !important;
             padding-left: 2rem !important;
         }
 
@@ -51,8 +47,8 @@
 
         <div class="row align-items-center justify-content-between mb-5 gy-3">
             <div class="col-lg-5">
-                <h4 class="fw-black text-dark mb-1"><i class="bi bi-key-fill text-primary me-2"></i>Gestión de Permisos</h4>
-                <p class="text-muted mb-0">Administra las reglas de acceso agrupadas por módulo.</p>
+                <h4 class="fw-black text-body mb-1"><i class="bi bi-key-fill text-primary me-2"></i>Gestión de Permisos</h4>
+                <p class="text-body-secondary mb-0">Administra las reglas de acceso agrupadas por módulo.</p>
             </div>
 
             <div class="col-lg-7 d-flex flex-column flex-sm-row justify-content-lg-end gap-3">
@@ -60,7 +56,7 @@
                     <div class="position-absolute top-50 start-0 translate-middle-y ms-3 text-primary z-2">
                         <i class="bi bi-search"></i>
                     </div>
-                    <input type="text" id="searchInput" class="form-control bg-light rounded-pill border-0 shadow-sm search-input-prometeo" placeholder="Buscar permiso..." onkeyup="filterPermisos()">
+                    <input type="text" id="searchInput" class="form-control bg-body-tertiary rounded-pill border-0 shadow-sm search-input-prometeo" placeholder="Buscar permiso..." onkeyup="filterPermisos()">
                 </div>
 
                 @can('permisos.crear')
@@ -72,12 +68,12 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table align-middle table-hover" id="permisosTable">
-                <thead class="bg-light">
+            <table class="table align-middle table-prometeo border-top border-secondary border-opacity-10" id="permisosTable">
+                <thead class="bg-body-tertiary">
                 <tr>
-                    <th class="py-3 px-4 rounded-start-3 text-muted fw-bold">Nombre del Permiso</th>
-                    <th class="py-3 text-muted fw-bold text-center">Roles Asignados</th>
-                    <th class="py-3 px-4 rounded-end-3 text-end text-muted fw-bold">Acciones</th>
+                    <th class="py-3 px-4 rounded-start-3 text-body-secondary fw-bold border-0">Nombre del Permiso</th>
+                    <th class="py-3 text-body-secondary fw-bold text-center border-0">Roles Asignados</th>
+                    <th class="py-3 px-4 rounded-end-3 text-end text-body-secondary fw-bold border-0">Acciones</th>
                 </tr>
                 </thead>
 
@@ -91,38 +87,38 @@
                                     <i class="bi {{ $icon }} fs-5"></i>
                                     Módulo: {{ str_replace('_', ' ', $grupo) }}
                                 </h6>
-                                <span class="badge bg-white text-primary border border-primary border-opacity-25 rounded-pill ms-2 fs-7 shadow-sm">
-                                        {{ $permisos->count() }} permisos
-                                    </span>
+                                <span class="badge bg-body text-primary border border-primary border-opacity-25 rounded-pill ms-2 fs-7 shadow-sm">
+                                    {{ $permisos->count() }} permisos
+                                </span>
                             </div>
                         </td>
                     </tr>
 
                     @foreach($permisos as $permission)
-                        <tr class="permiso-row">
-                            <td class="px-4 py-3 ps-5">
-                                <div class="d-flex align-items-center gap-3">
+                        <tr class="permiso-row border-bottom border-secondary border-opacity-10">
+                            <td class="px-4 py-3 ps-5 border-0">
+                                <div class="d-flex align-items-center gap-3" style="transition: transform 0.2s ease;">
                                     <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 35px; height: 35px;">
                                         <i class="bi bi-shield-lock"></i>
                                     </div>
                                     <div>
-                                        <span class="fw-bold text-dark permiso-name">{{ $permission->name }}</span>
-                                        <small class="text-muted d-block" style="font-size: 0.75rem;">ID: #{{ $permission->id }}</small>
+                                        <span class="fw-bold text-body permiso-name">{{ $permission->name }}</span>
+                                        <small class="text-body-secondary d-block" style="font-size: 0.75rem;">ID: #{{ $permission->id }}</small>
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-center py-3">
+                            <td class="text-center py-3 border-0">
                                 @if($permission->roles->count() > 0)
-                                    <span class="badge bg-light text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 fw-semibold shadow-sm">
-                                            <i class="bi bi-shield-check me-1"></i> {{ $permission->roles->count() }} roles
-                                        </span>
+                                    <span class="badge bg-body-tertiary text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 fw-semibold shadow-sm">
+                                        <i class="bi bi-shield-check me-1"></i> {{ $permission->roles->count() }} roles
+                                    </span>
                                 @else
-                                    <span class="badge bg-light text-muted border border-secondary border-opacity-25 rounded-pill px-3 py-2 fw-semibold">
-                                            Sin asignar
-                                        </span>
+                                    <span class="badge bg-body-tertiary text-body-secondary border border-secondary border-opacity-25 rounded-pill px-3 py-2 fw-semibold">
+                                        Sin asignar
+                                    </span>
                                 @endif
                             </td>
-                            <td class="text-end px-4 py-3">
+                            <td class="text-end px-4 py-3 border-0">
                                 <div class="d-flex justify-content-end gap-2">
                                     @can('permisos.ver')
                                         <a href="{{ route('admin.permisos.show', $permission) }}" class="btn btn-sm btn-light border text-info rounded-circle shadow-sm" style="width: 35px; height: 35px; display: inline-flex; align-items: center; justify-content: center;" title="Ver detalle">
@@ -153,7 +149,7 @@
                 @empty
                     <tbody>
                     <tr>
-                        <td colspan="3" class="text-center py-5 text-muted">
+                        <td colspan="3" class="text-center py-5 text-body-secondary border-0">
                             <div class="d-flex flex-column align-items-center">
                                 <i class="bi bi-key-fill fs-1 opacity-25 mb-3"></i>
                                 <span>No hay permisos registrados en el sistema.</span>

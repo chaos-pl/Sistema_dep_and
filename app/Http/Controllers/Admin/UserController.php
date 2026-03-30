@@ -98,15 +98,19 @@ class UserController extends Controller implements HasMiddleware
         $user->update($updateData);
         $user->syncRoles($data['roles'] ?? []);
 
-        Persona::where('user_id', $user->id)->update([
-            'user_id' => null,
-        ]);
+        $currentPersonaId = $user->persona?->id;
+        $newPersonaId = $data['persona_id'] ?? null;
 
-        if (!empty($data['persona_id'])) {
-            $persona = Persona::whereNull('user_id')
-                ->orWhere('user_id', $user->id)
-                ->findOrFail($data['persona_id']);
+        // Solo tocar la persona si realmente cambió
+        if (!empty($newPersonaId) && (string) $newPersonaId !== (string) $currentPersonaId) {
+            $persona = Persona::where(function ($query) use ($user) {
+                $query->whereNull('user_id')
+                    ->orWhere('user_id', $user->id);
+            })
+                ->findOrFail($newPersonaId);
 
+            // Si tu base NO permite user_id null, no desvincules la anterior aquí
+            // Solo vincula la nueva si está libre o ya pertenece al usuario
             $persona->update([
                 'user_id' => $user->id,
             ]);
@@ -114,8 +118,7 @@ class UserController extends Controller implements HasMiddleware
 
         Alert::success('Usuario actualizado', 'Los cambios del usuario fueron guardados correctamente.');
 
-        return redirect()
-            ->route('admin.usuarios.index');
+        return redirect()->route('admin.usuarios.index');
     }
 
     public function destroy(User $user)

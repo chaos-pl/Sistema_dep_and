@@ -17,8 +17,8 @@
 
         <div class="row align-items-center justify-content-between mb-5 gy-3">
             <div class="col-lg-5">
-                <h4 class="fw-black text-dark mb-1"><i class="bi bi-people-fill text-primary me-2"></i>Cuentas de Acceso</h4>
-                <p class="text-muted mb-0">Administra los accesos y vínculos personales.</p>
+                <h4 class="fw-black text-body mb-1"><i class="bi bi-people-fill text-primary me-2"></i>Cuentas de Acceso</h4>
+                <p class="text-body-secondary mb-0">Administra los accesos y vínculos personales.</p>
             </div>
 
             <div class="col-lg-7 d-flex flex-column flex-sm-row justify-content-lg-end gap-3">
@@ -26,7 +26,7 @@
                     <div class="position-absolute top-50 start-0 translate-middle-y ms-3 text-primary z-2">
                         <i class="bi bi-search"></i>
                     </div>
-                    <input type="text" id="searchInput" class="form-control bg-light rounded-pill border-0 shadow-sm search-input-prometeo" placeholder="Buscar por nombre o correo..." onkeyup="filterUsuarios()">
+                    <input type="text" id="searchInput" class="form-control bg-body-tertiary rounded-pill border-0 shadow-sm search-input-prometeo" placeholder="Buscar por nombre o correo..." onkeyup="filterUsuarios()">
                 </div>
 
                 @can('usuarios.crear')
@@ -38,31 +38,31 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table align-middle table-hover" id="usuariosTable">
-                <thead class="bg-light">
+            <table class="table align-middle table-prometeo border-top border-secondary border-opacity-10" id="usuariosTable">
+                <thead class="bg-body-tertiary">
                 <tr>
-                    <th class="py-3 px-4 rounded-start-3 text-muted fw-bold">Cuenta</th>
-                    <th class="py-3 text-muted fw-bold">Roles Asignados</th>
-                    <th class="py-3 text-muted fw-bold">Persona Vinculada</th>
-                    <th class="py-3 text-muted fw-bold text-center">Alta</th>
-                    <th class="py-3 px-4 rounded-end-3 text-end text-muted fw-bold">Acciones</th>
+                    <th class="py-3 px-4 rounded-start-3 text-body-secondary fw-bold border-0">Cuenta</th>
+                    <th class="py-3 text-body-secondary fw-bold border-0">Roles Asignados</th>
+                    <th class="py-3 text-body-secondary fw-bold border-0">Persona Vinculada</th>
+                    <th class="py-3 text-body-secondary fw-bold text-center border-0">Alta</th>
+                    <th class="py-3 px-4 rounded-end-3 text-end text-body-secondary fw-bold border-0">Acciones</th>
                 </tr>
                 </thead>
                 <tbody class="border-top-0">
                 @forelse($usuarios as $usuario)
-                    <tr class="usuario-row">
-                        <td class="px-4 py-3">
-                            <div class="d-flex align-items-center gap-3">
+                    <tr class="usuario-row border-bottom border-secondary border-opacity-10">
+                        <td class="px-4 py-3 border-0">
+                            <div class="d-flex align-items-center gap-3" style="transition: transform 0.2s ease;">
                                 <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
                                     <i class="bi bi-person-circle"></i>
                                 </div>
                                 <div>
-                                    <h6 class="fw-bold mb-0 text-dark usuario-name">{{ $usuario->name }}</h6>
-                                    <small class="text-muted usuario-email">{{ $usuario->email }}</small>
+                                    <h6 class="fw-bold mb-0 text-body usuario-name">{{ $usuario->name }}</h6>
+                                    <small class="text-body-secondary usuario-email">{{ $usuario->email }}</small>
                                 </div>
                             </div>
                         </td>
-                        <td class="py-3">
+                        <td class="py-3 border-0">
                             <div class="d-flex flex-wrap gap-1">
                                 @forelse($usuario->roles as $role)
                                     <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-pill px-2 py-1 fw-semibold">
@@ -75,23 +75,23 @@
                                 @endforelse
                             </div>
                         </td>
-                        <td class="py-3">
+                        <td class="py-3 border-0">
                             @if($usuario->persona)
                                 <div class="d-flex align-items-center gap-2">
                                     <i class="bi bi-person-vcard text-success"></i>
-                                    <span class="fw-medium text-dark">{{ $usuario->persona->nombre }} {{ $usuario->persona->apellido_paterno }}</span>
+                                    <span class="fw-medium text-body">{{ $usuario->persona->nombre }} {{ $usuario->persona->apellido_paterno }}</span>
                                 </div>
                             @else
-                                <span class="badge bg-light text-muted border border-secondary border-opacity-25 rounded-pill px-3 py-1 fw-medium">
+                                <span class="badge bg-body-tertiary text-body-secondary border border-secondary border-opacity-25 rounded-pill px-3 py-1 fw-medium">
                                     <i class="bi bi-link-45deg"></i> Sin vincular
                                 </span>
                             @endif
                         </td>
-                        <td class="text-center py-3 text-secondary fw-medium">
+                        <td class="text-center py-3 text-body-secondary fw-medium border-0">
                             <i class="bi bi-calendar-check opacity-50 me-1"></i>
                             {{ optional($usuario->created_at)->format('d/m/Y') }}
                         </td>
-                        <td class="text-end px-4 py-3">
+                        <td class="text-end px-4 py-3 border-0">
                             <div class="d-flex justify-content-end gap-2">
                                 @can('usuarios.editar')
                                     <a href="{{ route('admin.usuarios.edit', $usuario) }}" class="btn btn-sm btn-light border text-warning rounded-circle shadow-sm" style="width: 35px; height: 35px; display: inline-flex; align-items: center; justify-content: center;" title="Editar">
@@ -113,7 +113,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">
+                        <td colspan="5" class="text-center py-5 text-body-secondary border-0">
                             <div class="d-flex flex-column align-items-center">
                                 <i class="bi bi-people fs-1 opacity-25 mb-3"></i>
                                 <span>No hay usuarios registrados en el sistema.</span>

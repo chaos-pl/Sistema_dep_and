@@ -68,7 +68,13 @@ class RoleController extends Controller implements HasMiddleware
     {
         $role->load('permissions', 'users');
 
-        return view('admin.roles.show', compact('role'));
+        $groupedPermissions = $role->permissions->groupBy(function ($permission) {
+            return explode('.', $permission->name)[0];
+        });
+
+        $rolePermissions = $role->permissions->pluck('name')->toArray();
+
+        return view('admin.roles.show', compact('role', 'groupedPermissions', 'rolePermissions'));
     }
 
     public function edit(Role $role)
@@ -81,7 +87,9 @@ class RoleController extends Controller implements HasMiddleware
 
         $role->load('permissions');
 
-        return view('admin.roles.edit', compact('role', 'permissions'));
+        $rolePermissions = $role->permissions->pluck('name')->toArray();
+
+        return view('admin.roles.edit', compact('role', 'permissions', 'rolePermissions'));
     }
 
     public function update(Request $request, Role $role)

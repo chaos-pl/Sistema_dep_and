@@ -7,39 +7,92 @@
     </div>
 
     <div class="col-md-6">
-        <label class="form-label fw-bold text-secondary">Nombre de usuario</label>
+        <label for="name" class="form-label fw-bold text-secondary">Nombre de usuario</label>
         <div class="input-group">
-            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-person"></i></span>
-            <input type="text" name="name" class="form-control form-control-lg bg-light border-start-0 ps-0" value="{{ old('name', $user->name ?? '') }}" placeholder="Ej. jperez_22" required>
+            <span class="input-group-text bg-light border-end-0 text-muted">
+                <i class="bi bi-person"></i>
+            </span>
+            <input
+                type="text"
+                name="name"
+                id="name"
+                class="form-control form-control-lg bg-light border-start-0 ps-0"
+                value="{{ old('name', $user->name ?? '') }}"
+                placeholder="Ej. jperez_22"
+                required
+            >
         </div>
-        @error('name')<small class="text-danger fw-bold mt-1 d-block"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</small>@enderror
+        @error('name')
+        <small class="text-danger fw-bold mt-1 d-block">
+            <i class="bi bi-exclamation-circle me-1"></i>{{ $message }}
+        </small>
+        @enderror
     </div>
 
     <div class="col-md-6">
-        <label class="form-label fw-bold text-secondary">Correo electrónico</label>
+        <label for="email" class="form-label fw-bold text-secondary">Correo electrónico</label>
         <div class="input-group">
-            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope-at"></i></span>
-            <input type="email" name="email" class="form-control form-control-lg bg-light border-start-0 ps-0" value="{{ old('email', $user->email ?? '') }}" placeholder="usuario@correo.com" required>
+            <span class="input-group-text bg-light border-end-0 text-muted">
+                <i class="bi bi-envelope-at"></i>
+            </span>
+            <input
+                type="email"
+                name="email"
+                id="email"
+                class="form-control form-control-lg bg-light border-start-0 ps-0"
+                value="{{ old('email', $user->email ?? '') }}"
+                placeholder="usuario@correo.com"
+                required
+            >
         </div>
-        @error('email')<small class="text-danger fw-bold mt-1 d-block"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</small>@enderror
+        @error('email')
+        <small class="text-danger fw-bold mt-1 d-block">
+            <i class="bi bi-exclamation-circle me-1"></i>{{ $message }}
+        </small>
+        @enderror
     </div>
 
     <div class="col-md-6">
-        <label class="form-label fw-bold text-secondary">
-            Contraseña <span class="text-muted fw-normal">{{ $user ? '(Opcional: solo si deseas cambiarla)' : '' }}</span>
+        <label for="password" class="form-label fw-bold text-secondary">
+            Contraseña
+            <span class="text-muted fw-normal">
+                {{ isset($user) && $user ? '(Opcional: solo si deseas cambiarla)' : '' }}
+            </span>
         </label>
         <div class="input-group">
-            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
-            <input type="password" name="password" class="form-control form-control-lg bg-light border-start-0 ps-0" placeholder="••••••••">
+            <span class="input-group-text bg-light border-end-0 text-muted">
+                <i class="bi bi-lock"></i>
+            </span>
+            <input
+                type="password"
+                name="password"
+                id="password"
+                class="form-control form-control-lg bg-light border-start-0 ps-0"
+                placeholder="••••••••"
+                autocomplete="new-password"
+            >
         </div>
-        @error('password')<small class="text-danger fw-bold mt-1 d-block"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</small>@enderror
+        @error('password')
+        <small class="text-danger fw-bold mt-1 d-block">
+            <i class="bi bi-exclamation-circle me-1"></i>{{ $message }}
+        </small>
+        @enderror
     </div>
 
     <div class="col-md-6">
-        <label class="form-label fw-bold text-secondary">Confirmar contraseña</label>
+        <label for="password_confirmation" class="form-label fw-bold text-secondary">Confirmar contraseña</label>
         <div class="input-group">
-            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock-fill"></i></span>
-            <input type="password" name="password_confirmation" class="form-control form-control-lg bg-light border-start-0 ps-0" placeholder="Repite la contraseña">
+            <span class="input-group-text bg-light border-end-0 text-muted">
+                <i class="bi bi-lock-fill"></i>
+            </span>
+            <input
+                type="password"
+                name="password_confirmation"
+                id="password_confirmation"
+                class="form-control form-control-lg bg-light border-start-0 ps-0"
+                placeholder="Repite la contraseña"
+                autocomplete="new-password"
+            >
         </div>
     </div>
 
@@ -56,8 +109,14 @@
                 @foreach($roles as $role)
                     <div class="col-sm-6">
                         <div class="form-check custom-check">
-                            <input class="form-check-input shadow-none" type="checkbox" name="roles[]" value="{{ $role->name }}" id="role_{{ $role->id }}"
-                                {{ in_array($role->name, old('roles', $user?->roles->pluck('name')->toArray() ?? [])) ? 'checked' : '' }}>
+                            <input
+                                class="form-check-input shadow-none"
+                                type="checkbox"
+                                name="roles[]"
+                                value="{{ $role->name }}"
+                                id="role_{{ $role->id }}"
+                                {{ in_array($role->name, old('roles', $user?->roles->pluck('name')->toArray() ?? [])) ? 'checked' : '' }}
+                            >
                             <label class="form-check-label text-dark fw-medium" for="role_{{ $role->id }}" style="cursor: pointer;">
                                 {{ ucfirst($role->name) }}
                             </label>
@@ -66,24 +125,49 @@
                 @endforeach
             </div>
         </div>
-        @error('roles')<small class="text-danger fw-bold mt-1 d-block"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</small>@enderror
+        @error('roles')
+        <small class="text-danger fw-bold mt-1 d-block">
+            <i class="bi bi-exclamation-circle me-1"></i>{{ $message }}
+        </small>
+        @enderror
+        @error('roles.*')
+        <small class="text-danger fw-bold mt-1 d-block">
+            <i class="bi bi-exclamation-circle me-1"></i>{{ $message }}
+        </small>
+        @enderror
     </div>
 
     <div class="col-md-6">
-        <label class="form-label fw-bold text-secondary mb-3">Expediente personal (Persona vinculada)</label>
+        <label for="persona_id" class="form-label fw-bold text-secondary mb-3">Expediente personal (Persona vinculada)</label>
         <div class="input-group">
-            <span class="input-group-text bg-light border-end-0 text-muted px-3"><i class="bi bi-person-vcard"></i></span>
-            <select name="persona_id" class="form-select form-select-lg bg-light border-start-0 ps-0">
+            <span class="input-group-text bg-light border-end-0 text-muted px-3">
+                <i class="bi bi-person-vcard"></i>
+            </span>
+            <select
+                name="persona_id"
+                id="persona_id"
+                class="form-select form-select-lg bg-light border-start-0 ps-0"
+            >
                 <option value="">No vincular todavía</option>
                 @foreach($personas as $persona)
-                    <option value="{{ $persona->id }}" {{ old('persona_id', $user?->persona?->id ?? '') == $persona->id ? 'selected' : '' }}>
-                        {{ $persona->nombre }} {{ $persona->apellido_paterno }} {{ $persona->user_id ? '(Ya vinculada)' : '' }}
+                    <option
+                        value="{{ $persona->id }}"
+                        {{ (string) old('persona_id', $user?->persona?->id ?? '') === (string) $persona->id ? 'selected' : '' }}
+                    >
+                        {{ $persona->nombre }} {{ $persona->apellido_paterno }}{{ $persona->user_id ? ' (Ya vinculada)' : '' }}
                     </option>
                 @endforeach
             </select>
         </div>
-        <small class="text-muted d-block mt-2"><i class="bi bi-info-circle me-1"></i>Si vinculas una persona, este usuario heredará su expediente médico/educativo.</small>
-        @error('persona_id')<small class="text-danger fw-bold mt-1 d-block"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</small>@enderror
+        <small class="text-muted d-block mt-2">
+            <i class="bi bi-info-circle me-1"></i>
+            Si vinculas una persona, este usuario heredará su expediente médico/educativo.
+        </small>
+        @error('persona_id')
+        <small class="text-danger fw-bold mt-1 d-block">
+            <i class="bi bi-exclamation-circle me-1"></i>{{ $message }}
+        </small>
+        @enderror
     </div>
 </div>
 
@@ -93,6 +177,6 @@
     </a>
 
     <button type="submit" class="btn btn-primary px-5 rounded-pill fw-bold shadow-sm">
-        <i class="bi bi-save me-2"></i>{{ $user ? 'Actualizar Cuenta' : 'Guardar Usuario' }}
+        <i class="bi bi-save me-2"></i>{{ isset($user) && $user ? 'Actualizar Cuenta' : 'Guardar Usuario' }}
     </button>
 </div>
