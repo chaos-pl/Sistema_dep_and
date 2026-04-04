@@ -195,6 +195,54 @@
                     </div>
 
                     <div class="col-md-6">
+                        <a href="{{ route('admin.tutores.index') }}" class="text-decoration-none">
+                            <div class="app-card hover-elevate p-4 h-100 dynamic-bg rounded-4 border-0">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="metric-icon bg-body text-success shadow-sm">
+                                        <i class="bi bi-person-video3"></i>
+                                    </div>
+                                    <h6 class="fw-bold mb-0 text-body">Gestión de Tutores</h6>
+                                </div>
+                                <p class="text-body-secondary mb-0 small">
+                                    Da de alta tutores, actualiza sus datos y administra su expediente institucional.
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-md-6">
+                        <a href="{{ route('admin.grupos.index') }}" class="text-decoration-none">
+                            <div class="app-card hover-elevate p-4 h-100 dynamic-bg rounded-4 border-0">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="metric-icon bg-body text-info shadow-sm">
+                                        <i class="bi bi-folder-fill"></i>
+                                    </div>
+                                    <h6 class="fw-bold mb-0 text-body">Gestión de Grupos</h6>
+                                </div>
+                                <p class="text-body-secondary mb-0 small">
+                                    Crea grupos, asigna tutores y organiza la estructura académica.
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-md-6">
+                        <a href="{{ route('admin.carreras.index') }}" class="text-decoration-none">
+                            <div class="app-card hover-elevate p-4 h-100 dynamic-bg rounded-4 border-0">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="metric-icon bg-body text-primary shadow-sm">
+                                        <i class="bi bi-mortarboard-fill"></i>
+                                    </div>
+                                    <h6 class="fw-bold mb-0 text-body">Gestión de Carreras</h6>
+                                </div>
+                                <p class="text-body-secondary mb-0 small">
+                                    Crea carreras académicas y organízalas antes de registrar grupos.
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-md-6">
                         <a href="{{ route('admin.roles.index') }}" class="text-decoration-none">
                             <div class="app-card hover-elevate p-4 h-100 dynamic-bg rounded-4 border-0">
                                 <div class="d-flex align-items-center gap-3 mb-3">
@@ -247,6 +295,18 @@
                         <span class="badge bg-danger rounded-pill fs-6 shadow-sm">{{ $usuariosSinPersona ?? 0 }}</span>
                     </div>
 
+                    <div class="p-3 bg-info bg-opacity-10 border border-info border-opacity-25 rounded-4 d-flex align-items-center justify-content-between hover-elevate cursor-pointer"
+                         onclick="window.location='{{ route('admin.expedientes-pendientes.index') }}'">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="bi bi-mortarboard text-info fs-4"></i>
+                            <div>
+                                <span class="fw-bold text-info d-block" style="line-height: 1;">Estudiantes sin expediente</span>
+                                <small class="text-info text-opacity-75">Usuarios con rol estudiante sin grupo asignado</small>
+                            </div>
+                        </div>
+                        <span class="badge bg-info text-dark rounded-pill fs-6 shadow-sm">{{ $estudiantesSinExpediente ?? 0 }}</span>
+                    </div>
+
                     <div class="p-3 bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-4 d-flex align-items-center justify-content-between hover-elevate cursor-pointer" onclick="window.location='{{ route('admin.roles.index') }}'">
                         <div class="d-flex align-items-center gap-3">
                             <i class="bi bi-shield-exclamation text-warning fs-4"></i>
@@ -256,6 +316,17 @@
                             </div>
                         </div>
                         <span class="badge bg-warning text-dark rounded-pill fs-6 shadow-sm">{{ $rolesSinPermisos ?? 0 }}</span>
+                    </div>
+
+                    <div class="p-3 bg-info bg-opacity-10 border border-info border-opacity-25 rounded-4 d-flex align-items-center justify-content-between hover-elevate cursor-pointer" onclick="window.location='{{ route('admin.tutores.index') }}'">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="bi bi-person-video3 text-info fs-4"></i>
+                            <div>
+                                <span class="fw-bold text-info d-block" style="line-height: 1;">Tutores sin grupos</span>
+                                <small class="text-info text-opacity-75">Expedientes de tutor sin asignación académica</small>
+                            </div>
+                        </div>
+                        <span class="badge bg-info text-dark rounded-pill fs-6 shadow-sm">{{ $tutoresSinGrupos ?? 0 }}</span>
                     </div>
                 </div>
 

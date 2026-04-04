@@ -1,6 +1,16 @@
 <?php
-
+use App\Http\Controllers\Admin\TutorController;
+use App\Http\Controllers\Estudiante\DiarioController;
+use App\Http\Controllers\Tutor\DashboardController as TutorDashboardController;
+use App\Http\Controllers\Tutor\GrupoController as TutorGrupoController;
+use App\Http\Controllers\Tutor\EstudianteController as TutorEstudianteController;
+use App\Http\Controllers\Estudiante\StudentDashboardController;
 use App\Models\User;
+use App\Http\Controllers\Estudiante\EvaluacionController;
+use App\Http\Controllers\Admin\ExpedientePendienteController;
+use App\Http\Controllers\Admin\CarreraController;
+use App\Http\Controllers\Admin\GrupoController;
+use App\Models\Tutor;
 use App\Models\Persona;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -105,41 +115,35 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
         ->name('estudiante.')
         ->middleware('role:estudiante')
         ->group(function () {
-            Route::get('/dashboard', function () {
-                return view('estudiante.dashboard');
-            })->name('dashboard');
+            Route::get('/dashboard', [StudentDashboardController::class, 'index'])
+                ->name('dashboard');
         });
 
     Route::prefix('evaluaciones')
         ->name('evaluaciones.')
         ->middleware(['role:estudiante', 'permission:evaluaciones.realizar'])
         ->group(function () {
-            Route::get('/', function () {
-                return view('evaluaciones.index');
-            })->name('index');
+            Route::get('/', [EvaluacionController::class, 'index'])
+                ->name('index');
 
-            Route::get('/{tipo}/aplicar', function ($tipo) {
-                return view('evaluaciones.aplicar', compact('tipo'));
-            })->name('aplicar');
+            Route::get('/{tipo}/aplicar', [EvaluacionController::class, 'aplicar'])
+                ->name('aplicar');
 
-            Route::post('/{tipo}/responder', function ($tipo) {
-                Alert::success('Evaluación enviada', 'Tu respuesta fue registrada correctamente.');
-                return redirect()->route('evaluaciones.aplicar', $tipo);
-            })->name('responder');
+            Route::post('/{tipo}/responder', [EvaluacionController::class, 'responder'])
+                ->name('responder');
         });
 
     Route::prefix('diario')
         ->name('diario.')
         ->middleware('role:estudiante')
         ->group(function () {
-            Route::get('/', function () {
-                return view('diario.index');
-            })->middleware('permission:diario_ia.ver.propio')->name('index');
+            Route::get('/', [DiarioController::class, 'index'])
+                ->middleware('permission:diario_ia.ver.propio')
+                ->name('index');
 
-            Route::post('/', function () {
-                Alert::success('Entrada guardada', 'Tu texto fue registrado correctamente.');
-                return redirect()->route('diario.index');
-            })->middleware('permission:diario_ia.crear')->name('store');
+            Route::post('/', [DiarioController::class, 'store'])
+                ->middleware('permission:diario_ia.crear')
+                ->name('store');
         });
 
     // MÓDULO TUTOR
@@ -147,36 +151,32 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
         ->name('tutor.')
         ->middleware('role:tutor')
         ->group(function () {
-            Route::get('/dashboard', function () {
-                $totalGrupos = 0;
-                $completadas = 0;
-                $abandonadas = 0;
-                $grupos = collect();
+            Route::get('/dashboard', [TutorDashboardController::class, 'index'])
+                ->name('dashboard');
 
-                return view('tutor.dashboard', compact('totalGrupos', 'completadas', 'abandonadas', 'grupos'));
-            })->name('dashboard');
+            Route::prefix('grupos')
+                ->name('grupos.')
+                ->middleware('permission:grupos.ver.asignados')
+                ->group(function () {
+                    Route::get('/', [TutorGrupoController::class, 'index'])
+                        ->name('index');
+
+                    Route::get('/{grupo}', [TutorGrupoController::class, 'show'])
+                        ->name('show');
+
+                    Route::get('/{grupo}/estudiantes/create', [TutorEstudianteController::class, 'create'])
+                        ->name('estudiantes.create');
+
+                    Route::post('/{grupo}/estudiantes', [TutorEstudianteController::class, 'store'])
+                        ->name('estudiantes.store');
+                });
+
+            Route::get('/estudiantes/{estudiante}/edit', [TutorEstudianteController::class, 'edit'])
+                ->name('estudiantes.edit');
+
+            Route::put('/estudiantes/{estudiante}', [TutorEstudianteController::class, 'update'])
+                ->name('estudiantes.update');
         });
-
-    Route::prefix('grupos')
-        ->name('grupos.')
-        ->middleware(['role:tutor', 'permission:grupos.ver.asignados'])
-        ->group(function () {
-            Route::get('/', function () {
-                $grupos = collect();
-
-                return view('tutor.dashboard', [
-                    'totalGrupos' => 0,
-                    'completadas' => 0,
-                    'abandonadas' => 0,
-                    'grupos' => $grupos,
-                ]);
-            })->name('index');
-
-            Route::get('/{id}', function ($id) {
-                return redirect()->route('grupos.index');
-            })->name('show');
-        });
-
     // MÓDULO PSICÓLOGO
     Route::prefix('psicologo')
         ->name('psicologo.')
@@ -241,6 +241,19 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
         ->middleware('role:admin')
         ->group(function () {
 
+            Route::prefix('expedientes-pendientes')
+                ->name('expedientes-pendientes.')
+                ->group(function () {
+                    Route::get('/', [ExpedientePendienteController::class, 'index'])
+                        ->name('index');
+
+                    Route::get('/{user}/edit', [ExpedientePendienteController::class, 'edit'])
+                        ->name('edit');
+
+                    Route::put('/{user}', [ExpedientePendienteController::class, 'update'])
+                        ->name('update');
+                });
+
             Route::get('/dashboard', function () {
                 $totalUsuarios = User::count();
                 $totalPersonas = Persona::count();
@@ -252,7 +265,11 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
 
                 $estudiantesCount = User::role('estudiante')->count();
                 $psicologosCount = User::role('psicologo')->count();
-                $tutoresCount = User::role('tutor')->count();
+                $tutoresCount = Tutor::count();
+                $tutoresSinGrupos = Tutor::doesntHave('grupos')->count();
+                $estudiantesSinExpediente = User::role('estudiante')
+                    ->whereDoesntHave('persona.estudiante')
+                    ->count();
 
                 return view('admin.dashboard', compact(
                     'totalUsuarios',
@@ -263,7 +280,9 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
                     'rolesSinPermisos',
                     'estudiantesCount',
                     'psicologosCount',
-                    'tutoresCount'
+                    'tutoresCount',
+                    'tutoresSinGrupos',
+                    'estudiantesSinExpediente'
                 ));
             })->middleware('permission:usuarios.ver')->name('dashboard');
 
@@ -271,6 +290,19 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
                 ->parameters(['usuarios' => 'user'])
                 ->names('usuarios')
                 ->except(['show']);
+
+            Route::resource('grupos', GrupoController::class)
+                ->parameters(['grupos' => 'grupo'])
+                ->names('grupos');
+
+            Route::resource('carreras', CarreraController::class)
+                ->parameters(['carreras' => 'carrera'])
+                ->names('carreras')
+                ->except(['show']);
+
+            Route::resource('tutores', TutorController::class)
+                ->parameters(['tutores' => 'tutor'])
+                ->names('tutores');
 
             Route::resource('personas', PersonaController::class)
                 ->parameters(['personas' => 'persona'])

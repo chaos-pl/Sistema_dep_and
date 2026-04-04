@@ -20,4 +20,17 @@ class Persona extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function estudiante()
+    {
+        return $this->hasOne(Estudiante::class);
+    }
+    public function tutor()
+    {
+        return $this->hasOne(Tutor::class);
+    }
+
+    public function psicologo()
+    {
+        return $this->hasOne(Psicologo::class);
+    }
 }

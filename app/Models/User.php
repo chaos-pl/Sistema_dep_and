@@ -87,4 +87,15 @@ class User extends Authenticatable
             'bi bi-person-circle'
         );
     }
+    public function estudiante()
+    {
+        return $this->hasOneThrough(
+            \App\Models\Estudiante::class,
+            \App\Models\Persona::class,
+            'user_id',     // Foreign key en personas
+            'persona_id',  // Foreign key en estudiantes
+            'id',          // Local key en users
+            'id'           // Local key en personas
+        );
+    }
 }
