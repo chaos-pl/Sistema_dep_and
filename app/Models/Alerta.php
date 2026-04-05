@@ -15,6 +15,6 @@ class Alerta extends Model
 
     public function evaluacion()
     {
-        return $this->belongsTo(Evaluacion::class);
+        return $this->belongsTo(Evaluacion::class, 'evaluacion_id');
     }
 }

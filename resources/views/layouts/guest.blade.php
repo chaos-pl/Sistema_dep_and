@@ -39,8 +39,6 @@
             margin: 0;
             min-height: 100vh;
             overflow-x: hidden;
-            /* El color de fondo y las animaciones pesadas ahora
-               se manejan individualmente en las vistas (login/register) */
             background-color: #0f172a;
         }
 
@@ -48,11 +46,9 @@
             font-family: var(--app-font-title);
         }
 
-        /* Clases de utilidad globales */
         .fw-extrabold { font-weight: 800 !important; }
         .fw-black { font-weight: 900 !important; }
 
-        /* Contenedor principal limpio */
         .auth-shell {
             position: relative;
             z-index: 10;
@@ -70,8 +66,9 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+<script src="{{ asset('js/granim.min.js') }}"></script>
 
 @include('sweetalert::alert')
 

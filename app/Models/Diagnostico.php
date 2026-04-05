@@ -16,20 +16,13 @@ class Diagnostico extends Model
         'requiere_derivacion',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'requiere_derivacion' => 'boolean',
-        ];
-    }
-
     public function evaluacion()
     {
-        return $this->belongsTo(Evaluacion::class);
+        return $this->belongsTo(Evaluacion::class, 'evaluacion_id');
     }
 
     public function psicologo()
     {
-        return $this->belongsTo(Psicologo::class);
+        return $this->belongsTo(Psicologo::class, 'psicologo_id');
     }
 }

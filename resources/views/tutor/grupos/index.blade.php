@@ -5,14 +5,31 @@
 @section('page-subtitle', 'Consulta y administra los grupos asignados a tu cargo')
 
 @php
-    $userAccentColor = auth()->user()->appearance['accent_color'] ?? 'primary';
-    $bannerClasses = match($userAccentColor) {
-        'red' => 'bg-danger bg-gradient text-white',
-        'green' => 'bg-success bg-gradient text-white',
-        'blue' => 'bg-info bg-gradient text-dark',
-        'orange' => 'bg-warning bg-gradient text-dark',
-        'pink' => 'bg-pink bg-gradient text-white',
-        default => 'bg-primary bg-gradient text-white'
+    // Obtenemos el color elegido por el usuario (Morado por defecto)
+    $userAccentColor = auth()->user()->appearance_settings['accent_color'] ?? 'purple';
+
+    // Definimos las paletas complejas de 3 colores
+    $granimPalettes = match($userAccentColor) {
+        'blue' => "
+            [ { color: '#1e3a8a', pos: 0 }, { color: '#2563eb', pos: .5 }, { color: '#93c5fd', pos: 1 } ],
+            [ { color: '#2563eb', pos: 0 }, { color: '#0284c7', pos: .5 }, { color: '#38bdf8', pos: 1 } ],
+            [ { color: '#0f172a', pos: 0 }, { color: '#1d4ed8', pos: .5 }, { color: '#3b82f6', pos: 1 } ]
+        ",
+        'green' => "
+            [ { color: '#064e3b', pos: 0 }, { color: '#059669', pos: .5 }, { color: '#6ee7b7', pos: 1 } ],
+            [ { color: '#059669', pos: 0 }, { color: '#0d9488', pos: .5 }, { color: '#2dd4bf', pos: 1 } ],
+            [ { color: '#022c22', pos: 0 }, { color: '#047857', pos: .5 }, { color: '#10b981', pos: 1 } ]
+        ",
+        'pink' => "
+            [ { color: '#831843', pos: 0 }, { color: '#db2777', pos: .5 }, { color: '#f9a8d4', pos: 1 } ],
+            [ { color: '#db2777', pos: 0 }, { color: '#e11d48', pos: .5 }, { color: '#f43f5e', pos: 1 } ],
+            [ { color: '#4c0519', pos: 0 }, { color: '#be185d', pos: .5 }, { color: '#ec4899', pos: 1 } ]
+        ",
+        default => "
+            [ { color: '#4c1d95', pos: 0 }, { color: '#7c3aed', pos: .5 }, { color: '#a78bfa', pos: 1 } ],
+            [ { color: '#7c3aed', pos: 0 }, { color: '#c026d3', pos: .5 }, { color: '#db2777', pos: 1 } ],
+            [ { color: '#1e1b4b', pos: 0 }, { color: '#6d28d9', pos: .5 }, { color: '#8b5cf6', pos: 1 } ]
+        "
     };
 @endphp
 
@@ -20,9 +37,13 @@
     <style>
         .anime-item { opacity: 0; transform: translateY(20px); }
 
+        .hover-elevate { transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease; border: 1px solid transparent; }
+        .hover-elevate:hover { transform: translateY(-5px); box-shadow: 0 10px 24px rgba(0,0,0,0.08) !important; border-color: var(--app-primary-soft) !important; }
+
         .grupos-hero {
             position: relative;
             overflow: hidden;
+            background-color: var(--app-primary);
         }
         .grupos-hero::after {
             content: '\F4DA';
@@ -31,11 +52,22 @@
             top: -10%;
             right: -5%;
             font-size: 14rem;
-            color: inherit;
-            opacity: 0.1;
+            color: #ffffff;
+            opacity: 0.08;
             transform: rotate(-15deg);
             pointer-events: none;
+            z-index: 2;
         }
+
+        #granim-canvas-grupos {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            border-radius: inherit;
+        }
+
+        .banner-content { position: relative; z-index: 3; }
 
         .grupo-card { transition: all 0.25s ease; }
         .grupo-card:hover {
@@ -62,24 +94,27 @@
     <div class="row g-4">
 
         <div class="col-12 anime-item">
-            <div class="app-card grupos-hero p-4 p-md-5 rounded-4 border-0 shadow-lg {{ $bannerClasses }}">
-                <div class="row align-items-center position-relative z-1">
+            <div class="app-card grupos-hero p-4 p-md-5 rounded-4 border-0 shadow-lg text-white">
+
+                <canvas id="granim-canvas-grupos"></canvas>
+
+                <div class="row align-items-center banner-content">
                     <div class="col-lg-8">
-                        <span class="badge bg-body text-body border rounded-pill px-3 py-2 mb-3 fw-bold shadow-sm">
+                        <span class="badge bg-white text-primary border border-white border-opacity-25 rounded-pill px-3 py-2 mb-3 fw-bold shadow-sm" style="color: var(--app-primary) !important;">
                             <i class="bi bi-people-fill me-1"></i> Gestión Académica
                         </span>
-                        <h2 class="fw-black mb-2" style="font-size: 2.15rem;">Mis Grupos Asignados</h2>
-                        <p class="mb-3 opacity-75 fs-5">
+                        <h2 class="fw-black mb-2 text-white" style="font-size: 2.15rem; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">Mis Grupos Asignados</h2>
+                        <p class="mb-3 text-white text-opacity-90 fs-5" style="text-shadow: 0 1px 2px rgba(0,0,0,0.1);">
                             Desde aquí puedes consultar el detalle de cada grupo y registrar estudiantes vinculados a tu carga académica.
                         </p>
                         <div class="d-flex flex-wrap gap-2">
-                            <span class="badge bg-body-tertiary text-body border border-secondary border-opacity-25 rounded-pill px-3 py-2">
-                                <i class="bi bi-collection-fill me-1 text-primary"></i> Total de grupos: {{ method_exists($grupos, 'total') ? $grupos->total() : $grupos->count() }}
+                            <span class="badge bg-white bg-opacity-25 text-white border border-white border-opacity-25 rounded-pill px-3 py-2 shadow-sm" style="backdrop-filter: blur(8px);">
+                                <i class="bi bi-collection-fill me-1 text-white"></i> Total de grupos: {{ method_exists($grupos, 'total') ? $grupos->total() : $grupos->count() }}
                             </span>
                         </div>
                     </div>
                     <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
-                        <a href="{{ route('tutor.dashboard') }}" class="btn btn-light rounded-pill fw-bold px-4 py-2 shadow-sm">
+                        <a href="{{ route('tutor.dashboard') }}" class="btn btn-light rounded-pill fw-bold px-4 py-2 shadow-sm hover-elevate" style="color: var(--app-primary) !important;">
                             <i class="bi bi-arrow-left me-1"></i> Volver al panel
                         </a>
                     </div>
@@ -172,12 +207,12 @@
                                     </span>
                                 </td>
                                 <td class="text-center border-0">
-                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2 fw-bold">
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2 fw-bold shadow-sm">
                                         <i class="bi bi-person-lines-fill me-1"></i> {{ $grupo->estudiantes_count }}
                                     </span>
                                 </td>
                                 <td class="text-end border-0">
-                                    <a href="{{ route('tutor.grupos.show', $grupo->id) }}" class="btn btn-sm btn-light border text-primary rounded-pill fw-bold px-3 shadow-sm hover-elevate">
+                                    <a href="{{ route('tutor.grupos.show', $grupo->id) }}" class="btn btn-sm btn-light border border-secondary border-opacity-10 text-primary rounded-pill fw-bold px-3 shadow-sm hover-elevate">
                                         <i class="bi bi-arrow-right-circle me-1"></i> Ver detalle
                                     </a>
                                 </td>
@@ -205,16 +240,26 @@
 @endsection
 
 @push('scripts')
+    <script src="{{ asset('js/granim.min.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            anime({
-                targets: '.anime-item',
-                translateY: [30, 0],
-                opacity: [0, 1],
-                delay: anime.stagger(120),
-                easing: 'easeOutExpo',
-                duration: 900
-            });
+            if(typeof anime !== 'undefined') {
+                anime({ targets: '.anime-item', translateY: [30, 0], opacity: [0, 1], delay: anime.stagger(120), easing: 'easeOutExpo', duration: 900 });
+            }
+
+            if (document.getElementById('granim-canvas-grupos') && typeof Granim !== 'undefined') {
+                new Granim({
+                    element: '#granim-canvas-grupos',
+                    direction: 'left-right',
+                    isPausedWhenNotInView: true,
+                    states : {
+                        "default-state": {
+                            gradients: [ {!! $granimPalettes !!} ],
+                            transitionSpeed: 7000
+                        }
+                    }
+                });
+            }
         });
     </script>
 @endpush

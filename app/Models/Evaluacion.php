@@ -28,4 +28,19 @@ class Evaluacion extends Model
     {
         return $this->hasOne(ResultadoClinico::class, 'evaluacion_id');
     }
+
+    public function alerta()
+    {
+        return $this->hasOne(Alerta::class, 'evaluacion_id');
+    }
+
+    public function diagnostico()
+    {
+        return $this->hasOne(Diagnostico::class, 'evaluacion_id');
+    }
+
+    public function estudiante()
+    {
+        return $this->belongsTo(Estudiante::class, 'codigo_anonimo', 'codigo_anonimo');
+    }
 }

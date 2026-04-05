@@ -19,6 +19,7 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
-        "animejs": "^4.3.6"
+        "animejs": "^4.3.6",
+        "granim": "^2.0.0"
     }
 }

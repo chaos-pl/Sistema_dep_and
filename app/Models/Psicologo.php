@@ -20,6 +20,6 @@ class Psicologo extends Model
 
     public function diagnosticos()
     {
-        return $this->hasMany(Diagnostico::class);
+        return $this->hasMany(Diagnostico::class, 'psicologo_id');
     }
 }
