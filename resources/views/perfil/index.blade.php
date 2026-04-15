@@ -5,10 +5,8 @@
 @section('page-subtitle', 'Administra tu información personal y credenciales')
 
 @php
-    // 1. OBTENEMOS EL COLOR ELEGIDO POR EL USUARIO (Por defecto morado/purple)
     $userAccentColor = auth()->user()->appearance_settings['accent_color'] ?? 'purple';
 
-    // 2. DEFINIMOS LAS PALETAS DE GRANIM COMPLEJAS (3 colores por degradado)
     $granimPalettes = match($userAccentColor) {
         'blue' => "
             [ { color: '#1e3a8a', pos: 0 }, { color: '#2563eb', pos: .5 }, { color: '#93c5fd', pos: 1 } ],
@@ -29,7 +27,7 @@
             [ { color: '#4c1d95', pos: 0 }, { color: '#7c3aed', pos: .5 }, { color: '#a78bfa', pos: 1 } ],
             [ { color: '#7c3aed', pos: 0 }, { color: '#c026d3', pos: .5 }, { color: '#db2777', pos: 1 } ],
             [ { color: '#1e1b4b', pos: 0 }, { color: '#6d28d9', pos: .5 }, { color: '#8b5cf6', pos: 1 } ]
-        " // Morado (Purple)
+        "
     };
 @endphp
 
@@ -89,6 +87,7 @@
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
 
+        /* Opciones de Iconos de Apariencia */
         .appearance-icon-input:checked + .appearance-icon-option {
             border-color: var(--app-primary) !important;
             background-color: var(--app-primary-soft) !important;
@@ -104,6 +103,95 @@
         .appearance-icon-option:hover {
             border-color: var(--app-primary-soft) !important;
             transform: translateY(-2px);
+        }
+
+        .glass-badge {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            color: #ffffff !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* =================================================================
+           1. CORRECCIÓN DE ALTO CONTRASTE PARA MODO OSCURO
+           ================================================================= */
+        body.theme-dark .text-body-secondary,
+        body.theme-system .text-body-secondary {
+            color: #94a3b8 !important;
+        }
+        body.theme-dark .text-body,
+        body.theme-system .text-body {
+            color: #f8fafc !important;
+        }
+        body.theme-dark .form-label,
+        body.theme-system .form-label {
+            color: #cbd5e1 !important;
+        }
+
+        /* =================================================================
+           2. INTERRUPTOR PERSONALIZADO PROMETEO (Toggle Switch)
+           ================================================================= */
+        .prometeo-toggle {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+            flex-shrink: 0;
+            margin: 0;
+        }
+
+        /* Ocultamos el checkbox nativo de HTML */
+        .prometeo-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+        }
+
+        /* La pista/fondo del interruptor */
+        .prometeo-toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1; /* Gris claro apagado */
+            transition: .4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-radius: 34px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        body.theme-dark .prometeo-toggle-slider,
+        body.theme-system .prometeo-toggle-slider {
+            background-color: rgba(255,255,255,0.1); /* Gris oscuro en modo noche */
+        }
+
+        /* La bolita blanca */
+        .prometeo-toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* Cuando está activado (Fondo se pinta del color de tu tema) */
+        .prometeo-toggle input:checked + .prometeo-toggle-slider {
+            background-color: var(--app-primary);
+        }
+
+        /* Cuando está activado (La bolita viaja exactamente hasta la derecha) */
+        .prometeo-toggle input:checked + .prometeo-toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Efecto focus para accesibilidad con teclado */
+        .prometeo-toggle input:focus + .prometeo-toggle-slider {
+            box-shadow: 0 0 0 3px var(--app-primary-soft);
         }
     </style>
 @endpush
@@ -134,16 +222,16 @@
                     </div>
 
                     <div class="d-flex flex-wrap gap-2 justify-content-md-end">
-                        <span class="badge bg-white text-primary rounded-pill px-4 py-2 shadow-sm fs-6 d-flex align-items-center fw-bold" style="color: var(--app-primary) !important;">
+                        <span class="badge glass-badge rounded-pill px-4 py-2 shadow-sm fs-6 d-flex align-items-center fw-bold">
                             <i class="bi bi-shield-check me-2"></i> {{ $rolPrincipal }}
                         </span>
 
                         @if($user->acepto_consentimiento)
-                            <span class="badge bg-success border border-white border-opacity-25 rounded-pill px-4 py-2 shadow-sm fs-6 d-flex align-items-center fw-bold">
+                            <span class="badge rounded-pill px-4 py-2 shadow-sm fs-6 d-flex align-items-center fw-bold" style="background-color: rgba(25, 135, 84, 0.85) !important; color: #fff !important; backdrop-filter: blur(5px);">
                                 <i class="bi bi-check-circle-fill me-2"></i> Consentimiento OK
                             </span>
                         @else
-                            <span class="badge bg-warning text-dark border border-white border-opacity-25 rounded-pill px-4 py-2 shadow-sm fs-6 d-flex align-items-center fw-bold">
+                            <span class="badge rounded-pill px-4 py-2 shadow-sm fs-6 d-flex align-items-center fw-bold" style="background-color: rgba(255, 193, 7, 0.85) !important; color: #000 !important; backdrop-filter: blur(5px);">
                                 <i class="bi bi-exclamation-triangle-fill me-2"></i> Pendiente
                             </span>
                         @endif
@@ -205,17 +293,15 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Animaciones Anime.js
             if(typeof anime !== 'undefined') {
                 anime({ targets: '.anime-item', translateY: [30, 0], opacity: [0, 1], delay: anime.stagger(150), easing: 'easeOutExpo', duration: 900 });
                 anime({ targets: '.anime-avatar', scale: [1, 1.05, 1], opacity: [0.8, 1, 0.8], duration: 4000, loop: true, easing: 'easeInOutSine' });
             }
 
-            // Efecto Granim complejo de 3 colores con dirección izquierda-derecha para coincidir con el dashboard
             if (document.getElementById('granim-canvas-profile') && typeof Granim !== 'undefined') {
                 var granimInstance = new Granim({
                     element: '#granim-canvas-profile',
-                    direction: 'left-right', // Horizontal luce mejor con 3 paradas de color
+                    direction: 'left-right',
                     isPausedWhenNotInView: true,
                     states : {
                         "default-state": {

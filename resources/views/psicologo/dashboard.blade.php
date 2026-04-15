@@ -5,10 +5,8 @@
 @section('page-subtitle', 'Seguimiento de alertas, riesgos y actividad diagnóstica')
 
 @php
-    // 1. Obtenemos el color acento del usuario
     $userAccentColor = auth()->user()->appearance_settings['accent_color'] ?? 'purple';
 
-    // 2. Definimos las paletas COMPLEJAS (3 paradas de color) según el acento elegido
     $granimPalettes = match($userAccentColor) {
         'blue' => "
             [ { color: '#1e3a8a', pos: 0 }, { color: '#2563eb', pos: .5 }, { color: '#93c5fd', pos: 1 } ],
@@ -29,7 +27,7 @@
             [ { color: '#4c1d95', pos: 0 }, { color: '#7c3aed', pos: .5 }, { color: '#a78bfa', pos: 1 } ],
             [ { color: '#7c3aed', pos: 0 }, { color: '#c026d3', pos: .5 }, { color: '#db2777', pos: 1 } ],
             [ { color: '#1e1b4b', pos: 0 }, { color: '#6d28d9', pos: .5 }, { color: '#8b5cf6', pos: 1 } ]
-        " // Morado (Purple) por defecto
+        "
     };
 @endphp
 
@@ -43,7 +41,7 @@
         .bg-welcome-psicologo {
             position: relative;
             overflow: hidden;
-            background-color: var(--app-primary); /* Usamos el color base del sistema como fallback */
+            background-color: var(--app-primary);
         }
 
         .bg-welcome-psicologo::after {
@@ -55,10 +53,8 @@
 
         #granim-canvas {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             z-index: 0;
             border-radius: inherit;
         }
@@ -67,6 +63,32 @@
             position: relative;
             z-index: 3;
         }
+
+        /* CLASES PROTECTORAS PARA MODO OSCURO */
+        .glass-badge {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            color: #ffffff !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .glass-btn {
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            color: var(--app-primary-dark) !important;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+        .glass-btn:hover {
+            background-color: #ffffff !important;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+        }
+
+        /* Alta legibilidad en modo oscuro para textos de la tabla y tarjetas */
+        body.theme-dark .text-body-secondary, body.theme-system .text-body-secondary { color: #94a3b8 !important; }
+        body.theme-dark .text-body, body.theme-system .text-body { color: #f8fafc !important; }
     </style>
 @endpush
 
@@ -79,14 +101,14 @@
 
                 <div class="row align-items-center banner-content">
                     <div class="col-lg-8">
-                        <span class="badge bg-white text-primary border border-white border-opacity-25 rounded-pill px-3 py-2 mb-3 fw-bold shadow-sm" style="color: var(--app-primary) !important;">
+                        <span class="badge glass-badge rounded-pill px-3 py-2 mb-3 fw-bold shadow-sm">
                             <i class="bi bi-heart-pulse-fill me-1"></i> Vista Clínica Integral
                         </span>
-                        <h2 class="fw-black mb-2 text-white" style="font-size: 2.2rem;">Bienvenido, {{ auth()->user()->name }}</h2>
-                        <p class="mb-0 text-white text-opacity-75 fs-5">Supervisa alertas generadas, resultados clínicos de riesgo y el avance de diagnósticos.</p>
+                        <h2 class="fw-black mb-2 text-white" style="font-size: 2.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Bienvenido, {{ auth()->user()->name }}</h2>
+                        <p class="mb-0 text-white text-opacity-90 fs-5" style="text-shadow: 0 1px 2px rgba(0,0,0,0.2);">Supervisa alertas generadas, resultados clínicos de riesgo y el avance de diagnósticos.</p>
                     </div>
                     <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
-                        <a href="{{ route('alertas.index') }}" class="btn btn-light rounded-pill text-primary fw-bold px-4 py-2 shadow-sm hover-elevate" style="color: var(--app-primary) !important;">
+                        <a href="{{ route('alertas.index') }}" class="btn glass-btn rounded-pill fw-bold px-4 py-2 shadow-sm hover-elevate">
                             <i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>Ver Bandeja de Alertas
                         </a>
                     </div>
@@ -273,16 +295,17 @@
 @endsection
 
 @push('scripts')
-    <script type="module">
+    <script src="{{ asset('js/granim.min.js') }}"></script>
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Animación de entrada
-            anime({ targets: '.anime-item', translateY: [30, 0], opacity: [0, 1], delay: anime.stagger(120), easing: 'easeOutExpo', duration: 900 });
+            if(typeof anime !== 'undefined') {
+                anime({ targets: '.anime-item', translateY: [30, 0], opacity: [0, 1], delay: anime.stagger(120), easing: 'easeOutExpo', duration: 900 });
+            }
 
-            // Granim.js: Insertamos el String dinámico de PHP con las paletas de 3 colores
-            if (document.getElementById('granim-canvas') && window.Granim) {
-                var granimInstance = new window.Granim({
+            if (document.getElementById('granim-canvas') && typeof Granim !== 'undefined') {
+                var granimInstance = new Granim({
                     element: '#granim-canvas',
-                    direction: 'left-right', // Mantenemos el flujo horizontal de tu imagen
+                    direction: 'left-right',
                     isPausedWhenNotInView: true,
                     states : {
                         "default-state": {

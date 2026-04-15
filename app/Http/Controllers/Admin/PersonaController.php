@@ -29,7 +29,11 @@ class PersonaController extends Controller implements HasMiddleware
             ->orderBy('id', 'desc')
             ->paginate(10);
 
-        return view('admin.personas.index', compact('personas'));
+        // 🔴 CORRECCIÓN: Traemos a los usuarios ordenados para los selects de los modales.
+        // Usamos 'with' para poder filtrar en la vista si ya tienen persona asignada.
+        $users = User::with('persona')->orderBy('name')->get();
+
+        return view('admin.personas.index', compact('personas', 'users'));
     }
 
     public function create()

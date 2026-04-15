@@ -5,10 +5,8 @@
 @section('page-subtitle', 'Resumen general e indicadores del sistema')
 
 @php
-    // 1. OBTENEMOS EL COLOR ELEGIDO POR EL USUARIO (Por defecto morado/purple)
     $userAccentColor = auth()->user()->appearance_settings['accent_color'] ?? 'purple';
 
-    // 2. DEFINIMOS LAS PALETAS DE GRANIM COMPLEJAS (3 colores por degradado)
     $granimPalettes = match($userAccentColor) {
         'blue' => "
             [ { color: '#1e3a8a', pos: 0 }, { color: '#2563eb', pos: .5 }, { color: '#93c5fd', pos: 1 } ],
@@ -29,78 +27,64 @@
             [ { color: '#4c1d95', pos: 0 }, { color: '#7c3aed', pos: .5 }, { color: '#a78bfa', pos: 1 } ],
             [ { color: '#7c3aed', pos: 0 }, { color: '#c026d3', pos: .5 }, { color: '#db2777', pos: 1 } ],
             [ { color: '#1e1b4b', pos: 0 }, { color: '#6d28d9', pos: .5 }, { color: '#8b5cf6', pos: 1 } ]
-        " // Morado (Purple)
+        "
     };
 @endphp
 
 @push('styles')
     <style>
-        /* Efecto de elevación para las tarjetas interactivas */
         .hover-elevate {
             transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease !important;
             border: 1px solid transparent;
         }
         .hover-elevate:hover {
             transform: translateY(-6px);
-            /* Usamos variables CSS para que la sombra se adapte al tema */
             box-shadow: 0 15px 35px rgba(0,0,0,0.08) !important;
             border-color: var(--app-primary-soft) !important;
         }
 
-        /* Efecto de zoom en el ícono al hacer hover en la tarjeta */
-        .hover-elevate:hover .metric-icon i {
-            transform: scale(1.25);
-        }
-        .metric-icon i {
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        .hover-elevate:hover .metric-icon i { transform: scale(1.25); }
+        .metric-icon i { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
-        /* Fondo animado para el banner del admin */
         .bg-welcome-admin {
             position: relative;
             overflow: hidden;
             background-color: var(--app-primary);
         }
         .bg-welcome-admin::after {
-            content: '\F52F'; /* Ícono de escudo de Bootstrap Icons */
+            content: '\F52F';
             font-family: "bootstrap-icons";
             position: absolute;
-            top: -10%;
-            right: -5%;
-            font-size: 15rem;
-            color: #ffffff;
-            opacity: 0.08;
-            transform: rotate(-15deg);
-            pointer-events: none;
-            z-index: 2;
+            top: -10%; right: -5%;
+            font-size: 15rem; color: #ffffff;
+            opacity: 0.08; transform: rotate(-15deg);
+            pointer-events: none; z-index: 2;
         }
 
         #granim-canvas-admin {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; z-index: 0;
             border-radius: inherit;
         }
 
-        .banner-content {
-            position: relative;
-            z-index: 3;
-        }
+        .banner-content { position: relative; z-index: 3; }
 
-        /* Elementos dinámicos para modo oscuro */
-        .dynamic-bg {
-            background-color: var(--bs-tertiary-bg);
-        }
+        .anime-item { opacity: 0; transform: translateY(20px); }
+        .cursor-pointer { cursor: pointer; }
 
-        .anime-item {
-            opacity: 0;
-            transform: translateY(20px);
+        /* Clase protectora para asegurar que los elementos del banner sean visibles en modo oscuro */
+        .glass-badge {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            color: #ffffff !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
-        .cursor-pointer {
-            cursor: pointer;
+        .glass-panel {
+            background-color: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
     </style>
 @endpush
@@ -115,17 +99,17 @@
 
                 <div class="row align-items-center banner-content">
                     <div class="col-lg-8">
-                        <span class="badge bg-white text-primary border border-white border-opacity-25 rounded-pill px-3 py-2 mb-3 fw-bold shadow-sm" style="color: var(--app-primary) !important;">
+                        <span class="badge glass-badge rounded-pill px-3 py-2 mb-3 fw-bold shadow-sm">
                             <i class="bi bi-shield-lock-fill me-1"></i> Administración General
                         </span>
-                        <h2 class="fw-black mb-2 text-white" style="font-size: 2.2rem;">Bienvenido, {{ auth()->user()->name }}</h2>
-                        <p class="mb-0 text-white text-opacity-75 fs-5">
+                        <h2 class="fw-black mb-2 text-white" style="font-size: 2.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Bienvenido, {{ auth()->user()->name }}</h2>
+                        <p class="mb-0 text-white text-opacity-90 fs-5" style="text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
                             Desde aquí puedes supervisar usuarios, personas, roles, permisos y la estructura general del sistema.
                         </p>
                     </div>
                     <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
-                        <div class="bg-white bg-opacity-10 rounded-4 p-3 d-inline-block text-start border border-white border-opacity-25 shadow-sm" style="backdrop-filter: blur(8px);">
-                            <small class="text-white text-opacity-75 d-block text-uppercase fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 1px;">Estado del Servidor</small>
+                        <div class="glass-panel rounded-4 p-3 d-inline-block text-start shadow-sm">
+                            <small class="text-white text-opacity-90 d-block text-uppercase fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 1px;">Estado del Servidor</small>
                             <div class="d-flex align-items-center gap-2">
                                 <div class="spinner-grow spinner-grow-sm text-white" role="status"></div>
                                 <span class="fw-bold text-white">En línea y operando</span>
@@ -220,9 +204,7 @@
                                     <div class="metric-icon rounded-circle bg-body text-danger shadow-sm d-flex align-items-center justify-content-center" style="width:40px;height:40px;"><i class="bi bi-heart-pulse-fill"></i></div>
                                     <h6 class="fw-bold mb-0 text-body">Gestión de Psicólogos</h6>
                                 </div>
-                                <p class="text-body-secondary mb-0 small">
-                                    Da de alta psicólogos, actualiza su expediente y prepara el módulo clínico.
-                                </p>
+                                <p class="text-body-secondary mb-0 small">Da de alta psicólogos, actualiza su expediente y prepara el módulo clínico.</p>
                             </div>
                         </a>
                     </div>
@@ -246,9 +228,7 @@
                                     <div class="metric-icon rounded-circle bg-body text-success shadow-sm d-flex align-items-center justify-content-center" style="width:40px;height:40px;"><i class="bi bi-person-video3"></i></div>
                                     <h6 class="fw-bold mb-0 text-body">Gestión de Tutores</h6>
                                 </div>
-                                <p class="text-body-secondary mb-0 small">
-                                    Da de alta tutores, actualiza sus datos y administra su expediente institucional.
-                                </p>
+                                <p class="text-body-secondary mb-0 small">Da de alta tutores, actualiza sus datos y administra su expediente institucional.</p>
                             </div>
                         </a>
                     </div>
@@ -260,9 +240,7 @@
                                     <div class="metric-icon rounded-circle bg-body text-info shadow-sm d-flex align-items-center justify-content-center" style="width:40px;height:40px;"><i class="bi bi-folder-fill"></i></div>
                                     <h6 class="fw-bold mb-0 text-body">Gestión de Grupos</h6>
                                 </div>
-                                <p class="text-body-secondary mb-0 small">
-                                    Crea grupos, asigna tutores y organiza la estructura académica.
-                                </p>
+                                <p class="text-body-secondary mb-0 small">Crea grupos, asigna tutores y organiza la estructura académica.</p>
                             </div>
                         </a>
                     </div>
@@ -274,9 +252,7 @@
                                     <div class="metric-icon rounded-circle bg-body text-primary shadow-sm d-flex align-items-center justify-content-center" style="width:40px;height:40px;"><i class="bi bi-mortarboard-fill"></i></div>
                                     <h6 class="fw-bold mb-0 text-body">Gestión de Carreras</h6>
                                 </div>
-                                <p class="text-body-secondary mb-0 small">
-                                    Crea carreras académicas y organízalas antes de registrar grupos.
-                                </p>
+                                <p class="text-body-secondary mb-0 small">Crea carreras académicas y organízalas antes de registrar grupos.</p>
                             </div>
                         </a>
                     </div>
@@ -425,7 +401,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Animaciones de entrada y contadores
             if(typeof anime !== 'undefined') {
                 anime({
                     targets: '.anime-item',
@@ -450,11 +425,10 @@
                 });
             }
 
-            // Inicialización de Granim para el Banner de Admin
             if (document.getElementById('granim-canvas-admin') && typeof Granim !== 'undefined') {
                 new Granim({
                     element: '#granim-canvas-admin',
-                    direction: 'left-right', // Degradado horizontal complejo
+                    direction: 'left-right',
                     isPausedWhenNotInView: true,
                     states : {
                         "default-state": {

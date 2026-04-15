@@ -45,29 +45,48 @@
             content: '\F4DA';
             font-family: "bootstrap-icons";
             position: absolute;
-            top: -10%;
-            right: -5%;
-            font-size: 15rem;
-            color: #ffffff;
-            opacity: 0.08;
-            transform: rotate(-15deg);
-            pointer-events: none;
-            z-index: 2;
+            top: -10%; right: -5%;
+            font-size: 15rem; color: #ffffff;
+            opacity: 0.08; transform: rotate(-15deg);
+            pointer-events: none; z-index: 2;
         }
 
         #granim-canvas-tutor {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            border-radius: inherit;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0; border-radius: inherit;
         }
 
         .banner-content { position: relative; z-index: 3; }
         .anime-item { opacity: 0; transform: translateY(20px); }
         .cursor-pointer { cursor: pointer; }
+
+        /* CLASES PROTECTORAS PARA MODO OSCURO */
+        .glass-badge {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            color: #ffffff !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .glass-btn {
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            color: var(--app-primary-dark) !important;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+        .glass-btn:hover {
+            background-color: #ffffff !important;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+        }
+
+        /* Alta legibilidad en modo oscuro para textos de la tabla y tarjetas */
+        body.theme-dark .text-body-secondary, body.theme-system .text-body-secondary { color: #94a3b8 !important; }
+        body.theme-dark .text-body, body.theme-system .text-body { color: #f8fafc !important; }
     </style>
 @endpush
 
@@ -81,16 +100,16 @@
 
                 <div class="row align-items-center banner-content">
                     <div class="col-lg-8">
-                        <span class="badge bg-white text-primary border border-white border-opacity-25 rounded-pill px-3 py-2 mb-3 fw-bold shadow-sm" style="color: var(--app-primary) !important;">
+                        <span class="badge glass-badge rounded-pill px-3 py-2 mb-3 fw-bold shadow-sm">
                             <i class="bi bi-building me-1"></i> Vista Académica
                         </span>
-                        <h2 class="fw-black mb-2 text-white" style="font-size: 2.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">Bienvenido, {{ auth()->user()->name }}</h2>
-                        <p class="mb-0 text-white text-opacity-90 fs-5" style="text-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                        <h2 class="fw-black mb-2 text-white" style="font-size: 2.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Bienvenido, {{ auth()->user()->name }}</h2>
+                        <p class="mb-0 text-white text-opacity-90 fs-5" style="text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
                             Consulta el avance general de evaluaciones completadas y alumnos en riesgo de tus grupos asignados.
                         </p>
                     </div>
                     <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
-                        <a href="{{ route('tutor.grupos.index') }}" class="btn btn-light rounded-pill fw-bold px-4 py-2 shadow-sm hover-elevate" style="color: var(--app-primary) !important;">
+                        <a href="{{ route('tutor.grupos.index') }}" class="btn glass-btn rounded-pill fw-bold px-4 py-2 shadow-sm hover-elevate">
                             <i class="bi bi-people-fill me-2"></i>Ver Mis Grupos
                         </a>
                     </div>
@@ -251,9 +270,9 @@
 @endsection
 
 @push('scripts')
+    <script src="{{ asset('js/granim.min.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Animaciones de entrada
             if(typeof anime !== 'undefined') {
                 anime({ targets: '.anime-item', translateY: [30, 0], opacity: [0, 1], delay: anime.stagger(150), easing: 'easeOutExpo', duration: 1000 });
 
@@ -264,7 +283,6 @@
                 });
             }
 
-            // Granim.js para el Banner
             if (document.getElementById('granim-canvas-tutor') && typeof Granim !== 'undefined') {
                 new Granim({
                     element: '#granim-canvas-tutor',

@@ -57,6 +57,33 @@
 
         .banner-content { position: relative; z-index: 3; }
 
+        /* CLASES PROTECTORAS PARA MODO OSCURO (Glassmorphism) */
+        .glass-badge {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            color: #ffffff !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .glass-btn {
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            color: var(--app-primary-dark) !important;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+        .glass-btn:hover {
+            background-color: #ffffff !important;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+        }
+
+        /* Alta legibilidad en modo oscuro para textos de la tabla y tarjetas */
+        body.theme-dark .text-body-secondary, body.theme-system .text-body-secondary { color: #94a3b8 !important; }
+        body.theme-dark .text-body, body.theme-system .text-body { color: #f8fafc !important; }
+
+
         .instrument-card { transition: all .3s cubic-bezier(0.25, 0.8, 0.25, 1); border: 1px solid transparent; }
         .instrument-card:hover {
             transform: translateY(-6px);
@@ -106,27 +133,27 @@
 
                 <div class="row align-items-center banner-content">
                     <div class="col-lg-8">
-                        <span class="badge bg-white text-primary border border-white border-opacity-25 rounded-pill px-3 py-2 mb-3 fw-bold shadow-sm" style="color: var(--app-primary) !important;">
+                        <span class="badge glass-badge rounded-pill px-3 py-2 mb-3 fw-bold shadow-sm">
                             <i class="bi bi-clipboard2-pulse-fill me-1"></i> Tamizaje Emocional
                         </span>
-                        <h2 class="fw-black mb-2 text-white" style="font-size: 2.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">Hola, {{ auth()->user()->name }}</h2>
-                        <p class="mb-3 text-white text-opacity-90 fs-5" style="text-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                        <h2 class="fw-black mb-2 text-white" style="font-size: 2.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Hola, {{ auth()->user()->name }}</h2>
+                        <p class="mb-3 text-white text-opacity-90 fs-5" style="text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
                             Responde tus instrumentos disponibles. Tus resultados ayudan a construir tu seguimiento emocional dentro de PROMETEO.
                         </p>
                         <div class="d-flex flex-wrap gap-2">
-                            <span class="badge bg-white bg-opacity-25 text-white border border-white border-opacity-25 rounded-pill px-3 py-2 shadow-sm" style="backdrop-filter: blur(8px);">
-                                <i class="bi bi-collection-fill me-1 text-white"></i> Instrumentos: {{ $totalInstrumentos }}
+                            <span class="badge glass-badge rounded-pill px-3 py-2 shadow-sm">
+                                <i class="bi bi-collection-fill me-1"></i> Instrumentos: {{ $totalInstrumentos }}
                             </span>
-                            <span class="badge bg-white bg-opacity-25 text-white border border-white border-opacity-25 rounded-pill px-3 py-2 shadow-sm" style="backdrop-filter: blur(8px);">
-                                <i class="bi bi-check-circle-fill me-1 text-white"></i> Completadas: {{ $totalCompletadas }}
+                            <span class="badge glass-badge rounded-pill px-3 py-2 shadow-sm">
+                                <i class="bi bi-check-circle-fill me-1"></i> Completadas: {{ $totalCompletadas }}
                             </span>
-                            <span class="badge bg-white bg-opacity-25 text-white border border-white border-opacity-25 rounded-pill px-3 py-2 shadow-sm" style="backdrop-filter: blur(8px);">
-                                <i class="bi bi-hourglass-split me-1 text-white"></i> Pendientes: {{ $totalPendientes }}
+                            <span class="badge glass-badge rounded-pill px-3 py-2 shadow-sm">
+                                <i class="bi bi-hourglass-split me-1"></i> Pendientes: {{ $totalPendientes }}
                             </span>
                         </div>
                     </div>
                     <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
-                        <a href="{{ route('estudiante.dashboard') }}" class="btn btn-light rounded-pill fw-bold px-4 py-2 shadow-sm" style="color: var(--app-primary) !important;">
+                        <a href="{{ route('estudiante.dashboard') }}" class="btn glass-btn rounded-pill fw-bold px-4 py-2 shadow-sm">
                             <i class="bi bi-arrow-left me-1"></i> Volver al inicio
                         </a>
                     </div>

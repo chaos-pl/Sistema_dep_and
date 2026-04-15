@@ -5,10 +5,8 @@
 @section('page-subtitle', 'Evaluaciones pendientes y registro emocional')
 
 @php
-    // Obtenemos el color elegido por el usuario
     $userAccentColor = auth()->user()->appearance_settings['accent_color'] ?? 'purple';
 
-    // Paletas complejas de Granim adaptadas al sistema
     $granimPalettes = match($userAccentColor) {
         'blue' => "
             [ { color: '#1e3a8a', pos: 0 }, { color: '#2563eb', pos: .5 }, { color: '#93c5fd', pos: 1 } ],
@@ -50,8 +48,8 @@
             top: -20%;
             right: -5%;
             font-size: 14rem;
-            color: white;
-            opacity: 0.05;
+            color: #ffffff;
+            opacity: 0.08;
             transform: rotate(-15deg);
             pointer-events: none;
             z-index: 2;
@@ -73,6 +71,32 @@
         }
 
         .anime-item { opacity: 0; transform: translateY(20px); }
+
+        /* CLASES PROTECTORAS PARA MODO OSCURO (Misma solución aplicada en Admin y Psicólogo) */
+        .glass-badge {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            color: #ffffff !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .glass-btn {
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            color: var(--app-primary-dark) !important;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+        .glass-btn:hover {
+            background-color: #ffffff !important;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+        }
+
+        /* Alta legibilidad en modo oscuro para textos de la tabla y tarjetas */
+        body.theme-dark .text-body-secondary, body.theme-system .text-body-secondary { color: #94a3b8 !important; }
+        body.theme-dark .text-body, body.theme-system .text-body { color: #f8fafc !important; }
     </style>
 @endpush
 
@@ -85,15 +109,15 @@
 
                 <div class="row align-items-center banner-content">
                     <div class="col-lg-8">
-                        <span class="badge bg-white text-primary border border-white border-opacity-25 rounded-pill px-3 py-2 mb-3 fw-bold shadow-sm" style="color: var(--app-primary) !important;">
+                        <span class="badge glass-badge rounded-pill px-3 py-2 mb-3 fw-bold shadow-sm">
                             <i class="bi bi-shield-check me-1"></i> Entorno Seguro y Confidencial
                         </span>
 
-                        <h2 class="fw-black mb-2 text-white" style="font-size: 2.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <h2 class="fw-black mb-2 text-white" style="font-size: 2.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                             Hola, {{ auth()->user()->name }}
                         </h2>
 
-                        <p class="mb-0 text-white text-opacity-90 fs-5" style="text-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                        <p class="mb-0 text-white text-opacity-90 fs-5" style="text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
                             @if($estudiante)
                                 Matrícula: {{ $estudiante->matricula }} · Grupo: {{ $estudiante->grupo?->nombre ?? 'Sin grupo' }}
                             @else
@@ -103,7 +127,7 @@
                     </div>
 
                     <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
-                        <a href="{{ route('evaluaciones.index') }}" class="btn btn-light rounded-pill fw-bold px-4 py-2 shadow-sm hover-elevate" style="color: var(--app-primary) !important;">
+                        <a href="{{ route('evaluaciones.index') }}" class="btn glass-btn rounded-pill fw-bold px-4 py-2 shadow-sm hover-elevate">
                             <i class="bi bi-clipboard2-check-fill me-2"></i>Ver Evaluaciones
                         </a>
                     </div>
@@ -247,6 +271,7 @@
 @endsection
 
 @push('scripts')
+    <script src="{{ asset('js/granim.min.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Animación de entrada
