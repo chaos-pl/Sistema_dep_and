@@ -14,12 +14,19 @@ class GrupoController extends Controller
 {
     public function index()
     {
-        $grupos = Grupo::with(['carrera', 'tutor.persona'])
-            ->withCount('estudiantes')
-            ->latest()
-            ->paginate(10);
+        $grupos = Grupo::with([
+            'carrera',
+            'tutor.persona',
+            'estudiantes.persona.user'
+        ])->withCount('estudiantes')->paginate(10);
 
-        return view('admin.grupos.index', compact('grupos'));
+        $carreras = Carrera::orderBy('nombre')->get();
+
+        $tutores = Tutor::with('persona')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return view('admin.grupos.index', compact('grupos', 'carreras', 'tutores'));
     }
 
     public function create()
