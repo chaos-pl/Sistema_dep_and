@@ -9,6 +9,8 @@
         .search-input-prometeo {
             padding-left: 2.8rem !important;
         }
+        .hover-elevate { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .hover-elevate:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important; }
 
         .modal-content {
             border-radius: 1.5rem;
@@ -133,7 +135,7 @@
                 @forelse($tutores as $tutor)
                     <tr class="tutor-row border-bottom border-secondary border-opacity-10">
                         <td class="px-4 py-3 border-0">
-                            <div class="d-flex align-items-center gap-3">
+                            <div class="d-flex align-items-center gap-3" style="transition: transform 0.2s ease;">
                                 <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px;">
                                     <i class="bi bi-person-video3"></i>
                                 </div>
@@ -168,7 +170,7 @@
                                 <button type="button"
                                         data-bs-toggle="modal"
                                         data-bs-target="#modalShowTutor{{ $tutor->id }}"
-                                        class="btn btn-sm btn-light border text-info rounded-circle shadow-sm"
+                                        class="btn btn-sm btn-light border text-info rounded-circle shadow-sm hover-elevate"
                                         style="width: 35px; height: 35px; display: inline-flex; align-items: center; justify-content: center;"
                                         title="Ver Detalle">
                                     <i class="bi bi-eye-fill"></i>
@@ -177,7 +179,7 @@
                                 <button type="button"
                                         data-bs-toggle="modal"
                                         data-bs-target="#modalEditTutor{{ $tutor->id }}"
-                                        class="btn btn-sm btn-light border text-warning rounded-circle shadow-sm"
+                                        class="btn btn-sm btn-light border text-warning rounded-circle shadow-sm hover-elevate"
                                         style="width: 35px; height: 35px; display: inline-flex; align-items: center; justify-content: center;"
                                         title="Editar">
                                     <i class="bi bi-pencil-fill"></i>
@@ -189,7 +191,7 @@
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit"
-                                            class="btn btn-sm btn-light border text-danger rounded-circle shadow-sm"
+                                            class="btn btn-sm btn-light border text-danger rounded-circle shadow-sm hover-elevate"
                                             style="width: 35px; height: 35px; display: inline-flex; align-items: center; justify-content: center;"
                                             title="Eliminar">
                                         <i class="bi bi-trash-fill"></i>

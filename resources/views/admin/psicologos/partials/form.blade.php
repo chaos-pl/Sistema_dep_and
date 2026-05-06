@@ -114,11 +114,4 @@
     </div>
 </div>
 
-<div class="d-flex justify-content-between mt-5 pt-4 border-top border-secondary border-opacity-10">
-    <a href="{{ route('admin.psicologos.index') }}" class="btn btn-light border px-4 rounded-pill fw-bold text-body-secondary shadow-sm">
-        <i class="bi bi-arrow-left me-2"></i>Cancelar
-    </a>
-    <button type="submit" class="btn btn-primary px-5 rounded-pill fw-bold shadow-sm">
-        <i class="bi bi-save me-2"></i>{{ $submitText }}
-    </button>
-</div>
+

@@ -138,6 +138,29 @@
         }
         body.theme-dark .topbar, body.theme-system .topbar { background: rgba(17, 24, 39, 0.88); border-bottom: 1px solid rgba(31, 41, 55, 0.9); }
         body.theme-dark .app-card, body.theme-system .app-card { background: var(--app-surface); color: var(--app-text); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20); }
+        
+        /* Ajuste de contraste para textos globales en modo oscuro */
+        body.theme-dark .text-body-secondary, body.theme-system .text-body-secondary { color: #94a3b8 !important; }
+        body.theme-dark .text-body, body.theme-system .text-body { color: #f8fafc !important; }
+
+        /* Ajuste de contraste para centros de alertas y avisos en modo oscuro */
+        body.theme-dark .alert-warning, body.theme-system .alert-warning { background-color: rgba(245, 158, 11, 0.15) !important; color: #fcd34d !important; border-color: rgba(245, 158, 11, 0.3) !important; }
+        body.theme-dark .alert-info, body.theme-system .alert-info { background-color: rgba(56, 189, 248, 0.15) !important; color: #7dd3fc !important; border-color: rgba(56, 189, 248, 0.3) !important; }
+        body.theme-dark .alert-danger, body.theme-system .alert-danger { background-color: rgba(239, 68, 68, 0.15) !important; color: #fca5a5 !important; border-color: rgba(239, 68, 68, 0.3) !important; }
+        body.theme-dark .alert-success, body.theme-system .alert-success { background-color: rgba(34, 197, 94, 0.15) !important; color: #86efac !important; border-color: rgba(34, 197, 94, 0.3) !important; }
+
+        /* Ajuste de íconos/widgets con opacidad en los dashboards para no verse opacados */
+        body.theme-dark .bg-primary.bg-opacity-10, body.theme-system .bg-primary.bg-opacity-10 { background-color: rgba(96, 165, 250, 0.15) !important; }
+        body.theme-dark .bg-success.bg-opacity-10, body.theme-system .bg-success.bg-opacity-10 { background-color: rgba(52, 211, 153, 0.15) !important; }
+        body.theme-dark .bg-info.bg-opacity-10, body.theme-system .bg-info.bg-opacity-10 { background-color: rgba(56, 189, 248, 0.15) !important; }
+        body.theme-dark .bg-warning.bg-opacity-10, body.theme-system .bg-warning.bg-opacity-10 { background-color: rgba(251, 191, 36, 0.15) !important; }
+        body.theme-dark .bg-danger.bg-opacity-10, body.theme-system .bg-danger.bg-opacity-10 { background-color: rgba(248, 113, 113, 0.15) !important; }
+        
+        body.theme-dark .text-primary, body.theme-system .text-primary { color: #60a5fa !important; }
+        body.theme-dark .text-success, body.theme-system .text-success { color: #34d399 !important; }
+        body.theme-dark .text-info, body.theme-system .text-info { color: #38bdf8 !important; }
+        body.theme-dark .text-warning, body.theme-system .text-warning { color: #fbbf24 !important; }
+        body.theme-dark .text-danger, body.theme-system .text-danger { color: #f87171 !important; }
         body.theme-dark .text-dark, body.theme-dark .text-body, body.theme-system .text-dark, body.theme-system .text-body { color: #f8fafc !important; }
         body.theme-dark .text-secondary, body.theme-system .text-secondary { color: #cbd5e1 !important; }
         body.theme-dark .text-muted, body.theme-dark .text-body-secondary, body.theme-system .text-muted, body.theme-system .text-body-secondary { color: #94a3b8 !important; }
@@ -362,25 +385,15 @@
                                 <div class="nav-item-wrapper"><a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"><i class="bi bi-grid-1x2-fill"></i> Panel admin</a></div>
                                 @can('usuarios.ver')
                                     <div class="nav-item-wrapper"><a href="{{ route('admin.usuarios.index') }}" class="nav-link {{ request()->routeIs('admin.usuarios.*') ? 'active' : '' }}"><i class="bi bi-people-fill"></i> Usuarios</a></div>
-                                    <div class="nav-item-wrapper"><a href="{{ route('admin.expedientes-pendientes.index') }}" class="nav-link {{ request()->routeIs('admin.expedientes-pendientes.*') ? 'active' : '' }}"><i class="bi bi-person-exclamation"></i> Pendientes</a></div>
                                 @endcan
                                 @can('personas.ver')
                                     <div class="nav-item-wrapper"><a href="{{ route('admin.personas.index') }}" class="nav-link {{ request()->routeIs('admin.personas.*') ? 'active' : '' }}"><i class="bi bi-person-vcard-fill"></i> Personas</a></div>
                                 @endcan
+                                <div class="nav-item-wrapper"><a href="{{ route('admin.usuarios-sin-persona.index') }}" class="nav-link {{ request()->routeIs('admin.usuarios-sin-persona.*') ? 'active' : '' }}"><i class="bi bi-person-dash-fill"></i> Sin persona</a></div>
+                                <div class="nav-item-wrapper"><a href="{{ route('admin.expedientes-pendientes.index') }}" class="nav-link {{ request()->routeIs('admin.expedientes-pendientes.*') ? 'active' : '' }}"><i class="bi bi-person-exclamation"></i> Sin expediente</a></div>
                             </div>
                         </div>
 
-                        <div class="nav-section anime-sidebar-item" data-section-name="admin_escolar">
-                            <div class="nav-section-header">
-                                <span class="nav-section-title">Escolar</span>
-                                <i class="bi bi-chevron-down nav-section-icon"></i>
-                            </div>
-                            <div class="nav-section-body">
-                                @can('usuarios.ver')<div class="nav-item-wrapper"><a href="{{ route('admin.tutores.index') }}" class="nav-link {{ request()->routeIs('admin.tutores.*') ? 'active' : '' }}"><i class="bi bi-person-video3"></i> Tutores</a></div>@endcan
-                                @can('grupos.ver')<div class="nav-item-wrapper"><a href="{{ route('admin.grupos.index') }}" class="nav-link {{ request()->routeIs('admin.grupos.*') ? 'active' : '' }}"><i class="bi bi-collection-fill"></i> Grupos</a></div>@endcan
-                                @can('carreras.ver')<div class="nav-item-wrapper"><a href="{{ route('admin.carreras.index') }}" class="nav-link {{ request()->routeIs('admin.carreras.*') ? 'active' : '' }}"><i class="bi bi-mortarboard-fill"></i> Carreras</a></div>@endcan
-                            </div>
-                        </div>
 
                         <div class="nav-section anime-sidebar-item" data-section-name="admin_clinica">
                             <div class="nav-section-header">
@@ -406,6 +419,38 @@
                             <div class="nav-section-body">
                                 @can('roles.ver')<div class="nav-item-wrapper"><a href="{{ route('admin.roles.index') }}" class="nav-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}"><i class="bi bi-shield-lock-fill"></i> Roles</a></div>@endcan
                                 @can('permisos.ver')<div class="nav-item-wrapper"><a href="{{ route('admin.permisos.index') }}" class="nav-link {{ request()->routeIs('admin.permisos.*') ? 'active' : '' }}"><i class="bi bi-key-fill"></i> Permisos</a></div>@endcan
+                            </div>
+                        </div>
+
+                        <div class="nav-section anime-sidebar-item" data-section-name="admin_control_escolar">
+                            <div class="nav-section-header">
+                                <span class="nav-section-title">Control Escolar</span>
+                                <i class="bi bi-chevron-down nav-section-icon"></i>
+                            </div>
+                            <div class="nav-section-body">
+                                @can('control_escolar.dashboard')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.dashboard') }}" class="nav-link {{ request()->routeIs('control_escolar.dashboard') ? 'active' : '' }}"><i class="bi bi-building"></i> Panel Escolar</a></div>@endcan
+                                @can('estudiantes.ver')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.estudiantes.index') }}" class="nav-link {{ request()->routeIs('control_escolar.estudiantes.*') ? 'active' : '' }}"><i class="bi bi-mortarboard-fill"></i> Estudiantes</a></div>@endcan
+                                @can('tutores.ver')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.tutores.index') }}" class="nav-link {{ request()->routeIs('control_escolar.tutores.*') ? 'active' : '' }}"><i class="bi bi-person-video3"></i> Tutores</a></div>@endcan
+                                @can('grupos.ver')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.grupos.index') }}" class="nav-link {{ request()->routeIs('control_escolar.grupos.*') ? 'active' : '' }}"><i class="bi bi-collection-fill"></i> Grupos</a></div>@endcan
+                                @can('estudiantes.ver_pendientes')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.pendientes.index') }}" class="nav-link {{ request()->routeIs('control_escolar.pendientes.*') ? 'active' : '' }}"><i class="bi bi-person-exclamation"></i> Pendientes por asignar</a></div>@endcan
+                                @can('carreras.ver')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.carreras.index') }}" class="nav-link {{ request()->routeIs('control_escolar.carreras.*') ? 'active' : '' }}"><i class="bi bi-book-fill"></i> Carreras</a></div>@endcan
+                                @can('ciclos_escolares.ver')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.ciclos-escolares.index') }}" class="nav-link {{ request()->routeIs('control_escolar.ciclos-escolares.*') ? 'active' : '' }}"><i class="bi bi-calendar-event-fill"></i> Ciclos Escolares</a></div>@endcan
+                                @can('tutores.asignar_grupo')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.asignaciones.index') }}" class="nav-link {{ request()->routeIs('control_escolar.asignaciones.*') ? 'active' : '' }}"><i class="bi bi-arrow-left-right"></i> Asignaciones</a></div>@endcan
+                            </div>
+                        </div>
+
+                    @elseif(auth()->user()->hasRole('control_escolar'))
+                        <div class="nav-section anime-sidebar-item" data-section-name="ce_panel">
+                            <div class="nav-section-header"><span class="nav-section-title">Control Escolar</span><i class="bi bi-chevron-down nav-section-icon"></i></div>
+                            <div class="nav-section-body">
+                                <div class="nav-item-wrapper"><a href="{{ route('control_escolar.dashboard') }}" class="nav-link {{ request()->routeIs('control_escolar.dashboard') ? 'active' : '' }}"><i class="bi bi-building"></i> Panel Escolar</a></div>
+                                @can('estudiantes.ver')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.estudiantes.index') }}" class="nav-link {{ request()->routeIs('control_escolar.estudiantes.*') ? 'active' : '' }}"><i class="bi bi-mortarboard-fill"></i> Estudiantes</a></div>@endcan
+                                @can('tutores.ver')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.tutores.index') }}" class="nav-link {{ request()->routeIs('control_escolar.tutores.*') ? 'active' : '' }}"><i class="bi bi-person-video3"></i> Tutores</a></div>@endcan
+                                @can('grupos.ver')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.grupos.index') }}" class="nav-link {{ request()->routeIs('control_escolar.grupos.*') ? 'active' : '' }}"><i class="bi bi-collection-fill"></i> Grupos</a></div>@endcan
+                                @can('estudiantes.ver_pendientes')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.pendientes.index') }}" class="nav-link {{ request()->routeIs('control_escolar.pendientes.*') ? 'active' : '' }}"><i class="bi bi-person-exclamation"></i> Pendientes por asignar</a></div>@endcan
+                                @can('carreras.ver')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.carreras.index') }}" class="nav-link {{ request()->routeIs('control_escolar.carreras.*') ? 'active' : '' }}"><i class="bi bi-book-fill"></i> Carreras</a></div>@endcan
+                                @can('ciclos_escolares.ver')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.ciclos-escolares.index') }}" class="nav-link {{ request()->routeIs('control_escolar.ciclos-escolares.*') ? 'active' : '' }}"><i class="bi bi-calendar-event-fill"></i> Ciclos Escolares</a></div>@endcan
+                                @can('tutores.asignar_grupo')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.asignaciones.index') }}" class="nav-link {{ request()->routeIs('control_escolar.asignaciones.*') ? 'active' : '' }}"><i class="bi bi-arrow-left-right"></i> Asignaciones</a></div>@endcan
                             </div>
                         </div>
 
@@ -464,7 +509,7 @@
                         </div>
                     </div>
                 @endauth
-                <a href="{{ route('logout.view') }}" class="btn btn-light w-100 fw-bold shadow-sm d-flex justify-content-center align-items-center">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#modalLogout" class="btn btn-light w-100 fw-bold shadow-sm d-flex justify-content-center align-items-center">
                     <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
                 </a>
             </div>
@@ -490,7 +535,7 @@
                             <i class="bi bi-person-badge-fill"></i>
                             {{ auth()->user()->getRoleNames()->map(fn($role) => ucfirst($role))->implode(', ') ?: 'Sin rol' }}
                         </span>
-                        <a href="{{ route('logout.view') }}" class="btn btn-outline-danger d-none d-lg-inline-flex align-items-center rounded-pill px-3">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#modalLogout" class="btn btn-outline-danger d-none d-lg-inline-flex align-items-center rounded-pill px-3">
                             <i class="bi bi-power me-2"></i>Salir
                         </a>
                     </div>
@@ -539,6 +584,7 @@
                 <div class="nav-section" data-section-name="mobile_admin_escolar">
                     <div class="nav-section-header"><span class="nav-section-title">Escolar</span><i class="bi bi-chevron-down nav-section-icon"></i></div>
                     <div class="nav-section-body">
+                        @can('usuarios.ver')<div class="nav-item-wrapper"><a href="{{ route('admin.estudiantes.index') }}" class="nav-link {{ request()->routeIs('admin.estudiantes.*') ? 'active' : '' }}"><i class="bi bi-person-badge"></i> Estudiantes</a></div>@endcan
                         @can('usuarios.ver')<div class="nav-item-wrapper"><a href="{{ route('admin.tutores.index') }}" class="nav-link {{ request()->routeIs('admin.tutores.*') ? 'active' : '' }}"><i class="bi bi-person-video3"></i> Tutores</a></div>@endcan
                         @can('grupos.ver')<div class="nav-item-wrapper"><a href="{{ route('admin.grupos.index') }}" class="nav-link {{ request()->routeIs('admin.grupos.*') ? 'active' : '' }}"><i class="bi bi-collection-fill"></i> Grupos</a></div>@endcan
                         @can('carreras.ver')<div class="nav-item-wrapper"><a href="{{ route('admin.carreras.index') }}" class="nav-link {{ request()->routeIs('admin.carreras.*') ? 'active' : '' }}"><i class="bi bi-mortarboard-fill"></i> Carreras</a></div>@endcan
@@ -599,11 +645,80 @@
     </div>
 
     <div class="mt-auto p-4 border-top border-light border-opacity-10">
-        <a href="{{ route('logout.view') }}" class="btn btn-light w-100 fw-bold d-flex justify-content-center align-items-center">
+        <a href="#" data-bs-toggle="modal" data-bs-target="#modalLogout" class="btn btn-light w-100 fw-bold d-flex justify-content-center align-items-center">
             <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
         </a>
     </div>
 </div>
+
+<!-- Modal de Cerrar Sesión Global -->
+<div class="modal fade" id="modalLogout" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center overflow-hidden border-0" style="border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+            <div class="modal-body p-5">
+                <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-inline-flex align-items-center justify-content-center mb-4 shadow-sm" style="width: 80px; height: 80px;">
+                    <i class="bi bi-power" style="font-size: 2.5rem;"></i>
+                </div>
+                <h4 class="fw-black text-body mb-3 font-title">¿Deseas cerrar sesión?</h4>
+                <p class="text-body-secondary mb-0">Tu sesión actual será finalizada y tendrás que volver a ingresar para acceder a PROMETEO.</p>
+            </div>
+            <div class="modal-footer d-flex justify-content-center gap-2 p-4 border-top border-secondary border-opacity-10 bg-body-tertiary">
+                <button type="button" class="btn btn-light rounded-pill px-4 fw-bold shadow-sm" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <form action="{{ route('logout') }}" method="POST" class="m-0">
+                    @csrf
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm">
+                        <i class="bi bi-power me-2"></i>Sí, cerrar sesión
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Estilos rápidos y sutiles solo para el modal de Logout */
+#modalLogout.fade .modal-dialog {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+    transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s cubic-bezier(0.2, 0, 0, 1) !important;
+}
+#modalLogout.show .modal-dialog {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+
+/* Soporte para modo oscuro exclusivo del modal de logout */
+body.theme-dark #modalLogout .modal-content,
+body.theme-system #modalLogout .modal-content {
+    background-color: #1e293b !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+}
+body.theme-dark #modalLogout .modal-body,
+body.theme-system #modalLogout .modal-body {
+    background-color: #0f172a !important;
+}
+body.theme-dark #modalLogout .modal-footer,
+body.theme-system #modalLogout .modal-footer {
+    background-color: #1e293b !important;
+    border-top: 1px solid rgba(255,255,255,0.1) !important;
+}
+body.theme-dark #modalLogout h4,
+body.theme-system #modalLogout h4 {
+    color: #f8fafc !important;
+}
+body.theme-dark #modalLogout .btn-light,
+body.theme-system #modalLogout .btn-light {
+    background-color: #334155 !important;
+    color: #f8fafc !important;
+    border-color: rgba(255,255,255,0.2) !important;
+}
+body.theme-dark #modalLogout .btn-light:hover,
+body.theme-system #modalLogout .btn-light:hover {
+    background-color: #475569 !important;
+}
+</style>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>

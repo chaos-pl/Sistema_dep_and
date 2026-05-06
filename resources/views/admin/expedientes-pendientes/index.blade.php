@@ -8,10 +8,78 @@
     <style>
         .search-input-prometeo { padding-left: 2.8rem !important; }
         .anime-item { opacity: 0; transform: translateY(20px); }
+        .hover-elevate { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .hover-elevate:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important; }
+
+        /* --- DISEÑO PREMIUM PARA MODALES --- */
+        .modal-content {
+            border-radius: 1.5rem;
+            overflow: hidden;
+            border: 0;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal-header-custom {
+            background-color: var(--app-primary);
+            color: white;
+            border-bottom: 0;
+            padding: 1.5rem 2rem;
+        }
+
+        .modal-body-custom {
+            padding: 2rem;
+            background-color: var(--app-surface);
+        }
+
+        .modal-footer-custom {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.15);
+            background-color: rgba(148, 163, 184, 0.05);
+        }
+
+        /* Ajustes Modo Oscuro para Modales */
+        body.theme-dark .modal-content, body.theme-system .modal-content {
+            background-color: #1e293b !important;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        body.theme-dark .modal-body-custom, body.theme-system .modal-body-custom {
+            background-color: #0f172a !important;
+        }
+        body.theme-dark .modal-footer-custom, body.theme-system .modal-footer-custom {
+            background-color: #1e293b !important;
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+
+        /* Animación de Despliegue */
+        .modal.fade {
+            perspective: 2000px;
+        }
+
+        .modal.fade .modal-dialog {
+            opacity: 0;
+            transform-origin: center center;
+            transform: translateZ(-500px) rotateY(90deg) scale(0.5);
+            transition: transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1), opacity 0.4s ease-in-out;
+        }
+
+        .modal.show .modal-dialog {
+            opacity: 1;
+            transform: translateZ(0) rotateY(0deg) scale(1);
+        }
+
+        .modal-backdrop.show {
+            opacity: 0.75;
+            backdrop-filter: blur(8px) brightness(0.4);
+            background-color: #000000;
+        }
     </style>
 @endpush
 
 @section('content')
+    @php
+        $gruposForm = \App\Models\Grupo::with('carrera')->orderBy('nombre')->get();
+    @endphp
+
     <div class="row g-4 anime-item">
         <div class="col-12">
             <div class="app-card p-4 p-md-5 border-0 shadow-sm rounded-4">
@@ -67,10 +135,9 @@
 
                                 <td class="text-end px-4 py-3 border-0">
                                     @if($usuario->persona)
-                                        <a href="{{ route('admin.expedientes-pendientes.edit', $usuario->id) }}"
-                                           class="btn btn-sm btn-primary rounded-pill shadow-sm fw-bold px-3 hover-elevate">
+                                        <button type="button" class="btn btn-sm btn-primary rounded-pill shadow-sm fw-bold px-3 hover-elevate" data-bs-toggle="modal" data-bs-target="#modalCompletar{{ $usuario->id }}">
                                             Completar Expediente <i class="bi bi-arrow-right-circle ms-1"></i>
-                                        </a>
+                                        </button>
                                     @else
                                         <a href="{{ route('admin.personas.index') }}"
                                            class="btn btn-sm btn-light border text-warning-emphasis rounded-pill shadow-sm fw-bold px-3 hover-elevate">
@@ -101,6 +168,72 @@
             </div>
         </div>
     </div>
+
+    <!-- Modales para Completar Expediente -->
+    @foreach($usuarios as $usuario)
+        @if($usuario->persona)
+            <div class="modal fade" id="modalCompletar{{ $usuario->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header modal-header-custom d-flex justify-content-between align-items-center">
+                            <h5 class="modal-title fw-black mb-0"><i class="bi bi-person-lines-fill me-2"></i>Asignación Académica</h5>
+                            <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <form action="{{ route('admin.expedientes-pendientes.update', $usuario->id) }}" method="POST">
+                            @csrf
+                            @method('PUT')
+                            <div class="modal-body modal-body-custom">
+                                <div class="bg-body-tertiary rounded-4 p-3 mb-4 border border-secondary border-opacity-10 d-flex align-items-center gap-3">
+                                    <div class="bg-body rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-envelope-at text-info"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-body-secondary d-block fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">COMPLETANDO EXPEDIENTE DEL USUARIO</small>
+                                        <span class="text-body fw-medium">{{ $usuario->name }} ({{ $usuario->email }})</span>
+                                    </div>
+                                </div>
+
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold text-body-secondary">Matrícula Escolar</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-body-tertiary border-end-0 text-muted"><i class="bi bi-hash"></i></span>
+                                            <input type="text" name="matricula" value="{{ old('matricula') }}"
+                                                   class="form-control bg-body-tertiary form-control-lg border-start-0 ps-0" placeholder="Ej. 20261001" required>
+                                        </div>
+                                        @error('matricula') <small class="text-danger fw-bold mt-1 d-block"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</small> @enderror
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold text-body-secondary">Grupo Asignado</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-body-tertiary border-end-0 text-muted"><i class="bi bi-collection-fill"></i></span>
+                                            <select name="grupo_id" class="form-select bg-body-tertiary form-control-lg border-start-0 ps-0" required>
+                                                <option value="">Selecciona un grupo...</option>
+                                                @foreach($gruposForm as $grupo)
+                                                    <option value="{{ $grupo->id }}" @selected(old('grupo_id') == $grupo->id)>
+                                                        {{ $grupo->nombre }} | {{ $grupo->periodo }}
+                                                        | {{ $grupo->carrera->nombre ?? 'Sin carrera' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        @error('grupo_id') <small class="text-danger fw-bold mt-1 d-block"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</small> @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer modal-footer-custom d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-light rounded-pill px-4 fw-bold shadow-sm" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm"><i class="bi bi-save me-2"></i>Guardar Expediente</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @endif
+    @endforeach
 @endsection
 
 @push('scripts')
@@ -113,6 +246,11 @@
                 delay: 100,
                 easing: 'easeOutExpo',
                 duration: 900
+            });
+
+            // FIX: EVITAR QUE LA PANTALLA SE CONGELE CON LOS MODALES
+            document.querySelectorAll('.modal').forEach(modal => {
+                document.body.appendChild(modal);
             });
         });
     </script>

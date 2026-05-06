@@ -170,13 +170,3 @@
         @enderror
     </div>
 </div>
-
-<div class="d-flex justify-content-between mt-5 pt-4 border-top">
-    <a href="{{ route('admin.usuarios.index') }}" class="btn btn-light border px-4 rounded-pill fw-bold text-secondary shadow-sm">
-        <i class="bi bi-arrow-left me-2"></i>Cancelar
-    </a>
-
-    <button type="submit" class="btn btn-primary px-5 rounded-pill fw-bold shadow-sm">
-        <i class="bi bi-save me-2"></i>{{ isset($user) && $user ? 'Actualizar Cuenta' : 'Guardar Usuario' }}
-    </button>
-</div>

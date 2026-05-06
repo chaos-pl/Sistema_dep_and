@@ -161,8 +161,8 @@
            SIGLAS (Kinetic Typography)
            ========================================= */
         .siglas-container {
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.15rem;
             font-weight: 500;
             color: rgba(255,255,255,0.9);
             margin-bottom: 3rem;
@@ -355,7 +355,7 @@
         document.addEventListener('DOMContentLoaded', () => {
 
             const textContainer = document.getElementById('siglas-text');
-            const textoOriginal = "Programa de Monitoreo Emocional y Tamizaje Estudiantil Oportuno.";
+            const textoOriginal = "Programa de Registro y Observación del Monitoreo Emocional y Tamizaje Estudiantil Oportuno.";
 
             const words = textoOriginal.split(' ');
             textContainer.innerHTML = words.map(word => {
@@ -369,57 +369,49 @@
 
             tl.add({
                 targets: '.logo-wrapper',
-                scale: [0.3, 1],
+                scale: [0.8, 1],
                 opacity: [0, 1],
-                rotate: [20, 0],
-                filter: ['brightness(10)', 'brightness(1)'],
-                duration: 1400,
-                easing: 'easeOutElastic(1, .6)',
-            })
-                .add({
-                    targets: '.neon-tube',
-                    translateY: [40, 0],
-                    scale: [0.8, 1],
-                    opacity: [0, 1],
-                    filter: ['blur(12px)', 'blur(0px)'],
-                    color: ['#c084fc', '#ffffff'], // Morado claro a blanco
-                    textShadow: [
-                        '0 0 0px rgba(124, 58, 237, 0)',
-                        '0 0 50px rgba(219, 39, 119, 1)', // Destello Magenta
-                        '0 0 15px rgba(124, 58, 237, 0.6)' // Brillo Morado final
-                    ],
-                    duration: 1200,
-                    delay: anime.stagger(100),
-                    easing: 'easeOutQuint',
-                    complete: function() {
-                        document.getElementById('prometeo-logo').classList.add('neon-steady');
-                    }
-                }, '-=600')
-                .add({
-                    targets: '.sigla-letter',
-                    opacity: [0, 1],
-                    translateY: [20, 0],
-                    translateZ: [50, 0],
-                    rotateX: [90, 0],
-                    filter: ['blur(10px)', 'blur(0px)'],
-                    duration: 800,
-                    easing: 'easeOutElastic(1, .7)',
-                    delay: anime.stagger(25),
-                }, '-=800')
-                .add({
-                    targets: '.anime-left-text',
-                    translateY: [20, 0],
-                    opacity: [0, 1],
-                    duration: 800,
-                    delay: anime.stagger(100),
-                }, '-=800')
-                .add({
-                    targets: '.anime-form-item',
-                    translateY: [30, 0],
-                    opacity: [0, 1],
-                    duration: 800,
-                    delay: anime.stagger(100),
-                }, '-=800');
+                filter: ['brightness(1.5)', 'brightness(1)'],
+                duration: 600,
+            }, 0)
+            .add({
+                targets: '.neon-tube',
+                translateY: [20, 0],
+                opacity: [0, 1],
+                filter: ['blur(5px)', 'blur(0px)'],
+                color: ['#c084fc', '#ffffff'],
+                textShadow: [
+                    '0 0 0px rgba(124, 58, 237, 0)',
+                    '0 0 15px rgba(219, 39, 119, 0.8)',
+                    '0 0 5px rgba(124, 58, 237, 0.4)'
+                ],
+                duration: 600,
+                delay: anime.stagger(30),
+                complete: function() {
+                    document.getElementById('prometeo-logo').classList.add('neon-steady');
+                }
+            }, 100)
+            .add({
+                targets: '.sigla-letter',
+                opacity: [0, 1],
+                translateY: [10, 0],
+                duration: 400,
+                delay: anime.stagger(10),
+            }, 300)
+            .add({
+                targets: '.anime-left-text',
+                translateY: [15, 0],
+                opacity: [0, 1],
+                duration: 500,
+                delay: anime.stagger(50),
+            }, 400)
+            .add({
+                targets: '.anime-form-item',
+                translateY: [15, 0],
+                opacity: [0, 1],
+                duration: 500,
+                delay: anime.stagger(50),
+            }, 200);
 
             // Partículas actualizadas a Morado y Magenta
             const logoWrapper = document.getElementById('logo-wrapper');

@@ -9,10 +9,78 @@
         .search-input-prometeo {
             padding-left: 2.8rem !important;
         }
+        .hover-elevate { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .hover-elevate:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important; }
+
+        /* --- DISEÑO PREMIUM PARA MODALES --- */
+        .modal-content {
+            border-radius: 1.5rem;
+            overflow: hidden;
+            border: 0;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal-header-custom {
+            background-color: var(--app-primary);
+            color: white;
+            border-bottom: 0;
+            padding: 1.5rem 2rem;
+        }
+
+        .modal-body-custom {
+            padding: 2rem;
+            background-color: var(--app-surface);
+        }
+
+        .modal-footer-custom {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.15);
+            background-color: rgba(148, 163, 184, 0.05);
+        }
+
+        /* Ajustes Modo Oscuro para Modales */
+        body.theme-dark .modal-content, body.theme-system .modal-content {
+            background-color: #1e293b !important;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        body.theme-dark .modal-body-custom, body.theme-system .modal-body-custom {
+            background-color: #0f172a !important;
+        }
+        body.theme-dark .modal-footer-custom, body.theme-system .modal-footer-custom {
+            background-color: #1e293b !important;
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+
+        /* Animación de Despliegue */
+        .modal.fade {
+            perspective: 2000px;
+        }
+
+        .modal.fade .modal-dialog {
+            opacity: 0;
+            transform-origin: center center;
+            transform: translateZ(-500px) rotateY(90deg) scale(0.5);
+            transition: transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1), opacity 0.4s ease-in-out;
+        }
+
+        .modal.show .modal-dialog {
+            opacity: 1;
+            transform: translateZ(0) rotateY(0deg) scale(1);
+        }
+
+        .modal-backdrop.show {
+            opacity: 0.75;
+            backdrop-filter: blur(8px) brightness(0.4);
+            background-color: #000000;
+        }
     </style>
 @endpush
 
 @section('content')
+    @php
+        $permissionsList = \Spatie\Permission\Models\Permission::orderBy('name')->get();
+    @endphp
+
     <div class="app-card p-4 p-md-5">
 
         <div class="row align-items-center justify-content-between mb-5 gy-3">
@@ -30,9 +98,9 @@
                 </div>
 
                 @can('roles.crear')
-                    <a href="{{ route('admin.roles.create') }}" class="btn btn-primary rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center px-4" style="padding-top: 0.7rem; padding-bottom: 0.7rem;">
+                    <button type="button" class="btn btn-primary rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center px-4" data-bs-toggle="modal" data-bs-target="#modalCreateRole" style="padding-top: 0.7rem; padding-bottom: 0.7rem;">
                         <i class="bi bi-plus-lg me-2"></i> Nuevo Rol
-                    </a>
+                    </button>
                 @endcan
             </div>
         </div>
@@ -80,9 +148,9 @@
                                 @endcan
 
                                 @can('roles.editar')
-                                    <a href="{{ route('admin.roles.edit', $role) }}" class="btn btn-sm btn-light border text-warning rounded-circle shadow-sm" style="width: 35px; height: 35px; display: inline-flex; align-items: center; justify-content: center;" title="Editar">
+                                    <button type="button" data-bs-toggle="modal" data-bs-target="#modalEditRole{{ $role->id }}" class="btn btn-sm btn-light border text-warning rounded-circle shadow-sm" style="width: 35px; height: 35px; display: inline-flex; align-items: center; justify-content: center;" title="Editar">
                                         <i class="bi bi-pencil-fill"></i>
-                                    </a>
+                                    </button>
                                 @endcan
 
                                 @can('roles.eliminar')
@@ -115,10 +183,69 @@
             {{ $roles->links() }}
         </div>
     </div>
+
+    <!-- Modal Nuevo Rol -->
+    <div class="modal fade" id="modalCreateRole" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header modal-header-custom d-flex justify-content-between align-items-center">
+                    <h5 class="modal-title fw-black mb-0"><i class="bi bi-plus-lg me-2"></i>Registrar Nuevo Rol</h5>
+                    <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form action="{{ route('admin.roles.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-body modal-body-custom">
+                        @include('admin.roles.partials.form', ['role' => null, 'permissions' => $permissionsList, 'rolePermissions' => []])
+                    </div>
+                    <div class="modal-footer modal-footer-custom d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-light rounded-pill px-4 fw-bold shadow-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm"><i class="bi bi-save me-2"></i>Guardar Rol</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales de Edición -->
+    @foreach($roles as $role)
+        @php
+            $rolePermissions = $role->permissions->pluck('id')->toArray();
+        @endphp
+        <div class="modal fade" id="modalEditRole{{ $role->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header modal-header-custom d-flex justify-content-between align-items-center" style="background-color: var(--app-primary-dark);">
+                        <h5 class="modal-title fw-black mb-0"><i class="bi bi-pencil-square me-2 text-warning"></i>Actualizar Rol #{{ $role->id }}</h5>
+                        <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <form action="{{ route('admin.roles.update', $role->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-body modal-body-custom">
+                            @include('admin.roles.partials.form', ['role' => $role, 'permissions' => $permissionsList, 'rolePermissions' => $rolePermissions])
+                        </div>
+                        <div class="modal-footer modal-footer-custom d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-light rounded-pill px-4 fw-bold shadow-sm" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-warning text-dark rounded-pill px-4 fw-bold shadow-sm"><i class="bi bi-arrow-repeat me-2"></i>Actualizar Rol</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
 @endsection
 
 @push('scripts')
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // FIX: EVITAR QUE LA PANTALLA SE CONGELE CON LOS MODALES
+            document.querySelectorAll('.modal').forEach(modal => {
+                document.body.appendChild(modal);
+            });
+        });
+
         function filterRoles() {
             let input = document.getElementById('searchInput');
             let filter = input.value.toLowerCase();

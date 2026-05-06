@@ -30,6 +30,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'grupos.eliminar',
             'grupos.ver.asignados',
 
+            // ciclos escolares
+            'ciclos_escolares.ver',
+            'ciclos_escolares.crear',
+            'ciclos_escolares.editar',
+            'ciclos_escolares.eliminar',
+
             // usuarios / personas
             'usuarios.ver',
             'usuarios.crear',
@@ -99,6 +105,22 @@ class RolesAndPermissionsSeeder extends Seeder
             'consentimiento.ver',
             'consentimiento.aceptar',
             'aviso_privacidad.ver',
+
+            // control escolar
+            'control_escolar.dashboard',
+            'estudiantes.ver',
+            'estudiantes.crear',
+            'estudiantes.editar',
+            'estudiantes.ver_pendientes',
+            'estudiantes.asignar_grupo',
+            'estudiantes.cambiar_grupo',
+            'estudiantes.quitar_grupo',
+            'estudiantes.ver_historial',
+            'tutores.ver',
+            'tutores.crear',
+            'tutores.editar',
+            'tutores.asignar_grupo',
+            'historial_escolar.ver',
         ];
 
         foreach ($permissions as $permission) {
@@ -128,6 +150,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'guard_name' => 'web',
         ]);
 
+        $controlEscolar = Role::firstOrCreate([
+            'name' => 'control_escolar',
+            'guard_name' => 'web',
+        ]);
+
         $admin->syncPermissions([
             'perfil.ver',
             'perfil.editar',
@@ -136,6 +163,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'carreras.crear',
             'carreras.editar',
             'carreras.eliminar',
+
+            'ciclos_escolares.ver',
+            'ciclos_escolares.crear',
+            'ciclos_escolares.editar',
+            'ciclos_escolares.eliminar',
 
             'grupos.ver',
             'grupos.crear',
@@ -173,6 +205,22 @@ class RolesAndPermissionsSeeder extends Seeder
 
             'consentimiento.ver',
             'aviso_privacidad.ver',
+
+            // Control Escolar (admin también tiene acceso completo)
+            'control_escolar.dashboard',
+            'estudiantes.ver',
+            'estudiantes.crear',
+            'estudiantes.editar',
+            'estudiantes.ver_pendientes',
+            'estudiantes.asignar_grupo',
+            'estudiantes.cambiar_grupo',
+            'estudiantes.quitar_grupo',
+            'estudiantes.ver_historial',
+            'tutores.ver',
+            'tutores.crear',
+            'tutores.editar',
+            'tutores.asignar_grupo',
+            'historial_escolar.ver',
         ]);
 
         $estudiante->syncPermissions([
@@ -233,6 +281,44 @@ class RolesAndPermissionsSeeder extends Seeder
 
             'consentimiento.ver',
             'consentimiento.aceptar',
+            'aviso_privacidad.ver',
+        ]);
+
+        $controlEscolar->syncPermissions([
+            'perfil.ver',
+            'perfil.editar',
+
+            'control_escolar.dashboard',
+
+            'carreras.ver',
+            'carreras.crear',
+            'carreras.editar',
+
+            'ciclos_escolares.ver',
+            'ciclos_escolares.crear',
+            'ciclos_escolares.editar',
+
+            'grupos.ver',
+            'grupos.crear',
+            'grupos.editar',
+
+            'estudiantes.ver',
+            'estudiantes.crear',
+            'estudiantes.editar',
+            'estudiantes.ver_pendientes',
+            'estudiantes.asignar_grupo',
+            'estudiantes.cambiar_grupo',
+            'estudiantes.quitar_grupo',
+            'estudiantes.ver_historial',
+
+            'tutores.ver',
+            'tutores.crear',
+            'tutores.editar',
+            'tutores.asignar_grupo',
+
+            'historial_escolar.ver',
+
+            'consentimiento.ver',
             'aviso_privacidad.ver',
         ]);
     }

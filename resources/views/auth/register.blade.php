@@ -141,6 +141,20 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(124, 58, 237, 0.4);
         }
+
+        /* Estilos personalizados para el input del Modal SweetAlert */
+        .swal2-input[type="date"] {
+            border-radius: 1rem !important;
+            border: 2px solid #e2e8f0 !important;
+            padding: 0.85rem 1.2rem !important;
+            font-size: 1.1rem !important;
+            color: #1e293b !important;
+            height: auto !important;
+        }
+        .swal2-input[type="date"]:focus {
+            border-color: var(--app-primary) !important;
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15) !important;
+        }
     </style>
 @endpush
 
@@ -232,7 +246,7 @@
 
                             <div class="col-md-4 anime-input">
                                 <label class="form-label fw-bold text-secondary">Fecha de nacimiento</label>
-                                <input type="date" name="fecha_nacimiento" class="form-control text-secondary" value="{{ old('fecha_nacimiento') }}" required>
+                                <input type="text" name="fecha_nacimiento" id="fechaNacimientoInput" class="form-control text-secondary" value="{{ old('fecha_nacimiento') }}" placeholder="Seleccionar fecha..." required readonly style="cursor: pointer; background-color: #ffffff;">
                                 @error('fecha_nacimiento')<small class="text-danger fw-bold mt-1 d-block"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</small>@enderror
                             </div>
 
@@ -272,6 +286,8 @@
 
 @push('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script>
         // Función reutilizable para alternar visibilidad en cualquier campo de contraseña
         function togglePasswordVisibility(inputId, iconId) {
@@ -290,7 +306,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Aparece la tarjeta flotando hacia arriba con fade
+            // Animaciones de entrada
             anime({
                 targets: '.anime-card',
                 translateY: [40, 0],
@@ -300,7 +316,6 @@
                 duration: 1200
             });
 
-            // Los inputs aparecen en cascada
             anime({
                 targets: '.anime-input',
                 translateY: [20, 0],
@@ -310,13 +325,53 @@
                 duration: 800
             });
 
-            // Los botones entran al final
             anime({
                 targets: '.anime-btn',
                 translateY: [15, 0],
                 opacity: [0, 1],
                 delay: 1100,
                 easing: 'easeOutQuad'
+            });
+
+            // ==============================================================
+            // LÓGICA DE SWEETALERT2 PARA LA FECHA DE NACIMIENTO
+            // ==============================================================
+            const fechaInput = document.getElementById('fechaNacimientoInput');
+            
+            fechaInput.addEventListener('click', function() {
+                // Obtenemos la fecha de hoy en formato YYYY-MM-DD para limitar el input
+                const today = new Date().toISOString().split('T')[0];
+                const currentValue = this.value;
+
+                Swal.fire({
+                    title: 'Selecciona tu fecha de nacimiento',
+                    html: `
+                        <input type="date" id="swal-date" class="swal2-input w-75" 
+                               max="${today}" value="${currentValue}">
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="bi bi-calendar-check me-1"></i> Aceptar',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#7c3aed',
+                    customClass: {
+                        popup: 'rounded-4 shadow-lg',
+                        confirmButton: 'btn rounded-pill px-4 fw-bold shadow-sm',
+                        cancelButton: 'btn btn-light rounded-pill px-4 fw-bold shadow-sm'
+                    },
+                    buttonsStyling: false,
+                    preConfirm: () => {
+                        const dateVal = document.getElementById('swal-date').value;
+                        if (!dateVal) {
+                            Swal.showValidationMessage('Por favor selecciona una fecha válida');
+                        }
+                        return dateVal;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Asignamos la fecha seleccionada al input original
+                        this.value = result.value;
+                    }
+                });
             });
         });
     </script>
