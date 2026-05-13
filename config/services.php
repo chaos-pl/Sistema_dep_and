@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'prometeo_ia' => [
+        'url' => env('PROMETEO_IA_URL'),
+        'timeout' => env('PROMETEO_IA_TIMEOUT', 60),
+    ],
+
 ];

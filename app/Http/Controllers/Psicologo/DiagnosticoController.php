@@ -51,19 +51,27 @@ class DiagnosticoController extends Controller
             return redirect()->route('psicologo.dashboard');
         }
 
-        $evaluacion = Evaluacion::with(['alerta', 'diagnostico'])->findOrFail($request->evaluacion_id);
+        $validated = $request->validated();
+
+        $evaluacion = Evaluacion::with(['alerta', 'diagnostico'])
+            ->findOrFail($validated['evaluacion_id']);
 
         if ($evaluacion->diagnostico) {
             Alert::warning('Diagnóstico existente', 'Esta evaluación ya tiene un diagnóstico registrado.');
-            return redirect()->route('alertas.show', $evaluacion->alerta?->id ?? 0);
+
+            if ($evaluacion->alerta) {
+                return redirect()->route('alertas.show', $evaluacion->alerta->id);
+            }
+
+            return redirect()->route('diagnosticos.index');
         }
 
-        DB::transaction(function () use ($request, $evaluacion, $psicologo) {
+        DB::transaction(function () use ($validated, $request, $evaluacion, $psicologo) {
             Diagnostico::create([
                 'evaluacion_id' => $evaluacion->id,
                 'psicologo_id' => $psicologo->id,
-                'impresion_diagnostica' => $request->impresion_diagnostica,
-                'retroalimentacion_estudiante' => $request->retroalimentacion_estudiante,
+                'impresion_diagnostica' => $validated['impresion_diagnostica'],
+                'retroalimentacion_estudiante' => $validated['retroalimentacion_estudiante'] ?? null,
                 'requiere_derivacion' => $request->boolean('requiere_derivacion'),
             ]);
 

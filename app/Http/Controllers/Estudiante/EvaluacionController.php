@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Estudiante;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Estudiante\StoreEvaluacionRequest;
+use App\Models\Alerta;
 use App\Models\Evaluacion;
 use App\Models\Instrumento;
 use App\Models\ResultadoClinico;
@@ -75,7 +76,8 @@ class EvaluacionController extends Controller
             ]);
         }
 
-        $instrumento = Instrumento::whereRaw('LOWER(acronimo) = ?', [strtolower($tipo)])->firstOrFail();
+        $instrumento = Instrumento::whereRaw('LOWER(acronimo) = ?', [strtolower($tipo)])
+            ->firstOrFail();
 
         $preguntas = $this->obtenerPreguntas($instrumento->acronimo);
 
@@ -98,7 +100,9 @@ class EvaluacionController extends Controller
             return redirect()->route('evaluaciones.index');
         }
 
-        $instrumento = Instrumento::whereRaw('LOWER(acronimo) = ?', [strtolower($tipo)])->firstOrFail();
+        $instrumento = Instrumento::whereRaw('LOWER(acronimo) = ?', [strtolower($tipo)])
+            ->firstOrFail();
+
         $preguntas = $this->obtenerPreguntas($instrumento->acronimo);
         $respuestas = $request->input('respuestas', []);
 
@@ -126,11 +130,33 @@ class EvaluacionController extends Controller
                 $puntajeTotal += (int) $valor;
             }
 
+            $nivelRiesgo = $this->calcularNivelRiesgo($instrumento->acronimo, $puntajeTotal);
+
             ResultadoClinico::create([
                 'evaluacion_id' => $evaluacion->id,
                 'puntaje_total' => $puntajeTotal,
-                'nivel_riesgo' => $this->calcularNivelRiesgo($instrumento->acronimo, $puntajeTotal),
+                'nivel_riesgo' => $nivelRiesgo,
             ]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Generación automática de alerta clínica
+            |--------------------------------------------------------------------------
+            | Si el resultado es moderado o severo, se crea una alerta para que
+            | aparezca en el módulo del psicólogo.
+            |--------------------------------------------------------------------------
+            */
+
+            if (in_array($nivelRiesgo, ['moderado', 'severo'], true)) {
+                Alerta::firstOrCreate(
+                    [
+                        'evaluacion_id' => $evaluacion->id,
+                    ],
+                    [
+                        'estado' => 'generada',
+                    ]
+                );
+            }
         });
 
         Alert::success('Evaluación enviada', 'Tu evaluación fue registrada correctamente.');
@@ -180,7 +206,6 @@ class EvaluacionController extends Controller
                 $puntaje <= 4 => 'nulo',
                 $puntaje <= 9 => 'leve',
                 $puntaje <= 14 => 'moderado',
-                $puntaje <= 19 => 'severo',
                 default => 'severo',
             };
         }

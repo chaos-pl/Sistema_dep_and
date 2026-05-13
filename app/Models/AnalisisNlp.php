@@ -15,4 +15,14 @@ class AnalisisNlp extends Model
         'score_confianza',
         'requiere_atencion',
     ];
+
+    protected $casts = [
+        'score_confianza' => 'decimal:4',
+        'requiere_atencion' => 'boolean',
+    ];
+
+    public function estudiante()
+    {
+        return $this->belongsTo(Estudiante::class, 'codigo_anonimo', 'codigo_anonimo');
+    }
 }

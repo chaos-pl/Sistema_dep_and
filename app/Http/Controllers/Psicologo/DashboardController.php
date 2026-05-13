@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Psicologo;
 
 use App\Http\Controllers\Controller;
 use App\Models\Alerta;
+use App\Models\AnalisisNlp;
 use App\Models\Diagnostico;
 use App\Models\ResultadoClinico;
 use Illuminate\Support\Facades\Auth;
@@ -28,7 +29,10 @@ class DashboardController extends Controller
         $totalAlertasPendientes = Alerta::whereIn('estado', ['generada', 'asignada_psicologo'])->count();
         $totalAlertasAtendidas = Alerta::where('estado', 'atendida')->count();
         $totalDiagnosticosPropios = Diagnostico::where('psicologo_id', $psicologo->id)->count();
+
         $totalCasosSeveros = ResultadoClinico::where('nivel_riesgo', 'severo')->count();
+
+        $totalResultadosIaRiesgo = AnalisisNlp::where('requiere_atencion', true)->count();
 
         $alertas = Alerta::with([
             'evaluacion.instrumento',
@@ -48,14 +52,24 @@ class DashboardController extends Controller
             ->take(6)
             ->get();
 
+        $analisisNlp = AnalisisNlp::with([
+            'estudiante.persona',
+        ])
+            ->where('requiere_atencion', true)
+            ->latest()
+            ->take(6)
+            ->get();
+
         return view('psicologo.dashboard', compact(
             'psicologo',
             'alertas',
             'resultados',
+            'analisisNlp',
             'totalAlertasPendientes',
             'totalAlertasAtendidas',
             'totalDiagnosticosPropios',
-            'totalCasosSeveros'
+            'totalCasosSeveros',
+            'totalResultadosIaRiesgo'
         ));
     }
 }

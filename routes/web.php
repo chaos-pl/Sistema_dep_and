@@ -1,5 +1,5 @@
 <?php
-
+use App\Http\Controllers\Psicologo\AnalisisNlpController as PsicologoAnalisisNlpController;
 use App\Http\Controllers\Admin\CarreraController;
 use App\Http\Controllers\Admin\EstudianteController as AdminEstudianteController;
 use App\Http\Controllers\Admin\ExpedientePendienteController;
@@ -208,22 +208,26 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
         ->name('psicologo.')
         ->middleware('role:psicologo')
         ->group(function () {
-            Route::get('/dashboard', [PsicologoDashboardController::class, 'index'])->name('dashboard');
+            Route::get('/dashboard', [PsicologoDashboardController::class, 'index'])
+                ->name('dashboard');
         });
 
     Route::prefix('alertas')
         ->name('alertas.')
         ->middleware(['role:psicologo', 'permission:alertas.ver.clinicas'])
         ->group(function () {
-            Route::get('/', [PsicologoAlertaController::class, 'index'])->name('index');
-            Route::get('/{alerta}', [PsicologoAlertaController::class, 'show'])->name('show');
+            Route::get('/', [PsicologoAlertaController::class, 'index'])
+                ->name('index');
+
+            Route::get('/{alerta}', [PsicologoAlertaController::class, 'show'])
+                ->name('show');
         });
 
     Route::prefix('diagnosticos')
         ->name('diagnosticos.')
         ->middleware('role:psicologo')
         ->group(function () {
-            Route::get('/', [PsicologoDashboardController::class, 'index'])
+            Route::get('/', [PsicologoDiagnosticoController::class, 'index'])
                 ->middleware('permission:diagnosticos.ver')
                 ->name('index');
 
@@ -236,9 +240,18 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
         ->name('analisis.')
         ->middleware(['role:psicologo', 'permission:resultados_ia.ver'])
         ->group(function () {
-            Route::get('/', [PsicologoDashboardController::class, 'index'])->name('index');
-        });
+            Route::get('/', [PsicologoAnalisisNlpController::class, 'index'])
+                ->name('index');
 
+            Route::post('/reanalizar-pendientes', [PsicologoAnalisisNlpController::class, 'reanalizarPendientes'])
+                ->name('reanalizar-pendientes');
+
+            Route::post('/{analisisNlp}/reanalizar', [PsicologoAnalisisNlpController::class, 'reanalizar'])
+                ->name('reanalizar');
+
+            Route::get('/{analisisNlp}', [PsicologoAnalisisNlpController::class, 'show'])
+                ->name('show');
+        });
     /*
     |--------------------------------------------------------------------------
     | MÓDULO ADMINISTRADOR

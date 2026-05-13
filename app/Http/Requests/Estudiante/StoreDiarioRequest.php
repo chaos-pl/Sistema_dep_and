@@ -14,7 +14,7 @@ class StoreDiarioRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'texto_ingresado' => ['required', 'string', 'min:10', 'max:3000'],
+            'texto_ingresado' => ['required', 'string', 'min:20', 'max:3000'],
         ];
     }
 
@@ -22,7 +22,7 @@ class StoreDiarioRequest extends FormRequest
     {
         return [
             'texto_ingresado.required' => 'Debes escribir una entrada en tu diario.',
-            'texto_ingresado.min' => 'La entrada debe tener al menos 10 caracteres.',
+            'texto_ingresado.min' => 'La entrada debe tener al menos 20 caracteres.',
             'texto_ingresado.max' => 'La entrada no puede exceder 3000 caracteres.',
         ];
     }

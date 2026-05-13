@@ -154,17 +154,19 @@
 
         @keyframes etherealBreathe {
             0% { text-shadow: 0 0 10px rgba(255,255,255,0.3), 0 0 20px rgba(124, 58, 237, 0.4); }
-            100% { text-shadow: 0 0 15px rgba(255,255,255,0.8), 0 0 35px rgba(219, 39, 119, 0.6); }
+        100= { text-shadow: 0 0 15px rgba(255,255,255,0.8), 0 0 35px rgba(219, 39, 119, 0.6); }
         }
 
         /* =========================================
-           SIGLAS (Kinetic Typography)
+           TEXTO DESCRIPTIVO (Kinetic Typography 3D)
            ========================================= */
         .siglas-container {
             font-family: 'Montserrat', sans-serif;
-            font-size: 1.15rem;
-            font-weight: 500;
-            color: rgba(255,255,255,0.9);
+            /* 🔴 CORRECCIÓN AQUÍ: Fuente más gruesa (800) y más grande (1.4rem) */
+            font-size: 1.4rem;
+            font-weight: 800;
+            /* 🔴 CORRECCIÓN AQUÍ: Color blanco brillante puro */
+            color: #ffffff;
             margin-bottom: 3rem;
             line-height: 1.6;
             width: 100%;
@@ -183,21 +185,13 @@
         .sigla-letter {
             opacity: 0;
             display: inline-block;
-            transform-origin: bottom;
-            will-change: transform, opacity, filter;
+            transform-origin: center center;
+            will-change: transform, opacity, filter, color;
+            /* 🔴 CORRECCIÓN AQUÍ: Resplandor blanco sutil y uniforme en todas las letras */
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
         }
 
-        .highlight-sigla {
-            color: #ffffff;
-            font-weight: 800;
-            text-shadow: 0 0 10px rgba(124, 58, 237, 0.8);
-            animation: siglaPulse 2s infinite alternate ease-in-out;
-        }
-
-        @keyframes siglaPulse {
-            0% { text-shadow: 0 0 5px rgba(124, 58, 237, 0.4); }
-            100% { text-shadow: 0 0 15px rgba(219, 39, 119, 1); } /* Magenta brillante */
-        }
+        /* 🔴 SE ELIMINÓ: Clase highlight-sigla y animación siglaPulse para asegurar uniformidad */
 
         /* Lista de características centrada */
         .features-list {
@@ -354,14 +348,12 @@
 
         document.addEventListener('DOMContentLoaded', () => {
 
+            const textoOriginal = "Sistema web para la detección oportuna de depresión y ansiedad estudiantil mediante herramientas de tamizaje.";
             const textContainer = document.getElementById('siglas-text');
-            const textoOriginal = "Programa de Registro y Observación del Monitoreo Emocional y Tamizaje Estudiantil Oportuno.";
 
             const words = textoOriginal.split(' ');
             textContainer.innerHTML = words.map(word => {
-                if (/[A-Z]/.test(word[0])) {
-                    return `<span class="sigla-word"><span class="sigla-letter highlight-sigla">${word[0]}</span>${word.slice(1).split('').map(char => `<span class="sigla-letter">${char}</span>`).join('')}</span>`;
-                }
+                /* 🔴 CORRECCIÓN AQUÍ: Se eliminó la lógica condicional ([A-Z]). Ahora todas las letras son iguales. */
                 return `<span class="sigla-word">${word.split('').map(char => `<span class="sigla-letter">${char}</span>`).join('')}</span>`;
             }).join(' ');
 
@@ -374,44 +366,53 @@
                 filter: ['brightness(1.5)', 'brightness(1)'],
                 duration: 600,
             }, 0)
-            .add({
-                targets: '.neon-tube',
-                translateY: [20, 0],
-                opacity: [0, 1],
-                filter: ['blur(5px)', 'blur(0px)'],
-                color: ['#c084fc', '#ffffff'],
-                textShadow: [
-                    '0 0 0px rgba(124, 58, 237, 0)',
-                    '0 0 15px rgba(219, 39, 119, 0.8)',
-                    '0 0 5px rgba(124, 58, 237, 0.4)'
-                ],
-                duration: 600,
-                delay: anime.stagger(30),
-                complete: function() {
-                    document.getElementById('prometeo-logo').classList.add('neon-steady');
-                }
-            }, 100)
-            .add({
-                targets: '.sigla-letter',
-                opacity: [0, 1],
-                translateY: [10, 0],
-                duration: 400,
-                delay: anime.stagger(10),
-            }, 300)
-            .add({
-                targets: '.anime-left-text',
-                translateY: [15, 0],
-                opacity: [0, 1],
-                duration: 500,
-                delay: anime.stagger(50),
-            }, 400)
-            .add({
-                targets: '.anime-form-item',
-                translateY: [15, 0],
-                opacity: [0, 1],
-                duration: 500,
-                delay: anime.stagger(50),
-            }, 200);
+                .add({
+                    targets: '.neon-tube',
+                    translateY: [20, 0],
+                    opacity: [0, 1],
+                    filter: ['blur(5px)', 'blur(0px)'],
+                    color: ['#c084fc', '#ffffff'],
+                    textShadow: [
+                        '0 0 0px rgba(124, 58, 237, 0)',
+                        '0 0 15px rgba(219, 39, 119, 0.8)',
+                        '0 0 5px rgba(124, 58, 237, 0.4)'
+                    ],
+                    duration: 600,
+                    delay: anime.stagger(30),
+                    complete: function() {
+                        document.getElementById('prometeo-logo').classList.add('neon-steady');
+                    }
+                }, 100)
+                // ==============================================================
+                // ANIMACIÓN TEXTO UNIFORME Y BRILLANTE
+                // ==============================================================
+                .add({
+                    targets: '.sigla-letter',
+                    opacity: [0, 1],
+                    translateY: [30, 0],
+                    scale: [2, 1],
+                    rotateX: [-90, 0],
+                    filter: ['blur(15px)', 'blur(0px)'],
+                    /* 🔴 SE ELIMINÓ: Color condicional. Ahora todas las letras aparecen en blanco brillante. */
+                    duration: 900,
+                    delay: anime.stagger(15, {start: 100}),
+                    easing: 'easeOutCubic',
+                }, '-=300')
+                // ==============================================================
+                .add({
+                    targets: '.anime-left-text',
+                    translateY: [15, 0],
+                    opacity: [0, 1],
+                    duration: 500,
+                    delay: anime.stagger(50),
+                }, '-=200')
+                .add({
+                    targets: '.anime-form-item',
+                    translateY: [15, 0],
+                    opacity: [0, 1],
+                    duration: 500,
+                    delay: anime.stagger(50),
+                }, '-=400');
 
             // Partículas actualizadas a Morado y Magenta
             const logoWrapper = document.getElementById('logo-wrapper');
