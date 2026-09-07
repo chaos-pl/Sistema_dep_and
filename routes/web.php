@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\PersonaController;
 use App\Http\Controllers\Admin\PsicologoController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\TutorController;
+use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ControlEscolar\AsignacionController as CEAsignacionController;
 use App\Http\Controllers\ControlEscolar\CarreraController as CECarreraController;
@@ -253,10 +254,10 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
                 ->name('show');
         });
     /*
-    |--------------------------------------------------------------------------
-    | MÓDULO ADMINISTRADOR
-    |--------------------------------------------------------------------------
-    */
+|--------------------------------------------------------------------------
+| MÓDULO ADMINISTRADOR
+|--------------------------------------------------------------------------
+*/
 
     Route::prefix('admin')
         ->name('admin.')
@@ -278,23 +279,13 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
                     Route::put('/{user}', [\App\Http\Controllers\Admin\UsuarioSinPersonaController::class, 'update'])->name('update');
                 });
 
-            Route::get('/dashboard', function () {
-                return view('admin.dashboard', [
-                    'totalUsuarios' => User::count(),
-                    'totalPersonas' => Persona::count(),
-                    'totalRoles' => Role::count(),
-                    'totalPermisos' => Permission::count(),
-                    'usuariosSinPersona' => User::doesntHave('persona')->count(),
-                    'rolesSinPermisos' => Role::doesntHave('permissions')->count(),
-                    'estudiantesCount' => User::role('estudiante')->count(),
-                    'psicologosCount' => User::role('psicologo')->count(),
-                    'tutoresCount' => Tutor::count(),
-                    'tutoresSinGrupos' => Tutor::doesntHave('grupos')->count(),
-                    'estudiantesSinExpediente' => User::role('estudiante')
-                        ->whereDoesntHave('persona.estudiante')
-                        ->count(),
-                ]);
-            })->middleware('permission:usuarios.ver')->name('dashboard');
+            Route::get('/dashboard', [AdminDashboardController::class, 'index'])
+                ->middleware('permission:usuarios.ver')
+                ->name('dashboard');
+
+            Route::get('/dashboard/metricas-tiempo-real', [AdminDashboardController::class, 'metricasTiempoReal'])
+                ->middleware('permission:usuarios.ver')
+                ->name('dashboard.metricas');
 
             Route::resource('usuarios', UserController::class)
                 ->parameters(['usuarios' => 'user'])
@@ -337,7 +328,6 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
                 ->parameters(['permisos' => 'permiso'])
                 ->names('permisos');
         });
-
     /*
     |--------------------------------------------------------------------------
     | MÓDULO CONTROL ESCOLAR

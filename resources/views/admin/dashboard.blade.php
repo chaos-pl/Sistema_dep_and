@@ -2,444 +2,1129 @@
 
 @section('title', 'Dashboard Admin - PROMETEO')
 @section('page-title', 'Panel de Administración')
-@section('page-subtitle', 'Resumen general e indicadores del sistema')
+@section('page-subtitle', 'Métricas, gráficas y monitoreo en tiempo real del sistema')
 
 @php
+    $metricas = $metricas ?? [];
+
+    $resumen = $metricas['resumen'] ?? [];
+    $evaluaciones = $metricas['evaluaciones'] ?? [];
+    $alertas = $metricas['alertas'] ?? [];
+    $salud = $metricas['salud'] ?? [];
+    $actividad = $metricas['actividadMensual'] ?? [];
+
     $userAccentColor = auth()->user()->appearance_settings['accent_color'] ?? 'purple';
 
     $granimPalettes = match($userAccentColor) {
         'blue' => "
-            [ { color: '#1e3a8a', pos: 0 }, { color: '#2563eb', pos: .5 }, { color: '#93c5fd', pos: 1 } ],
-            [ { color: '#2563eb', pos: 0 }, { color: '#0284c7', pos: .5 }, { color: '#38bdf8', pos: 1 } ],
-            [ { color: '#0f172a', pos: 0 }, { color: '#1d4ed8', pos: .5 }, { color: '#3b82f6', pos: 1 } ]
+            ['#1e3a8a', '#2563eb'],
+            ['#2563eb', '#38bdf8'],
+            ['#0f172a', '#3b82f6']
         ",
         'green' => "
-            [ { color: '#064e3b', pos: 0 }, { color: '#059669', pos: .5 }, { color: '#6ee7b7', pos: 1 } ],
-            [ { color: '#059669', pos: 0 }, { color: '#0d9488', pos: .5 }, { color: '#2dd4bf', pos: 1 } ],
-            [ { color: '#022c22', pos: 0 }, { color: '#047857', pos: .5 }, { color: '#10b981', pos: 1 } ]
+            ['#064e3b', '#059669'],
+            ['#059669', '#2dd4bf'],
+            ['#022c22', '#10b981']
         ",
         'pink' => "
-            [ { color: '#831843', pos: 0 }, { color: '#db2777', pos: .5 }, { color: '#f9a8d4', pos: 1 } ],
-            [ { color: '#db2777', pos: 0 }, { color: '#e11d48', pos: .5 }, { color: '#f43f5e', pos: 1 } ],
-            [ { color: '#4c0519', pos: 0 }, { color: '#be185d', pos: .5 }, { color: '#ec4899', pos: 1 } ]
+            ['#831843', '#db2777'],
+            ['#db2777', '#f43f5e'],
+            ['#4c0519', '#ec4899']
         ",
         default => "
-            [ { color: '#4c1d95', pos: 0 }, { color: '#7c3aed', pos: .5 }, { color: '#a78bfa', pos: 1 } ],
-            [ { color: '#7c3aed', pos: 0 }, { color: '#c026d3', pos: .5 }, { color: '#db2777', pos: 1 } ],
-            [ { color: '#1e1b4b', pos: 0 }, { color: '#6d28d9', pos: .5 }, { color: '#8b5cf6', pos: 1 } ]
+            ['#4c1d95', '#7c3aed'],
+            ['#7c3aed', '#db2777'],
+            ['#1e1b4b', '#8b5cf6']
         "
     };
 @endphp
 
 @push('styles')
     <style>
-        .hover-elevate {
-            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease !important;
-            border: 1px solid transparent;
-        }
-        .hover-elevate:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.08) !important;
-            border-color: var(--app-primary-soft) !important;
+        .admin-realtime {
+            --prometeo-primary: #6d28d9;
+            --prometeo-primary-dark: #4c1d95;
+            --prometeo-soft: rgba(109, 40, 217, .12);
+            --prometeo-danger: #dc2626;
+            --prometeo-warning: #d97706;
+            --prometeo-success: #16a34a;
+            --prometeo-info: #0284c7;
+            --prometeo-muted: #64748b;
         }
 
-        .hover-elevate:hover .metric-icon i { transform: scale(1.25); }
-        .metric-icon i { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-
-        .bg-welcome-admin {
+        .admin-hero-realtime {
             position: relative;
             overflow: hidden;
-            background-color: var(--app-primary);
-        }
-        .bg-welcome-admin::after {
-            content: '\F52F';
-            font-family: "bootstrap-icons";
-            position: absolute;
-            top: -10%; right: -5%;
-            font-size: 15rem; color: #ffffff;
-            opacity: 0.08; transform: rotate(-15deg);
-            pointer-events: none; z-index: 2;
+            min-height: 250px;
+            border-radius: 30px;
+            background: var(--prometeo-primary);
+            color: #fff;
+            box-shadow: 0 22px 55px rgba(76, 29, 149, .28);
         }
 
         #granim-canvas-admin {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%; z-index: 0;
-            border-radius: inherit;
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
         }
 
-        .banner-content { position: relative; z-index: 3; }
-
-        .anime-item { opacity: 0; transform: translateY(20px); }
-        .cursor-pointer { cursor: pointer; }
-
-        /* Clase protectora para asegurar que los elementos del banner sean visibles en modo oscuro */
-        .glass-badge {
-            background-color: rgba(255, 255, 255, 0.2) !important;
-            color: #ffffff !important;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            padding: 2.5rem;
         }
-        .glass-panel {
-            background-color: rgba(255, 255, 255, 0.15) !important;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+
+        .hero-glass {
+            background: rgba(255,255,255,.17);
+            border: 1px solid rgba(255,255,255,.28);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 24px;
+        }
+
+        .metric-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 24px;
+            background: var(--bs-body-bg);
+            border: 1px solid rgba(148, 163, 184, .22);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, .06);
+            transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 20px 45px rgba(15, 23, 42, .10);
+            border-color: rgba(109, 40, 217, .26);
+        }
+
+        .metric-card::after {
+            content: "";
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            right: -55px;
+            top: -55px;
+            border-radius: 50%;
+            background: var(--metric-soft, rgba(109,40,217,.10));
+        }
+
+        .metric-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--metric-soft, rgba(109,40,217,.10));
+            color: var(--metric-color, #6d28d9);
+            font-size: 1.35rem;
+            position: relative;
+            z-index: 2;
+            transition: transform .25s ease;
+        }
+
+        .metric-card:hover .metric-icon {
+            transform: rotate(-6deg) scale(1.08);
+        }
+
+        .metric-value {
+            font-size: 2.1rem;
+            font-weight: 900;
+            letter-spacing: -.04em;
+            line-height: 1;
+        }
+
+        .metric-label {
+            color: var(--bs-secondary-color);
+            font-size: .82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .metric-desc {
+            color: var(--bs-secondary-color);
+            font-size: .88rem;
+            margin: 0;
+        }
+
+        .chart-card {
+            border-radius: 26px;
+            background: var(--bs-body-bg);
+            border: 1px solid rgba(148, 163, 184, .22);
+            box-shadow: 0 14px 36px rgba(15, 23, 42, .06);
+        }
+
+        .chart-box {
+            position: relative;
+            min-height: 310px;
+        }
+
+        .chart-box canvas {
+            width: 100% !important;
+            height: 300px !important;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            padding: .55rem .85rem;
+            border-radius: 999px;
+            background: rgba(22, 163, 74, .14);
+            color: #16a34a;
+            font-weight: 800;
+            font-size: .82rem;
+        }
+
+        .pulse-dot {
+            width: 10px;
+            height: 10px;
+            background: #22c55e;
+            border-radius: 999px;
+            position: relative;
+        }
+
+        .pulse-dot::after {
+            content: "";
+            position: absolute;
+            inset: -6px;
+            border-radius: 999px;
+            border: 2px solid rgba(34,197,94,.45);
+            animation: prometeoPulse 1.4s infinite;
+        }
+
+        @keyframes prometeoPulse {
+            0% { transform: scale(.65); opacity: 1; }
+            100% { transform: scale(1.55); opacity: 0; }
+        }
+
+        .health-item {
+            border-radius: 20px;
+            padding: 1rem;
+            border: 1px solid rgba(148, 163, 184, .20);
+            background: var(--bs-tertiary-bg);
+            cursor: pointer;
+            transition: transform .25s ease, box-shadow .25s ease;
+        }
+
+        .health-item:hover {
+            transform: translateX(6px);
+            box-shadow: 0 12px 28px rgba(15,23,42,.08);
+        }
+
+        .soft-danger { --metric-color: #dc2626; --metric-soft: rgba(220,38,38,.13); }
+        .soft-warning { --metric-color: #d97706; --metric-soft: rgba(217,119,6,.15); }
+        .soft-success { --metric-color: #16a34a; --metric-soft: rgba(22,163,74,.13); }
+        .soft-info { --metric-color: #0284c7; --metric-soft: rgba(2,132,199,.13); }
+        .soft-primary { --metric-color: #6d28d9; --metric-soft: rgba(109,40,217,.13); }
+        .soft-dark { --metric-color: #334155; --metric-soft: rgba(51,65,85,.12); }
+
+        .progress-prometeo {
+            height: 13px;
+            background: var(--bs-tertiary-bg);
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid rgba(148,163,184,.18);
+        }
+
+        .progress-prometeo span {
+            display: block;
+            height: 100%;
+            border-radius: 999px;
+            transition: width .8s ease;
+        }
+
+        .admin-link-card {
+            border-radius: 20px;
+            background: var(--bs-tertiary-bg);
+            border: 1px solid rgba(148, 163, 184, .18);
+            transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+        }
+
+        .admin-link-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 16px 34px rgba(15,23,42,.08);
+            border-color: rgba(109,40,217,.25);
+        }
+
+        .anime-item {
+            opacity: 0;
+            transform: translateY(22px);
+        }
+
+        .last-update {
+            font-size: .82rem;
+            color: rgba(255,255,255,.82);
         }
     </style>
 @endpush
 
 @section('content')
-    <div class="row g-4">
+    <div class="admin-realtime">
 
-        <div class="col-12 anime-item">
-            <div class="app-card bg-welcome-admin p-4 p-md-5 rounded-4 border-0 shadow-lg text-white">
+        <div class="row g-4">
 
-                <canvas id="granim-canvas-admin"></canvas>
+            {{-- HERO --}}
+            <div class="col-12 anime-item">
+                <div class="admin-hero-realtime">
+                    <canvas id="granim-canvas-admin"></canvas>
 
-                <div class="row align-items-center banner-content">
-                    <div class="col-lg-8">
-                        <span class="badge glass-badge rounded-pill px-3 py-2 mb-3 fw-bold shadow-sm">
-                            <i class="bi bi-shield-lock-fill me-1"></i> Administración General
-                        </span>
-                        <h2 class="fw-black mb-2 text-white" style="font-size: 2.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Bienvenido, {{ auth()->user()->name }}</h2>
-                        <p class="mb-0 text-white text-opacity-90 fs-5" style="text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
-                            Desde aquí puedes supervisar usuarios, personas, roles, permisos y la estructura general del sistema.
+                    <div class="hero-content">
+                        <div class="row align-items-center g-4">
+                            <div class="col-lg-8">
+                            <span class="badge hero-glass px-3 py-2 rounded-pill mb-3">
+                                <i class="bi bi-shield-lock-fill me-1"></i>
+                                Administración General
+                            </span>
+
+                                <h2 class="fw-black text-white mb-2" style="font-size: 2.35rem;">
+                                    Bienvenido, {{ auth()->user()->name }}
+                                </h2>
+
+                                <p class="fs-5 text-white text-opacity-90 mb-0">
+                                    Monitoreo general de usuarios, evaluaciones, alertas, expedientes y actividad reciente del sistema PROMETEO.
+                                </p>
+                            </div>
+
+                            <div class="col-lg-4 text-lg-end">
+                                <div class="hero-glass p-3 d-inline-block text-start">
+                                    <div class="status-pill mb-2">
+                                        <span class="pulse-dot"></span>
+                                        Sistema en línea
+                                    </div>
+
+                                    <div class="last-update">
+                                        Última actualización:
+                                        <strong id="last-update-label">cargando...</strong>
+                                    </div>
+
+                                    <small class="d-block mt-2 text-white text-opacity-75">
+                                        Actualización automática cada 10 segundos.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- MÉTRICAS PRINCIPALES --}}
+            <div class="col-md-6 col-xl-3 anime-item">
+                <div class="metric-card soft-primary p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <div class="metric-label">Usuarios</div>
+                            <div class="metric-value text-body mt-2" data-counter="totalUsuarios">
+                                {{ $resumen['totalUsuarios'] ?? 0 }}
+                            </div>
+                        </div>
+                        <div class="metric-icon">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                    </div>
+                    <p class="metric-desc">Cuentas registradas en el sistema.</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3 anime-item">
+                <div class="metric-card soft-info p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <div class="metric-label">Estudiantes</div>
+                            <div class="metric-value text-body mt-2" data-counter="totalEstudiantes">
+                                {{ $resumen['totalEstudiantes'] ?? 0 }}
+                            </div>
+                        </div>
+                        <div class="metric-icon">
+                            <i class="bi bi-mortarboard-fill"></i>
+                        </div>
+                    </div>
+                    <p class="metric-desc">Población estudiantil vinculada.</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3 anime-item">
+                <div class="metric-card soft-success p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <div class="metric-label">Psicólogos</div>
+                            <div class="metric-value text-body mt-2" data-counter="totalPsicologos">
+                                {{ $resumen['totalPsicologos'] ?? 0 }}
+                            </div>
+                        </div>
+                        <div class="metric-icon">
+                            <i class="bi bi-heart-pulse-fill"></i>
+                        </div>
+                    </div>
+                    <p class="metric-desc">Personal disponible para seguimiento.</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3 anime-item">
+                <div class="metric-card soft-danger p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <div class="metric-label">Alertas activas</div>
+                            <div class="metric-value text-body mt-2" data-counter="alertasActivas">
+                                {{ $alertas['activas'] ?? 0 }}
+                            </div>
+                        </div>
+                        <div class="metric-icon">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </div>
+                    </div>
+                    <p class="metric-desc">Casos que requieren revisión.</p>
+                </div>
+            </div>
+
+            {{-- MÉTRICAS SECUNDARIAS --}}
+            <div class="col-md-6 col-xl-3 anime-item">
+                <div class="metric-card soft-dark p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <div class="metric-label">Personas</div>
+                            <div class="metric-value text-body mt-2" data-counter="totalPersonas">
+                                {{ $resumen['totalPersonas'] ?? 0 }}
+                            </div>
+                        </div>
+                        <div class="metric-icon">
+                            <i class="bi bi-person-vcard-fill"></i>
+                        </div>
+                    </div>
+                    <p class="metric-desc">Perfiles personales registrados.</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3 anime-item">
+                <div class="metric-card soft-warning p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <div class="metric-label">Grupos</div>
+                            <div class="metric-value text-body mt-2" data-counter="totalGrupos">
+                                {{ $resumen['totalGrupos'] ?? 0 }}
+                            </div>
+                        </div>
+                        <div class="metric-icon">
+                            <i class="bi bi-folder-fill"></i>
+                        </div>
+                    </div>
+                    <p class="metric-desc">Grupos académicos configurados.</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3 anime-item">
+                <div class="metric-card soft-info p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <div class="metric-label">PHQ-9</div>
+                            <div class="metric-value text-body mt-2" data-counter="phq9">
+                                {{ $evaluaciones['phq9'] ?? 0 }}
+                            </div>
+                        </div>
+                        <div class="metric-icon">
+                            <i class="bi bi-clipboard2-pulse-fill"></i>
+                        </div>
+                    </div>
+                    <p class="metric-desc">Evaluaciones de depresión registradas.</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-xl-3 anime-item">
+                <div class="metric-card soft-primary p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <div class="metric-label">GAD-7</div>
+                            <div class="metric-value text-body mt-2" data-counter="gad7">
+                                {{ $evaluaciones['gad7'] ?? 0 }}
+                            </div>
+                        </div>
+                        <div class="metric-icon">
+                            <i class="bi bi-clipboard2-check-fill"></i>
+                        </div>
+                    </div>
+                    <p class="metric-desc">Evaluaciones de ansiedad registradas.</p>
+                </div>
+            </div>
+
+            {{-- GRÁFICAS --}}
+            <div class="col-12 col-xl-8 anime-item">
+                <div class="chart-card p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+                        <div>
+                            <h4 class="fw-black text-body mb-1">Actividad del sistema</h4>
+                            <p class="text-body-secondary mb-0">
+                                Evolución de usuarios, evaluaciones y alertas por periodo.
+                            </p>
+                        </div>
+                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2">
+                        Tiempo real
+                    </span>
+                    </div>
+
+                    <div class="chart-box">
+                        <canvas id="actividadChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-4 anime-item">
+                <div class="chart-card p-4 h-100">
+                    <div class="mb-4">
+                        <h4 class="fw-black text-body mb-1">Distribución de población</h4>
+                        <p class="text-body-secondary mb-0">
+                            Relación entre estudiantes, tutores y psicólogos.
                         </p>
                     </div>
-                    <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
-                        <div class="glass-panel rounded-4 p-3 d-inline-block text-start shadow-sm">
-                            <small class="text-white text-opacity-90 d-block text-uppercase fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 1px;">Estado del Servidor</small>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="spinner-grow spinner-grow-sm text-white" role="status"></div>
-                                <span class="fw-bold text-white">En línea y operando</span>
+
+                    <div class="chart-box">
+                        <canvas id="poblacionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-6 anime-item">
+                <div class="chart-card p-4 h-100">
+                    <div class="mb-4">
+                        <h4 class="fw-black text-body mb-1">Evaluaciones y diario emocional</h4>
+                        <p class="text-body-secondary mb-0">
+                            Comparación general entre instrumentos y entradas analizadas.
+                        </p>
+                    </div>
+
+                    <div class="chart-box">
+                        <canvas id="evaluacionesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-6 anime-item">
+                <div class="chart-card p-4 h-100">
+                    <div class="mb-4">
+                        <h4 class="fw-black text-body mb-1">Estado de alertas</h4>
+                        <p class="text-body-secondary mb-0">
+                            Seguimiento general de alertas pendientes, activas y atendidas.
+                        </p>
+                    </div>
+
+                    <div class="chart-box">
+                        <canvas id="alertasChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            {{-- SALUD DEL SISTEMA --}}
+            <div class="col-12 col-xl-5 anime-item">
+                <div class="chart-card p-4 h-100">
+                    <div class="mb-4 d-flex align-items-center gap-3">
+                        <div class="metric-icon soft-success">
+                            <i class="bi bi-activity"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-black text-body mb-0">Salud del sistema</h4>
+                            <p class="text-body-secondary mb-0">Pendientes administrativos importantes.</p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column gap-3">
+                        <div class="health-item" onclick="window.location='{{ route('admin.usuarios.index') }}'">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong class="text-danger d-block">Cuentas sin expediente</strong>
+                                    <small class="text-body-secondary">Usuarios sin persona vinculada</small>
+                                </div>
+                                <span class="badge bg-danger rounded-pill fs-6" data-counter="usuariosSinPersona">
+                                {{ $salud['usuariosSinPersona'] ?? 0 }}
+                            </span>
+                            </div>
+                        </div>
+
+                        <div class="health-item" onclick="window.location='{{ route('admin.expedientes-pendientes.index') }}'">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong class="text-info d-block">Estudiantes sin expediente</strong>
+                                    <small class="text-body-secondary">Estudiantes sin vinculación completa</small>
+                                </div>
+                                <span class="badge bg-info text-dark rounded-pill fs-6" data-counter="estudiantesSinExpediente">
+                                {{ $salud['estudiantesSinExpediente'] ?? 0 }}
+                            </span>
+                            </div>
+                        </div>
+
+                        <div class="health-item" onclick="window.location='{{ route('admin.roles.index') }}'">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong class="text-warning d-block">Roles sin permisos</strong>
+                                    <small class="text-body-secondary">Perfiles de acceso incompletos</small>
+                                </div>
+                                <span class="badge bg-warning text-dark rounded-pill fs-6" data-counter="rolesSinPermisos">
+                                {{ $salud['rolesSinPermisos'] ?? 0 }}
+                            </span>
+                            </div>
+                        </div>
+
+                        <div class="health-item" onclick="window.location='{{ route('admin.tutores.index') }}'">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong class="text-primary d-block">Tutores sin grupos</strong>
+                                    <small class="text-body-secondary">Tutores pendientes de asignación</small>
+                                </div>
+                                <span class="badge bg-primary rounded-pill fs-6" data-counter="tutoresSinGrupos">
+                                {{ $salud['tutoresSinGrupos'] ?? 0 }}
+                            </span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-6 col-xl-3 anime-item">
-            <div class="app-card p-4 h-100 border border-secondary border-opacity-10 shadow-sm rounded-4 hover-elevate">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="text-body-secondary fw-bold mb-0 text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">Usuarios</h6>
-                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                        <i class="bi bi-people-fill fs-5"></i>
+            {{-- ACCESOS --}}
+            <div class="col-12 col-xl-7 anime-item">
+                <div class="chart-card p-4 h-100">
+                    <div class="mb-4">
+                        <h4 class="fw-black text-body mb-1">Accesos administrativos</h4>
+                        <p class="text-body-secondary mb-0">
+                            Atajos rápidos a módulos principales del sistema.
+                        </p>
                     </div>
-                </div>
-                <h2 class="fw-black mb-1 count-up text-body" data-value="{{ $totalUsuarios ?? 0 }}">0</h2>
-                <p class="text-body-secondary mb-0 small">Cuentas registradas</p>
-            </div>
-        </div>
 
-        <div class="col-md-6 col-xl-3 anime-item">
-            <div class="app-card p-4 h-100 border border-secondary border-opacity-10 shadow-sm rounded-4 hover-elevate">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="text-body-secondary fw-bold mb-0 text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">Personas</h6>
-                    <div class="bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                        <i class="bi bi-person-vcard-fill fs-5"></i>
-                    </div>
-                </div>
-                <h2 class="fw-black mb-1 count-up text-body" data-value="{{ $totalPersonas ?? 0 }}">0</h2>
-                <p class="text-body-secondary mb-0 small">Perfiles personales</p>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-xl-3 anime-item">
-            <div class="app-card p-4 h-100 border border-secondary border-opacity-10 shadow-sm rounded-4 hover-elevate">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="text-body-secondary fw-bold mb-0 text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">Roles</h6>
-                    <div class="bg-warning bg-opacity-10 text-warning-emphasis rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                        <i class="bi bi-shield-lock-fill fs-5"></i>
-                    </div>
-                </div>
-                <h2 class="fw-black mb-1 count-up text-body" data-value="{{ $totalRoles ?? 0 }}">0</h2>
-                <p class="text-body-secondary mb-0 small">Perfiles de acceso</p>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-xl-3 anime-item">
-            <div class="app-card p-4 h-100 border border-secondary border-opacity-10 shadow-sm rounded-4 hover-elevate">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="text-body-secondary fw-bold mb-0 text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">Permisos</h6>
-                    <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
-                        <i class="bi bi-key-fill fs-5"></i>
-                    </div>
-                </div>
-                <h2 class="fw-black mb-1 count-up text-body" data-value="{{ $totalPermisos ?? 0 }}">0</h2>
-                <p class="text-body-secondary mb-0 small">Reglas configuradas</p>
-            </div>
-        </div>
-
-        <div class="col-12 col-xl-7 anime-item">
-            <div class="app-card p-4 h-100 border-0 shadow-sm rounded-4">
-                <div class="mb-4 d-flex align-items-center gap-3 border-bottom border-secondary border-opacity-10 pb-4">
-                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                        <i class="bi bi-grid-1x2-fill fs-4"></i>
-                    </div>
-                    <div>
-                        <h4 class="fw-black mb-0 text-body">Accesos Administrativos</h4>
-                        <p class="text-body-secondary mb-0">Atajos rápidos a los módulos de control principales.</p>
-                    </div>
-                </div>
-
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <a href="{{ route('admin.usuarios.index') }}" class="text-decoration-none">
-                            <div class="app-card hover-elevate p-4 h-100 bg-body-tertiary rounded-4 border border-secondary border-opacity-10">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="metric-icon rounded-circle bg-body text-primary shadow-sm d-flex align-items-center justify-content-center" style="width:40px;height:40px;"><i class="bi bi-people-fill"></i></div>
-                                    <h6 class="fw-bold mb-0 text-body">Gestión de Usuarios</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <a href="{{ route('admin.usuarios.index') }}" class="text-decoration-none">
+                                <div class="admin-link-card p-4 h-100">
+                                    <div class="d-flex align-items-center gap-3 mb-2">
+                                        <div class="metric-icon soft-primary">
+                                            <i class="bi bi-people-fill"></i>
+                                        </div>
+                                        <strong class="text-body">Gestión de usuarios</strong>
+                                    </div>
+                                    <p class="text-body-secondary small mb-0">
+                                        Administra cuentas, roles y accesos.
+                                    </p>
                                 </div>
-                                <p class="text-body-secondary mb-0 small">Administra cuentas de acceso, asignación de roles y bloqueos.</p>
-                            </div>
-                        </a>
+                            </a>
+                        </div>
+
+                        <div class="col-md-6">
+                            <a href="{{ route('admin.personas.index') }}" class="text-decoration-none">
+                                <div class="admin-link-card p-4 h-100">
+                                    <div class="d-flex align-items-center gap-3 mb-2">
+                                        <div class="metric-icon soft-info">
+                                            <i class="bi bi-person-vcard-fill"></i>
+                                        </div>
+                                        <strong class="text-body">Directorio personas</strong>
+                                    </div>
+                                    <p class="text-body-secondary small mb-0">
+                                        Consulta perfiles personales.
+                                    </p>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col-md-6">
+                            <a href="{{ route('admin.psicologos.index') }}" class="text-decoration-none">
+                                <div class="admin-link-card p-4 h-100">
+                                    <div class="d-flex align-items-center gap-3 mb-2">
+                                        <div class="metric-icon soft-success">
+                                            <i class="bi bi-heart-pulse-fill"></i>
+                                        </div>
+                                        <strong class="text-body">Psicólogos</strong>
+                                    </div>
+                                    <p class="text-body-secondary small mb-0">
+                                        Administra personal clínico.
+                                    </p>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col-md-6">
+                            <a href="{{ route('admin.tutores.index') }}" class="text-decoration-none">
+                                <div class="admin-link-card p-4 h-100">
+                                    <div class="d-flex align-items-center gap-3 mb-2">
+                                        <div class="metric-icon soft-warning">
+                                            <i class="bi bi-person-video3"></i>
+                                        </div>
+                                        <strong class="text-body">Tutores</strong>
+                                    </div>
+                                    <p class="text-body-secondary small mb-0">
+                                        Controla tutores y asignaciones.
+                                    </p>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col-md-6">
+                            <a href="{{ route('admin.grupos.index') }}" class="text-decoration-none">
+                                <div class="admin-link-card p-4 h-100">
+                                    <div class="d-flex align-items-center gap-3 mb-2">
+                                        <div class="metric-icon soft-primary">
+                                            <i class="bi bi-folder-fill"></i>
+                                        </div>
+                                        <strong class="text-body">Grupos</strong>
+                                    </div>
+                                    <p class="text-body-secondary small mb-0">
+                                        Organiza estructura académica.
+                                    </p>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col-md-6">
+                            <a href="{{ route('admin.carreras.index') }}" class="text-decoration-none">
+                                <div class="admin-link-card p-4 h-100">
+                                    <div class="d-flex align-items-center gap-3 mb-2">
+                                        <div class="metric-icon soft-info">
+                                            <i class="bi bi-mortarboard-fill"></i>
+                                        </div>
+                                        <strong class="text-body">Carreras</strong>
+                                    </div>
+                                    <p class="text-body-secondary small mb-0">
+                                        Gestiona programas académicos.
+                                    </p>
+                                </div>
+                            </a>
+                        </div>
                     </div>
 
-                    <div class="col-md-6">
-                        <a href="{{ route('admin.psicologos.index') }}" class="text-decoration-none">
-                            <div class="app-card hover-elevate p-4 h-100 bg-body-tertiary rounded-4 border border-secondary border-opacity-10">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="metric-icon rounded-circle bg-body text-danger shadow-sm d-flex align-items-center justify-content-center" style="width:40px;height:40px;"><i class="bi bi-heart-pulse-fill"></i></div>
-                                    <h6 class="fw-bold mb-0 text-body">Gestión de Psicólogos</h6>
-                                </div>
-                                <p class="text-body-secondary mb-0 small">Da de alta psicólogos, actualiza su expediente y prepara el módulo clínico.</p>
-                            </div>
-                        </a>
-                    </div>
-
-                    <div class="col-md-6">
-                        <a href="{{ route('admin.personas.index') }}" class="text-decoration-none">
-                            <div class="app-card hover-elevate p-4 h-100 bg-body-tertiary rounded-4 border border-secondary border-opacity-10">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="metric-icon rounded-circle bg-body text-info shadow-sm d-flex align-items-center justify-content-center" style="width:40px;height:40px;"><i class="bi bi-person-vcard-fill"></i></div>
-                                    <h6 class="fw-bold mb-0 text-body">Directorio Personas</h6>
-                                </div>
-                                <p class="text-body-secondary mb-0 small">Consulta y vincula expedientes y perfiles demográficos.</p>
-                            </div>
-                        </a>
-                    </div>
-
-                    <div class="col-md-6">
-                        <a href="{{ route('admin.tutores.index') }}" class="text-decoration-none">
-                            <div class="app-card hover-elevate p-4 h-100 bg-body-tertiary rounded-4 border border-secondary border-opacity-10">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="metric-icon rounded-circle bg-body text-success shadow-sm d-flex align-items-center justify-content-center" style="width:40px;height:40px;"><i class="bi bi-person-video3"></i></div>
-                                    <h6 class="fw-bold mb-0 text-body">Gestión de Tutores</h6>
-                                </div>
-                                <p class="text-body-secondary mb-0 small">Da de alta tutores, actualiza sus datos y administra su expediente institucional.</p>
-                            </div>
-                        </a>
-                    </div>
-
-                    <div class="col-md-6">
-                        <a href="{{ route('admin.grupos.index') }}" class="text-decoration-none">
-                            <div class="app-card hover-elevate p-4 h-100 bg-body-tertiary rounded-4 border border-secondary border-opacity-10">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="metric-icon rounded-circle bg-body text-info shadow-sm d-flex align-items-center justify-content-center" style="width:40px;height:40px;"><i class="bi bi-folder-fill"></i></div>
-                                    <h6 class="fw-bold mb-0 text-body">Gestión de Grupos</h6>
-                                </div>
-                                <p class="text-body-secondary mb-0 small">Crea grupos, asigna tutores y organiza la estructura académica.</p>
-                            </div>
-                        </a>
-                    </div>
-
-                    <div class="col-md-6">
-                        <a href="{{ route('admin.carreras.index') }}" class="text-decoration-none">
-                            <div class="app-card hover-elevate p-4 h-100 bg-body-tertiary rounded-4 border border-secondary border-opacity-10">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="metric-icon rounded-circle bg-body text-primary shadow-sm d-flex align-items-center justify-content-center" style="width:40px;height:40px;"><i class="bi bi-mortarboard-fill"></i></div>
-                                    <h6 class="fw-bold mb-0 text-body">Gestión de Carreras</h6>
-                                </div>
-                                <p class="text-body-secondary mb-0 small">Crea carreras académicas y organízalas antes de registrar grupos.</p>
-                            </div>
-                        </a>
-                    </div>
-
-                    <div class="col-md-6">
-                        <a href="{{ route('admin.roles.index') }}" class="text-decoration-none">
-                            <div class="app-card hover-elevate p-4 h-100 bg-body-tertiary rounded-4 border border-secondary border-opacity-10">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="metric-icon rounded-circle bg-body text-warning shadow-sm d-flex align-items-center justify-content-center" style="width:40px;height:40px;"><i class="bi bi-shield-check text-warning-emphasis"></i></div>
-                                    <h6 class="fw-bold mb-0 text-body">Control de Roles</h6>
-                                </div>
-                                <p class="text-body-secondary mb-0 small">Define perfiles de acceso (Estudiante, Tutor, Psicólogo).</p>
-                            </div>
-                        </a>
-                    </div>
-
-                    <div class="col-md-6">
-                        <a href="{{ route('admin.permisos.index') }}" class="text-decoration-none">
-                            <div class="app-card hover-elevate p-4 h-100 bg-body-tertiary rounded-4 border border-secondary border-opacity-10">
-                                <div class="d-flex align-items-center gap-3 mb-3">
-                                    <div class="metric-icon rounded-circle bg-body text-danger shadow-sm d-flex align-items-center justify-content-center" style="width:40px;height:40px;"><i class="bi bi-key-fill"></i></div>
-                                    <h6 class="fw-bold mb-0 text-body">Matriz de Permisos</h6>
-                                </div>
-                                <p class="text-body-secondary mb-0 small">Ajuste fino de permisos a nivel de controlador y vista.</p>
-                            </div>
-                        </a>
-                    </div>
                 </div>
             </div>
+
         </div>
-
-        <div class="col-12 col-xl-5 anime-item">
-            <div class="app-card p-4 h-100 border-0 shadow-sm rounded-4">
-                <div class="mb-4 d-flex align-items-center gap-3 border-bottom border-secondary border-opacity-10 pb-4">
-                    <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 50px; height: 50px;">
-                        <i class="bi bi-activity fs-4"></i>
-                    </div>
-                    <div>
-                        <h4 class="fw-black mb-0 text-body">Salud del Sistema</h4>
-                        <p class="text-body-secondary mb-0">Alertas de configuración y demografía.</p>
-                    </div>
-                </div>
-
-                <h6 class="fw-bold text-body-secondary text-uppercase mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">Atención Requerida</h6>
-                <div class="d-flex flex-column gap-2 mb-4">
-
-                    <div class="p-3 bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded-4 d-flex align-items-center justify-content-between hover-elevate cursor-pointer" onclick="window.location='{{ route('admin.usuarios.index') }}'">
-                        <div class="d-flex align-items-center gap-3">
-                            <i class="bi bi-person-exclamation text-danger fs-4"></i>
-                            <div>
-                                <span class="fw-bold text-danger d-block" style="line-height: 1;">Cuentas sin expediente</span>
-                                <small class="text-danger text-opacity-75">Usuarios sin persona vinculada</small>
-                            </div>
-                        </div>
-                        <span class="badge bg-danger rounded-pill fs-6 shadow-sm">{{ $usuariosSinPersona ?? 0 }}</span>
-                    </div>
-
-                    <div class="p-3 bg-info bg-opacity-10 border border-info border-opacity-25 rounded-4 d-flex align-items-center justify-content-between hover-elevate cursor-pointer"
-                         onclick="window.location='{{ route('admin.expedientes-pendientes.index') }}'">
-                        <div class="d-flex align-items-center gap-3">
-                            <i class="bi bi-mortarboard text-info fs-4"></i>
-                            <div>
-                                <span class="fw-bold text-info d-block" style="line-height: 1;">Estudiantes sin expediente</span>
-                                <small class="text-info text-opacity-75">Usuarios con rol estudiante sin grupo</small>
-                            </div>
-                        </div>
-                        <span class="badge bg-info text-dark rounded-pill fs-6 shadow-sm">{{ $estudiantesSinExpediente ?? 0 }}</span>
-                    </div>
-
-                    <div class="p-3 bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-4 d-flex align-items-center justify-content-between hover-elevate cursor-pointer" onclick="window.location='{{ route('admin.roles.index') }}'">
-                        <div class="d-flex align-items-center gap-3">
-                            <i class="bi bi-shield-exclamation text-warning-emphasis fs-4"></i>
-                            <div>
-                                <span class="fw-bold text-warning-emphasis d-block" style="line-height: 1;">Roles vacíos</span>
-                                <small class="text-warning-emphasis text-opacity-75">Perfiles sin permisos asignados</small>
-                            </div>
-                        </div>
-                        <span class="badge bg-warning text-dark rounded-pill fs-6 shadow-sm">{{ $rolesSinPermisos ?? 0 }}</span>
-                    </div>
-
-                    <div class="p-3 bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded-4 d-flex align-items-center justify-content-between hover-elevate cursor-pointer" onclick="window.location='{{ route('admin.tutores.index') }}'">
-                        <div class="d-flex align-items-center gap-3">
-                            <i class="bi bi-person-video3 text-primary fs-4"></i>
-                            <div>
-                                <span class="fw-bold text-primary d-block" style="line-height: 1;">Tutores sin grupos</span>
-                                <small class="text-primary text-opacity-75">Expedientes sin asignación académica</small>
-                            </div>
-                        </div>
-                        <span class="badge bg-primary rounded-pill fs-6 shadow-sm">{{ $tutoresSinGrupos ?? 0 }}</span>
-                    </div>
-                </div>
-
-                <h6 class="fw-bold text-body-secondary text-uppercase mb-3 mt-4" style="font-size: 0.75rem; letter-spacing: 1px;">Distribución de Población</h6>
-                <div class="d-flex flex-column gap-3 p-4 bg-body-tertiary rounded-4 border border-secondary border-opacity-10">
-
-                    @php
-                        $total = ($totalUsuarios ?? 0) > 0 ? $totalUsuarios : 1;
-                        $estCount = $estudiantesCount ?? 0;
-                        $psiCount = $psicologosCount ?? 0;
-                        $tutCount = $tutoresCount ?? 0;
-
-                        $pctEstudiantes = round(($estCount / $total) * 100);
-                        $pctPsicologos = round(($psiCount / $total) * 100);
-                        $pctTutores = round(($tutCount / $total) * 100);
-                    @endphp
-
-                    <div>
-                        <div class="d-flex justify-content-between align-items-end mb-2">
-                            <span class="fw-bold text-body"><i class="bi bi-mortarboard-fill text-primary me-2"></i> Estudiantes</span>
-                            <span class="text-body-secondary fw-bold">{{ $estCount }} ({{ $pctEstudiantes }}%)</span>
-                        </div>
-                        <div class="progress bg-body border border-secondary border-opacity-10" style="height: 12px;">
-                            <div class="progress-bar bg-primary rounded-pill" style="width: {{ $pctEstudiantes }}%"></div>
-                        </div>
-                    </div>
-
-                    <div class="mt-2">
-                        <div class="d-flex justify-content-between align-items-end mb-2">
-                            <span class="fw-bold text-body"><i class="bi bi-heart-pulse-fill text-info me-2"></i> Psicólogos</span>
-                            <span class="text-body-secondary fw-bold">{{ $psiCount }} ({{ $pctPsicologos }}%)</span>
-                        </div>
-                        <div class="progress bg-body border border-secondary border-opacity-10" style="height: 12px;">
-                            <div class="progress-bar bg-info rounded-pill" style="width: {{ $pctPsicologos }}%"></div>
-                        </div>
-                    </div>
-
-                    <div class="mt-2">
-                        <div class="d-flex justify-content-between align-items-end mb-2">
-                            <span class="fw-bold text-body"><i class="bi bi-person-video3 text-success me-2"></i> Tutores</span>
-                            <span class="text-body-secondary fw-bold">{{ $tutCount }} ({{ $pctTutores }}%)</span>
-                        </div>
-                        <div class="progress bg-body border border-secondary border-opacity-10" style="height: 12px;">
-                            <div class="progress-bar bg-success rounded-pill" style="width: {{ $pctTutores }}%"></div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
     </div>
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/granim.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/granim@2.0.0/dist/granim.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            if(typeof anime !== 'undefined') {
-                anime({
-                    targets: '.anime-item',
-                    translateY: [30, 0],
-                    opacity: [0, 1],
-                    delay: anime.stagger(100),
-                    easing: 'easeOutExpo',
-                    duration: 900
-                });
+            const metricasIniciales = @json($metricas);
 
-                const counters = document.querySelectorAll('.count-up');
-                counters.forEach(counter => {
-                    const endValue = parseInt(counter.getAttribute('data-value'), 10);
+            const metricasUrl = "{{ route('admin.dashboard.metricas') }}";
+
+            let actividadChart;
+            let poblacionChart;
+            let evaluacionesChart;
+            let alertasChart;
+
+            const chartColors = {
+                primary: '#6d28d9',
+                primarySoft: 'rgba(109, 40, 217, .16)',
+                info: '#0284c7',
+                infoSoft: 'rgba(2, 132, 199, .16)',
+                success: '#16a34a',
+                successSoft: 'rgba(22, 163, 74, .16)',
+                warning: '#d97706',
+                warningSoft: 'rgba(217, 119, 6, .16)',
+                danger: '#dc2626',
+                dangerSoft: 'rgba(220, 38, 38, .16)',
+                dark: '#334155',
+                darkSoft: 'rgba(51, 65, 85, .16)'
+            };
+
+            function numero(valor) {
+                valor = Number(valor || 0);
+                return new Intl.NumberFormat('es-MX').format(valor);
+            }
+
+            function obtenerValorActual(elemento) {
+                const texto = elemento.textContent.replaceAll(',', '').replaceAll('.', '').trim();
+                return parseInt(texto, 10) || 0;
+            }
+
+            function animarContador(nombre, nuevoValor) {
+                const elementos = document.querySelectorAll(`[data-counter="${nombre}"]`);
+
+                elementos.forEach(elemento => {
+                    const valorActual = obtenerValorActual(elemento);
+                    const valorFinal = Number(nuevoValor || 0);
+
                     anime({
-                        targets: counter,
-                        innerHTML: [0, endValue],
-                        easing: 'easeOutExpo',
+                        targets: { value: valorActual },
+                        value: valorFinal,
                         round: 1,
-                        duration: 2500,
-                        delay: 500
+                        duration: 850,
+                        easing: 'easeOutExpo',
+                        update: function(anim) {
+                            elemento.textContent = numero(anim.animatables[0].target.value);
+                        }
                     });
                 });
             }
 
-            if (document.getElementById('granim-canvas-admin') && typeof Granim !== 'undefined') {
-                new Granim({
-                    element: '#granim-canvas-admin',
-                    direction: 'left-right',
-                    isPausedWhenNotInView: true,
-                    states : {
-                        "default-state": {
-                            gradients: [
-                                {!! $granimPalettes !!}
+            function actualizarTextoMetricas(data) {
+                const resumen = data.resumen || {};
+                const evaluaciones = data.evaluaciones || {};
+                const alertas = data.alertas || {};
+                const salud = data.salud || {};
+
+                animarContador('totalUsuarios', resumen.totalUsuarios);
+                animarContador('totalPersonas', resumen.totalPersonas);
+                animarContador('totalEstudiantes', resumen.totalEstudiantes);
+                animarContador('totalPsicologos', resumen.totalPsicologos);
+                animarContador('totalGrupos', resumen.totalGrupos);
+
+                animarContador('phq9', evaluaciones.phq9);
+                animarContador('gad7', evaluaciones.gad7);
+
+                animarContador('alertasActivas', alertas.activas);
+                animarContador('usuariosSinPersona', salud.usuariosSinPersona);
+                animarContador('estudiantesSinExpediente', salud.estudiantesSinExpediente);
+                animarContador('rolesSinPermisos', salud.rolesSinPermisos);
+                animarContador('tutoresSinGrupos', salud.tutoresSinGrupos);
+
+                const label = document.getElementById('last-update-label');
+
+                if (label) {
+                    const ahora = new Date();
+                    label.textContent = ahora.toLocaleTimeString('es-MX', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                }
+            }
+
+            function crearGraficas(data) {
+                const resumen = data.resumen || {};
+                const evaluaciones = data.evaluaciones || {};
+                const alertas = data.alertas || {};
+                const actividad = data.actividadMensual || {};
+
+                const labelsActividad = actividad.labels || ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'];
+                const usuariosActividad = actividad.usuarios || [0, 0, 0, 0, 0, resumen.totalUsuarios || 0];
+                const evaluacionesActividad = actividad.evaluaciones || [0, 0, 0, 0, 0, (evaluaciones.phq9 || 0) + (evaluaciones.gad7 || 0)];
+                const alertasActividad = actividad.alertas || [0, 0, 0, 0, 0, alertas.activas || 0];
+
+                const actividadCtx = document.getElementById('actividadChart');
+
+                actividadChart = new Chart(actividadCtx, {
+                    type: 'line',
+                    data: {
+                        labels: labelsActividad,
+                        datasets: [
+                            {
+                                label: 'Usuarios',
+                                data: usuariosActividad,
+                                borderColor: chartColors.primary,
+                                backgroundColor: chartColors.primarySoft,
+                                fill: true,
+                                tension: .42,
+                                pointRadius: 4,
+                                pointHoverRadius: 7
+                            },
+                            {
+                                label: 'Evaluaciones',
+                                data: evaluacionesActividad,
+                                borderColor: chartColors.info,
+                                backgroundColor: chartColors.infoSoft,
+                                fill: true,
+                                tension: .42,
+                                pointRadius: 4,
+                                pointHoverRadius: 7
+                            },
+                            {
+                                label: 'Alertas',
+                                data: alertasActividad,
+                                borderColor: chartColors.danger,
+                                backgroundColor: chartColors.dangerSoft,
+                                fill: true,
+                                tension: .42,
+                                pointRadius: 4,
+                                pointHoverRadius: 7
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 900,
+                            easing: 'easeOutQuart'
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    boxWidth: 8
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0
+                                }
+                            }
+                        }
+                    }
+                });
+
+                const poblacionCtx = document.getElementById('poblacionChart');
+
+                poblacionChart = new Chart(poblacionCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Estudiantes', 'Tutores', 'Psicólogos'],
+                        datasets: [{
+                            data: [
+                                resumen.totalEstudiantes || 0,
+                                resumen.totalTutores || 0,
+                                resumen.totalPsicologos || 0
                             ],
-                            transitionSpeed: 7000
+                            backgroundColor: [
+                                chartColors.primary,
+                                chartColors.warning,
+                                chartColors.success
+                            ],
+                            borderWidth: 0,
+                            hoverOffset: 12
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '68%',
+                        animation: {
+                            animateRotate: true,
+                            animateScale: true,
+                            duration: 1000
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    boxWidth: 8
+                                }
+                            }
+                        }
+                    }
+                });
+
+                const evaluacionesCtx = document.getElementById('evaluacionesChart');
+
+                evaluacionesChart = new Chart(evaluacionesCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['PHQ-9', 'GAD-7', 'Diario emocional'],
+                        datasets: [{
+                            label: 'Registros',
+                            data: [
+                                evaluaciones.phq9 || 0,
+                                evaluaciones.gad7 || 0,
+                                evaluaciones.diarios || 0
+                            ],
+                            backgroundColor: [
+                                chartColors.info,
+                                chartColors.primary,
+                                chartColors.success
+                            ],
+                            borderRadius: 14,
+                            maxBarThickness: 70
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 900,
+                            easing: 'easeOutBounce'
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0
+                                }
+                            }
+                        }
+                    }
+                });
+
+                const alertasCtx = document.getElementById('alertasChart');
+
+                alertasChart = new Chart(alertasCtx, {
+                    type: 'polarArea',
+                    data: {
+                        labels: ['Pendientes', 'Activas', 'Atendidas', 'Prioritarias'],
+                        datasets: [{
+                            data: [
+                                alertas.pendientes || 0,
+                                alertas.activas || 0,
+                                alertas.atendidas || 0,
+                                alertas.prioritarias || 0
+                            ],
+                            backgroundColor: [
+                                chartColors.warningSoft,
+                                chartColors.dangerSoft,
+                                chartColors.successSoft,
+                                'rgba(124, 58, 237, .20)'
+                            ],
+                            borderColor: [
+                                chartColors.warning,
+                                chartColors.danger,
+                                chartColors.success,
+                                chartColors.primary
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            animateRotate: true,
+                            animateScale: true,
+                            duration: 1000
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    boxWidth: 8
+                                }
+                            }
+                        },
+                        scales: {
+                            r: {
+                                ticks: {
+                                    precision: 0
+                                }
+                            }
                         }
                     }
                 });
             }
+
+            function actualizarGraficas(data) {
+                const resumen = data.resumen || {};
+                const evaluaciones = data.evaluaciones || {};
+                const alertas = data.alertas || {};
+                const actividad = data.actividadMensual || {};
+
+                if (actividadChart) {
+                    actividadChart.data.labels = actividad.labels || actividadChart.data.labels;
+                    actividadChart.data.datasets[0].data = actividad.usuarios || actividadChart.data.datasets[0].data;
+                    actividadChart.data.datasets[1].data = actividad.evaluaciones || actividadChart.data.datasets[1].data;
+                    actividadChart.data.datasets[2].data = actividad.alertas || actividadChart.data.datasets[2].data;
+                    actividadChart.update();
+                }
+
+                if (poblacionChart) {
+                    poblacionChart.data.datasets[0].data = [
+                        resumen.totalEstudiantes || 0,
+                        resumen.totalTutores || 0,
+                        resumen.totalPsicologos || 0
+                    ];
+                    poblacionChart.update();
+                }
+
+                if (evaluacionesChart) {
+                    evaluacionesChart.data.datasets[0].data = [
+                        evaluaciones.phq9 || 0,
+                        evaluaciones.gad7 || 0,
+                        evaluaciones.diarios || 0
+                    ];
+                    evaluacionesChart.update();
+                }
+
+                if (alertasChart) {
+                    alertasChart.data.datasets[0].data = [
+                        alertas.pendientes || 0,
+                        alertas.activas || 0,
+                        alertas.atendidas || 0,
+                        alertas.prioritarias || 0
+                    ];
+                    alertasChart.update();
+                }
+            }
+
+            function actualizarDashboard(data) {
+                actualizarTextoMetricas(data);
+                actualizarGraficas(data);
+            }
+
+            async function cargarMetricasTiempoReal() {
+                try {
+                    const response = await fetch(metricasUrl, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('No se pudieron cargar las métricas.');
+                    }
+
+                    const data = await response.json();
+                    actualizarDashboard(data);
+
+                } catch (error) {
+                    console.error(error);
+
+                    const label = document.getElementById('last-update-label');
+
+                    if (label) {
+                        label.textContent = 'sin conexión';
+                    }
+                }
+            }
+
+            if (typeof Granim !== 'undefined') {
+                new Granim({
+                    element: '#granim-canvas-admin',
+                    direction: 'diagonal',
+                    isPausedWhenNotInView: true,
+                    states: {
+                        'default-state': {
+                            gradients: [
+                                {!! $granimPalettes !!}
+                            ],
+                            transitionSpeed: 5000
+                        }
+                    }
+                });
+            }
+
+            if (typeof anime !== 'undefined') {
+                anime({
+                    targets: '.anime-item',
+                    opacity: [0, 1],
+                    translateY: [28, 0],
+                    delay: anime.stagger(95),
+                    duration: 900,
+                    easing: 'easeOutExpo'
+                });
+
+                anime({
+                    targets: '.metric-icon',
+                    scale: [0.88, 1],
+                    rotate: [-6, 0],
+                    delay: anime.stagger(70),
+                    duration: 850,
+                    easing: 'easeOutElastic(1, .7)'
+                });
+            }
+
+            crearGraficas(metricasIniciales);
+            actualizarTextoMetricas(metricasIniciales);
+
+            setInterval(cargarMetricasTiempoReal, 10000);
         });
     </script>
 @endpush
