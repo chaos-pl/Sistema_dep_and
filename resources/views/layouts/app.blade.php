@@ -138,7 +138,7 @@
         }
         body.theme-dark .topbar, body.theme-system .topbar { background: rgba(17, 24, 39, 0.88); border-bottom: 1px solid rgba(31, 41, 55, 0.9); }
         body.theme-dark .app-card, body.theme-system .app-card { background: var(--app-surface); color: var(--app-text); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20); }
-        
+
         /* Ajuste de contraste para textos globales en modo oscuro */
         body.theme-dark .text-body-secondary, body.theme-system .text-body-secondary { color: #94a3b8 !important; }
         body.theme-dark .text-body, body.theme-system .text-body { color: #f8fafc !important; }
@@ -155,7 +155,7 @@
         body.theme-dark .bg-info.bg-opacity-10, body.theme-system .bg-info.bg-opacity-10 { background-color: rgba(56, 189, 248, 0.15) !important; }
         body.theme-dark .bg-warning.bg-opacity-10, body.theme-system .bg-warning.bg-opacity-10 { background-color: rgba(251, 191, 36, 0.15) !important; }
         body.theme-dark .bg-danger.bg-opacity-10, body.theme-system .bg-danger.bg-opacity-10 { background-color: rgba(248, 113, 113, 0.15) !important; }
-        
+
         body.theme-dark .text-primary, body.theme-system .text-primary { color: #60a5fa !important; }
         body.theme-dark .text-success, body.theme-system .text-success { color: #34d399 !important; }
         body.theme-dark .text-info, body.theme-system .text-info { color: #38bdf8 !important; }
@@ -848,5 +848,142 @@ body.theme-system #modalLogout .btn-light:hover {
 
 @include('sweetalert::alert')
 @stack('scripts')
+{{-- ======================================================= --}}
+{{-- BOTIQUÍN EMOCIONAL (Solo visible para Estudiantes)      --}}
+{{-- ======================================================= --}}
+@if(auth()->check() && auth()->user()->hasRole('estudiante'))
+
+    {{-- 1. Botón Flotante (FAB) --}}
+    <button class="btn btn-primary shadow-lg d-flex align-items-center justify-content-center position-fixed"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvasBienestar"
+            aria-controls="offcanvasBienestar"
+            style="bottom: 30px; right: 30px; width: 65px; height: 65px; border-radius: 50%; z-index: 1040; transition: transform 0.3s ease;"
+            onmouseover="this.style.transform='scale(1.1)'"
+            onmouseout="this.style.transform='scale(1)'">
+        <i class="bi bi-stars fs-3"></i>
+    </button>
+
+    {{-- 2. Menú Lateral (Offcanvas) --}}
+    <div class="offcanvas offcanvas-end shadow" tabindex="-1" id="offcanvasBienestar" aria-labelledby="offcanvasBienestarLabel" style="width: 400px; border-left: 1px solid rgba(148, 163, 184, 0.2);">
+        <div class="offcanvas-header bg-primary bg-opacity-10 border-bottom border-primary border-opacity-10">
+            <h5 class="offcanvas-title fw-black text-primary d-flex align-items-center gap-2" id="offcanvasBienestarLabel">
+                <i class="bi bi-box2-heart-fill"></i> Botiquín Emocional
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+
+        <div class="offcanvas-body p-4 bg-body">
+            <p class="text-body-secondary small mb-4">Herramientas rápidas para ayudarte a regular el estrés y la ansiedad dondequiera que estés en el sistema.</p>
+
+            {{-- Widget 1: Box Breathing --}}
+            <div class="app-card bg-body-tertiary border border-secondary border-opacity-10 rounded-4 text-center p-4 mb-4 shadow-sm">
+                <h6 class="fw-bold text-body mb-1"><i class="bi bi-wind text-info me-2"></i>Respiro Rápido</h6>
+                <div class="d-flex align-items-center justify-content-center position-relative my-4" style="height: 100px;">
+                    <div id="fab-breathe-circle" class="bg-info bg-opacity-25 position-absolute z-1" style="width: 50px; height: 50px; border-radius: 50%;"></div>
+                    <div id="fab-breathe-text" class="fw-bold text-info position-absolute z-2 small">Listo</div>
+                </div>
+                <button id="fab-btn-breathe" class="btn btn-outline-info rounded-pill w-100 fw-bold btn-sm">Iniciar ejercicio</button>
+            </div>
+
+            {{-- Widget 2: Frasco de Gratitud --}}
+            <div class="app-card bg-body-tertiary border border-secondary border-opacity-10 rounded-4 text-center p-4 mb-4 shadow-sm">
+                <h6 class="fw-bold text-body mb-2"><i class="bi bi-jar-fill text-warning me-2"></i>Micro-Gratitud</h6>
+                <input type="text" id="fab-gratitude-input" class="form-control text-center bg-transparent rounded-pill border-secondary border-opacity-25 mb-3 text-body" placeholder="¿Qué fue lo mejor de hoy?">
+                <button id="fab-btn-gratitude" class="btn btn-warning text-dark rounded-pill w-100 fw-bold shadow-sm btn-sm">Guardar recuerdo</button>
+            </div>
+
+            {{-- Widget 3: Reseteo Mental --}}
+            <div class="app-card bg-body-tertiary border border-secondary border-opacity-10 rounded-4 text-center p-4 mb-4 shadow-sm">
+                <h6 class="fw-bold text-body mb-2"><i class="bi bi-shuffle text-success me-2"></i>Pausa Activa</h6>
+                <div class="bg-success bg-opacity-10 rounded-3 p-2 mb-3" style="min-height: 60px; display: flex; align-items: center; justify-content: center;">
+                    <span id="fab-reset-text" class="text-success fw-medium small">Presiona el botón para recibir tu pausa.</span>
+                </div>
+                <button id="fab-btn-reset" class="btn btn-outline-success rounded-pill w-100 fw-bold btn-sm">Dame un respiro</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Dependencias Globales para el Botiquín --}}
+    {{-- (Nos aseguramos de cargar anime.js y confetti solo si es estudiante) --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- BOX BREATHING ---
+            const btnBreathe = document.getElementById('fab-btn-breathe');
+            const circleBreathe = document.getElementById('fab-breathe-circle');
+            const textBreathe = document.getElementById('fab-breathe-text');
+            let isBreathing = false;
+            let breatheAnim;
+
+            btnBreathe.addEventListener('click', () => {
+                if (!isBreathing) {
+                    isBreathing = true;
+                    btnBreathe.innerText = 'Detener ejercicio';
+                    btnBreathe.classList.replace('btn-outline-info', 'btn-danger');
+                    circleBreathe.classList.replace('bg-opacity-25', 'bg-opacity-50');
+
+                    breatheAnim = anime.timeline({ loop: true, autoplay: true })
+                        .add({ targets: circleBreathe, scale: 2.2, duration: 4000, easing: 'easeInOutSine', begin: () => { textBreathe.innerText = "Inhala..."; }})
+                        .add({ targets: circleBreathe, duration: 4000, begin: () => { textBreathe.innerText = "Sostén..."; }})
+                        .add({ targets: circleBreathe, scale: 1, duration: 4000, easing: 'easeInOutSine', begin: () => { textBreathe.innerText = "Exhala..."; }})
+                        .add({ targets: circleBreathe, duration: 4000, begin: () => { textBreathe.innerText = "Sostén..."; }});
+                } else {
+                    isBreathing = false;
+                    if(breatheAnim) breatheAnim.pause();
+                    anime({ targets: circleBreathe, scale: 1, duration: 500, easing: 'easeOutQuad' });
+                    circleBreathe.classList.replace('bg-opacity-50', 'bg-opacity-25');
+                    textBreathe.innerText = "Listo";
+                    btnBreathe.innerText = 'Iniciar ejercicio';
+                    btnBreathe.classList.replace('btn-danger', 'btn-outline-info');
+                }
+            });
+
+            // --- FRASCO DE GRATITUD ---
+            const btnGrat = document.getElementById('fab-btn-gratitude');
+            const inputGrat = document.getElementById('fab-gratitude-input');
+
+            btnGrat.addEventListener('click', () => {
+                if(inputGrat.value.trim() !== "") {
+                    // La posición 'x' ajusta el confeti al lado derecho donde está el Offcanvas
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6, x: 0.8 }, colors: ['#ffc107', '#ff9800', '#ffffff'], zIndex: 1055 });
+                    inputGrat.value = "";
+                    inputGrat.placeholder = "¡Recuerdo guardado!";
+                    setTimeout(() => { inputGrat.placeholder = "¿Qué fue lo mejor de hoy?"; }, 3000);
+                } else {
+                    anime({ targets: inputGrat, translateX: [0, -10, 10, -10, 10, 0], duration: 400, easing: 'easeInOutSine' });
+                }
+            });
+
+            // --- PAUSAS ACTIVAS ---
+            const pausas = [
+                "Toma un vaso completo de agua ahora mismo.",
+                "Mira por la ventana hacia el punto más lejano por 30 seg.",
+                "Estira los brazos hacia el techo y respira hondo 3 veces.",
+                "Levántate, da 10 pasos por tu habitación y vuelve.",
+                "Cierra los ojos y nombra mentalmente 3 cosas que escuchas.",
+                "Sonríe forzadamente por 10 segundos (¡engaña a tu cerebro!)."
+            ];
+            const btnReset = document.getElementById('fab-btn-reset');
+            const textReset = document.getElementById('fab-reset-text');
+
+            btnReset.addEventListener('click', () => {
+                const randomPausa = pausas[Math.floor(Math.random() * pausas.length)];
+                anime({
+                    targets: textReset, opacity: [1, 0], duration: 200, easing: 'easeInQuad',
+                    complete: function() {
+                        textReset.innerText = randomPausa;
+                        anime({ targets: textReset, opacity: [0, 1], duration: 300, easing: 'easeOutQuad' });
+                    }
+                });
+            });
+        });
+    </script>
+@endif
+{{-- ======================================================= --}}
 </body>
 </html>

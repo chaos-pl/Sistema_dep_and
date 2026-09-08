@@ -36,6 +36,7 @@ use Illuminate\Support\Facades\Route;
 use RealRashid\SweetAlert\Facades\Alert;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use App\Http\Controllers\Dass21Controller;
 
 Route::get('/', function () {
     return auth()->check()
@@ -151,6 +152,15 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
             Route::get('/', [EvaluacionController::class, 'index'])->name('index');
             Route::get('/{tipo}/aplicar', [EvaluacionController::class, 'aplicar'])->name('aplicar');
             Route::post('/{tipo}/responder', [EvaluacionController::class, 'responder'])->name('responder');
+        });
+
+    Route::prefix('dass21')
+        ->name('dass21.')
+        ->middleware(['role:estudiante', 'permission:evaluaciones.realizar'])
+        ->group(function () {
+            Route::get('/aplicar', [Dass21Controller::class, 'create'])->name('create');
+            Route::post('/aplicar', [Dass21Controller::class, 'store'])->name('store');
+            Route::get('/resultados/{evaluation}', [Dass21Controller::class, 'show'])->name('show');
         });
 
     Route::prefix('diario')

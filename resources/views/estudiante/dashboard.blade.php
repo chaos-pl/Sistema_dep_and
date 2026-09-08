@@ -8,27 +8,17 @@
     $userAccentColor = auth()->user()->appearance_settings['accent_color'] ?? 'purple';
 
     $granimPalettes = match($userAccentColor) {
-        'blue' => "
-            [ { color: '#1e3a8a', pos: 0 }, { color: '#2563eb', pos: .5 }, { color: '#93c5fd', pos: 1 } ],
-            [ { color: '#2563eb', pos: 0 }, { color: '#0284c7', pos: .5 }, { color: '#38bdf8', pos: 1 } ],
-            [ { color: '#0f172a', pos: 0 }, { color: '#1d4ed8', pos: .5 }, { color: '#3b82f6', pos: 1 } ]
-        ",
-        'green' => "
-            [ { color: '#064e3b', pos: 0 }, { color: '#059669', pos: .5 }, { color: '#6ee7b7', pos: 1 } ],
-            [ { color: '#059669', pos: 0 }, { color: '#0d9488', pos: .5 }, { color: '#2dd4bf', pos: 1 } ],
-            [ { color: '#022c22', pos: 0 }, { color: '#047857', pos: .5 }, { color: '#10b981', pos: 1 } ]
-        ",
-        'pink' => "
-            [ { color: '#831843', pos: 0 }, { color: '#db2777', pos: .5 }, { color: '#f9a8d4', pos: 1 } ],
-            [ { color: '#db2777', pos: 0 }, { color: '#e11d48', pos: .5 }, { color: '#f43f5e', pos: 1 } ],
-            [ { color: '#4c0519', pos: 0 }, { color: '#be185d', pos: .5 }, { color: '#ec4899', pos: 1 } ]
-        ",
-        default => "
-            [ { color: '#4c1d95', pos: 0 }, { color: '#7c3aed', pos: .5 }, { color: '#a78bfa', pos: 1 } ],
-            [ { color: '#7c3aed', pos: 0 }, { color: '#c026d3', pos: .5 }, { color: '#db2777', pos: 1 } ],
-            [ { color: '#1e1b4b', pos: 0 }, { color: '#6d28d9', pos: .5 }, { color: '#8b5cf6', pos: 1 } ]
-        "
+        'blue' => "[ { color: '#1e3a8a', pos: 0 }, { color: '#2563eb', pos: .5 }, { color: '#93c5fd', pos: 1 } ], [ { color: '#2563eb', pos: 0 }, { color: '#0284c7', pos: .5 }, { color: '#38bdf8', pos: 1 } ], [ { color: '#0f172a', pos: 0 }, { color: '#1d4ed8', pos: .5 }, { color: '#3b82f6', pos: 1 } ]",
+        'green' => "[ { color: '#064e3b', pos: 0 }, { color: '#059669', pos: .5 }, { color: '#6ee7b7', pos: 1 } ], [ { color: '#059669', pos: 0 }, { color: '#0d9488', pos: .5 }, { color: '#2dd4bf', pos: 1 } ], [ { color: '#022c22', pos: 0 }, { color: '#047857', pos: .5 }, { color: '#10b981', pos: 1 } ]",
+        'pink' => "[ { color: '#831843', pos: 0 }, { color: '#db2777', pos: .5 }, { color: '#f9a8d4', pos: 1 } ], [ { color: '#db2777', pos: 0 }, { color: '#e11d48', pos: .5 }, { color: '#f43f5e', pos: 1 } ], [ { color: '#4c0519', pos: 0 }, { color: '#be185d', pos: .5 }, { color: '#ec4899', pos: 1 } ]",
+        default => "[ { color: '#4c1d95', pos: 0 }, { color: '#7c3aed', pos: .5 }, { color: '#a78bfa', pos: 1 } ], [ { color: '#7c3aed', pos: 0 }, { color: '#c026d3', pos: .5 }, { color: '#db2777', pos: 1 } ], [ { color: '#1e1b4b', pos: 0 }, { color: '#6d28d9', pos: .5 }, { color: '#8b5cf6', pos: 1 } ]"
     };
+
+    // Lógica para el Atajo del DASS-21
+    $dass21EvalShortcut = $estudiante
+        ? \App\Models\Dass21Evaluation::where('codigo_anonimo', $estudiante->codigo_anonimo)->latest('completed_at')->first()
+        : null;
+    $dassRequiereAtencion = $dass21EvalShortcut && $dass21EvalShortcut->completed_at->diffInDays(now()) >= 14;
 @endphp
 
 @push('styles')
@@ -36,65 +26,21 @@
         .hover-elevate { transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease; border: 1px solid transparent; }
         .hover-elevate:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important; border-color: var(--app-primary-soft) !important; }
 
-        .bg-welcome-student {
-            position: relative;
-            overflow: hidden;
-            background-color: var(--app-primary);
-        }
+        .bg-welcome-student { position: relative; overflow: hidden; background-color: var(--app-primary); }
         .bg-welcome-student::after {
-            content: '\F431';
-            font-family: "bootstrap-icons";
-            position: absolute;
-            top: -20%;
-            right: -5%;
-            font-size: 14rem;
-            color: #ffffff;
-            opacity: 0.08;
-            transform: rotate(-15deg);
-            pointer-events: none;
-            z-index: 2;
+            content: '\F431'; font-family: "bootstrap-icons"; position: absolute;
+            top: -20%; right: -5%; font-size: 14rem; color: #ffffff;
+            opacity: 0.08; transform: rotate(-15deg); pointer-events: none; z-index: 2;
         }
 
-        #granim-canvas-student {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            border-radius: inherit;
-        }
-
-        .banner-content {
-            position: relative;
-            z-index: 3;
-        }
-
+        #granim-canvas-student { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; border-radius: inherit; }
+        .banner-content { position: relative; z-index: 3; }
         .anime-item { opacity: 0; transform: translateY(20px); }
 
-        /* CLASES PROTECTORAS PARA MODO OSCURO (Misma solución aplicada en Admin y Psicólogo) */
-        .glass-badge {
-            background-color: rgba(255, 255, 255, 0.2) !important;
-            color: #ffffff !important;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
+        .glass-badge { background-color: rgba(255, 255, 255, 0.2) !important; color: #ffffff !important; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .glass-btn { background-color: rgba(255, 255, 255, 0.95) !important; color: var(--app-primary-dark) !important; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); transition: all 0.3s ease; }
+        .glass-btn:hover { background-color: #ffffff !important; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important; }
 
-        .glass-btn {
-            background-color: rgba(255, 255, 255, 0.95) !important;
-            color: var(--app-primary-dark) !important;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            transition: all 0.3s ease;
-        }
-        .glass-btn:hover {
-            background-color: #ffffff !important;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
-        }
-
-        /* Alta legibilidad en modo oscuro para textos de la tabla y tarjetas */
         body.theme-dark .text-body-secondary, body.theme-system .text-body-secondary { color: #94a3b8 !important; }
         body.theme-dark .text-body, body.theme-system .text-body { color: #f8fafc !important; }
     </style>
@@ -102,21 +48,18 @@
 
 @section('content')
     <div class="row g-4">
+        {{-- HERO BANNER --}}
         <div class="col-12 anime-item">
             <div class="app-card bg-welcome-student p-4 p-md-5 text-white rounded-4 border-0 shadow-lg">
-
                 <canvas id="granim-canvas-student"></canvas>
-
                 <div class="row align-items-center banner-content">
                     <div class="col-lg-8">
                         <span class="badge glass-badge rounded-pill px-3 py-2 mb-3 fw-bold shadow-sm">
                             <i class="bi bi-shield-check me-1"></i> Entorno Seguro y Confidencial
                         </span>
-
                         <h2 class="fw-black mb-2 text-white" style="font-size: 2.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                             Hola, {{ auth()->user()->name }}
                         </h2>
-
                         <p class="mb-0 text-white text-opacity-90 fs-5" style="text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
                             @if($estudiante)
                                 Matrícula: {{ $estudiante->matricula }} · Grupo: {{ $estudiante->grupo?->nombre ?? 'Sin grupo' }}
@@ -125,7 +68,6 @@
                             @endif
                         </p>
                     </div>
-
                     <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
                         <a href="{{ route('evaluaciones.index') }}" class="btn glass-btn rounded-pill fw-bold px-4 py-2 shadow-sm hover-elevate">
                             <i class="bi bi-clipboard2-check-fill me-2"></i>Ver Evaluaciones
@@ -135,6 +77,7 @@
             </div>
         </div>
 
+        {{-- ESTADÍSTICAS --}}
         @if($estudiante)
             <div class="col-md-4 anime-item">
                 <div class="app-card p-4 border-0 shadow-sm rounded-4 bg-body-tertiary h-100 hover-elevate">
@@ -143,7 +86,7 @@
                             <i class="bi bi-check2-circle fs-4"></i>
                         </div>
                         <div>
-                            <h5 class="fw-black text-body mb-0">{{ $totalCompletadas }}</h5>
+                            <h5 class="fw-black text-body mb-0">{{ $totalCompletadas ?? 0 }}</h5>
                             <small class="text-body-secondary">Evaluaciones completadas</small>
                         </div>
                     </div>
@@ -169,8 +112,37 @@
                     </div>
                 </div>
             </div>
+
+            {{-- ATAJO DASS-21 --}}
+            <div class="col-12 anime-item">
+                <div class="app-card bg-primary bg-opacity-10 border border-primary border-opacity-25 shadow-sm rounded-4 p-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-4 hover-elevate">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 60px; height: 60px;">
+                            <i class="bi bi-heart-pulse-fill fs-3"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-black text-primary mb-1">Monitoreo DASS-21</h4>
+                            <p class="text-body-secondary mb-0 small">
+                                @if(!$dass21EvalShortcut)
+                                    Aún no has realizado tu primer tamizaje emocional. ¡Toma 5 minutos para conocerte mejor!
+                                @elseif($dassRequiereAtencion)
+                                    Han pasado más de 14 días desde tu última evaluación. Es un buen momento para actualizar tu estado.
+                                @else
+                                    <i class="bi bi-check-circle-fill text-success me-1"></i> Tamizaje al día. Última evaluación: {{ $dass21EvalShortcut->completed_at->format('d/m/Y') }}
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-md-end shrink-0">
+                        <a href="{{ route('dass21.create') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm text-nowrap">
+                            <i class="bi bi-pencil-square me-2"></i> {{ !$dass21EvalShortcut ? 'Comenzar Tamizaje' : 'Actualizar Estado' }}
+                        </a>
+                    </div>
+                </div>
+            </div>
         @endif
 
+        {{-- RESTAURADO: TARJETAS DE OTROS INSTRUMENTOS (PHQ-9, GAD-7, etc.) --}}
         @forelse($instrumentosDashboard as $item)
             @php
                 $acronimo = strtoupper($item->instrumento->acronimo);
@@ -223,12 +195,13 @@
         @empty
             <div class="col-12 anime-item">
                 <div class="alert alert-warning rounded-4 border-0 shadow-sm">
-                    No hay instrumentos cargados o tu expediente de estudiante no está completo.
+                    No hay otros instrumentos cargados o tu expediente de estudiante no está completo.
                 </div>
             </div>
         @endforelse
 
-        <div class="col-12 anime-item">
+        {{-- DIARIO EMOCIONAL --}}
+        <div class="col-12 mt-4 anime-item">
             <div class="app-card p-4 p-md-5 border-0 shadow-sm rounded-4">
                 <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center border-bottom pb-4 mb-4 gap-3 border-secondary border-opacity-10">
                     <div class="d-flex align-items-center gap-3">
@@ -245,7 +218,7 @@
                     </span>
                 </div>
 
-                @if($ultimaEntrada)
+                @if(isset($ultimaEntrada) && $ultimaEntrada)
                     <div class="alert bg-body-tertiary border border-secondary border-opacity-10 rounded-4 mb-4 shadow-sm">
                         <div class="fw-bold text-body mb-1">Última entrada registrada</div>
                         <div class="text-body-secondary small mb-2">{{ $ultimaEntrada->created_at?->format('d/m/Y H:i') }}</div>
@@ -257,7 +230,7 @@
                     @csrf
                     <div class="mb-4">
                         <label class="form-label fw-bold text-body-secondary">¿Cómo te sientes el día de hoy?</label>
-                        <textarea name="texto_ingresado" rows="6" class="form-control form-control-lg bg-body-tertiary border-0 shadow-sm rounded-4 p-4 text-body" placeholder="Hoy me he sentido un poco abrumado por las clases, pero también emocionado por..." style="resize: none;"></textarea>
+                        <textarea name="texto_ingresado" rows="6" class="form-control form-control-lg bg-body-tertiary border-0 shadow-sm rounded-4 p-4 text-body" placeholder="Hoy me he sentido un poco abrumado por las clases, pero también emocionado por..." style="resize: none;" required></textarea>
                     </div>
                     <div class="d-flex justify-content-end">
                         <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold">
@@ -274,32 +247,16 @@
     <script src="{{ asset('js/granim.min.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Animación de entrada
             if(typeof anime !== 'undefined') {
-                anime({
-                    targets: '.anime-item',
-                    translateY: [30, 0],
-                    opacity: [0, 1],
-                    delay: anime.stagger(150),
-                    easing: 'easeOutExpo',
-                    duration: 1000
-                });
+                anime({ targets: '.anime-item', translateY: [30, 0], opacity: [0, 1], delay: anime.stagger(150), easing: 'easeOutExpo', duration: 1000 });
             }
 
-            // Granim.js para el Banner
             if (document.getElementById('granim-canvas-student') && typeof Granim !== 'undefined') {
                 new Granim({
                     element: '#granim-canvas-student',
                     direction: 'left-right',
                     isPausedWhenNotInView: true,
-                    states : {
-                        "default-state": {
-                            gradients: [
-                                {!! $granimPalettes !!}
-                            ],
-                            transitionSpeed: 7000
-                        }
-                    }
+                    states : { "default-state": { gradients: [ {!! $granimPalettes !!} ], transitionSpeed: 7000 } }
                 });
             }
         });

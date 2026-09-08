@@ -83,7 +83,6 @@
         body.theme-dark .text-body-secondary, body.theme-system .text-body-secondary { color: #94a3b8 !important; }
         body.theme-dark .text-body, body.theme-system .text-body { color: #f8fafc !important; }
 
-
         .instrument-card { transition: all .3s cubic-bezier(0.25, 0.8, 0.25, 1); border: 1px solid transparent; }
         .instrument-card:hover {
             transform: translateY(-6px);
@@ -142,7 +141,7 @@
                         </p>
                         <div class="d-flex flex-wrap gap-2">
                             <span class="badge glass-badge rounded-pill px-3 py-2 shadow-sm">
-                                <i class="bi bi-collection-fill me-1"></i> Instrumentos: {{ $totalInstrumentos }}
+                                <i class="bi bi-collection-fill me-1"></i> Instrumentos: {{ $totalInstrumentos + 1 }}
                             </span>
                             <span class="badge glass-badge rounded-pill px-3 py-2 shadow-sm">
                                 <i class="bi bi-check-circle-fill me-1"></i> Completadas: {{ $totalCompletadas }}
@@ -231,6 +230,85 @@
                 </div>
             </div>
         @endforelse
+
+        {{-- ======================================================= --}}
+        {{-- INICIO TARJETA DASS-21 (IMPLEMENTACIÓN INDEPENDIENTE)   --}}
+        {{-- ======================================================= --}}
+        @php
+            // Buscamos si el estudiante ya resolvió el DASS-21
+            $dass21Eval = $estudiante
+                ? \App\Models\Dass21Evaluation::where('codigo_anonimo', $estudiante->codigo_anonimo)->latest('completed_at')->first()
+                : null;
+
+            $dassEstado = $dass21Eval ? 'completada' : 'pendiente';
+            $dassEstadoClass = $dass21Eval ? 'bg-success text-white' : 'bg-warning text-dark';
+
+            // Asignar color de riesgo según el max_severity_level
+            $dassRiskClass = 'risk-nulo';
+            if($dass21Eval) {
+                $dassRiskClass = match($dass21Eval->max_severity_level) {
+                    'Normal' => 'risk-nulo',
+                    'Leve' => 'risk-leve',
+                    'Moderado' => 'risk-moderado',
+                    'Severo', 'Extremadamente severo' => 'risk-severo',
+                    default => 'risk-nulo',
+                };
+            }
+        @endphp
+
+        <div class="col-lg-6 anime-item">
+            <div class="app-card instrument-card bg-body-tertiary p-4 h-100 border border-secondary border-opacity-10 shadow-sm rounded-4 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="instrument-icon bg-info bg-opacity-10 text-info shadow-sm">
+                            <i class="bi bi-layers-fill fs-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-black mb-1 text-body">Depresión, Ansiedad y Estrés</h4>
+                            <div class="text-body-secondary fw-bold">DASS-21</div>
+                        </div>
+                    </div>
+                    <span class="estado-badge {{ $dassEstadoClass }} shadow-sm">
+                        {{ ucfirst($dassEstado) }}
+                    </span>
+                </div>
+
+                <div class="mb-4">
+                    @if($dass21Eval)
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="metric-pill metric-soft-primary shadow-sm">
+                                <i class="bi bi-shield-check"></i> Triaje: {{ $dass21Eval->max_severity_level }}
+                            </span>
+                            <span class="risk-chip {{ $dassRiskClass }} shadow-sm">
+                                <i class="bi bi-activity me-1"></i> Severidad Máxima
+                            </span>
+                        </div>
+                    @else
+                        <p class="text-body-secondary mb-0 fw-medium">
+                            <i class="bi bi-info-circle me-1"></i> Instrumento multidimensional (3 escalas).
+                        </p>
+                    @endif
+                </div>
+
+                <div class="mt-auto pt-3 border-top border-secondary border-opacity-10 d-flex gap-2">
+                    <a href="{{ route('dass21.create') }}"
+                       class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm flex-grow-1">
+                        <i class="bi {{ $dass21Eval ? 'bi-arrow-clockwise' : 'bi-pencil-square' }} me-2"></i>
+                        {{ $dass21Eval ? 'Responder de nuevo' : 'Iniciar evaluación' }}
+                    </a>
+
+                    @if($dass21Eval)
+                        <a href="{{ route('dass21.show', $dass21Eval->id) }}" class="btn btn-outline-secondary rounded-pill px-3 fw-bold shadow-sm" title="Ver Resultados">
+                            <i class="bi bi-eye-fill"></i>
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </div>
+        {{-- ======================================================= --}}
+        {{-- FIN TARJETA DASS-21                                     --}}
+        {{-- ======================================================= --}}
+
     </div>
 @endsection
 
