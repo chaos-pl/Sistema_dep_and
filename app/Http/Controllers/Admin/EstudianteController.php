@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Estudiante;
 use App\Models\Grupo;
+use App\Services\StudentGroupAssignmentService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -34,23 +35,22 @@ class EstudianteController extends Controller implements HasMiddleware
         return view('admin.estudiantes.index', compact('estudiantes', 'grupos'));
     }
 
-    public function updateGrupo(Request $request, Estudiante $estudiante)
+    public function updateGrupo(Request $request, Estudiante $estudiante, StudentGroupAssignmentService $assignments)
     {
         $request->validate([
-            'grupo_id' => 'nullable|exists:grupos,id'
+            'grupo_id' => 'nullable|exists:grupos,id',
         ], [
-            'grupo_id.exists' => 'El grupo seleccionado no es válido.'
+            'grupo_id.exists' => 'El grupo seleccionado no es válido.',
         ]);
 
-        $estudiante->update([
-            'grupo_id' => $request->grupo_id
-        ]);
+        $assignments->assign($estudiante, $request->filled('grupo_id') ? (int) $request->grupo_id : null,
+            auth()->id(), 'Actualización de grupo desde administración');
 
         if ($request->grupo_id) {
             $grupoName = Grupo::find($request->grupo_id)->nombre;
             Alert::success('Grupo asignado', "El estudiante fue asignado al grupo {$grupoName}.");
         } else {
-            Alert::success('Grupo removido', "El estudiante ha sido removido de su grupo.");
+            Alert::success('Grupo removido', 'El estudiante ha sido removido de su grupo.');
         }
 
         return redirect()->route('admin.estudiantes.index');

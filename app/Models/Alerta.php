@@ -2,10 +2,16 @@
 
 namespace App\Models;
 
+use App\Services\CasoAtencionService;
 use Illuminate\Database\Eloquent\Model;
 
 class Alerta extends Model
 {
+    protected static function booted(): void
+    {
+        static::created(fn (self $alerta) => app(CasoAtencionService::class)->forEvaluation($alerta->evaluacion));
+    }
+
     protected $table = 'alertas';
 
     protected $fillable = [

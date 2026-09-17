@@ -7,6 +7,7 @@
 
     @php
         $authUser = auth()->user();
+        $unreadNotices = $authUser ? \App\Models\Aviso::where('user_id', $authUser->id)->whereNull('leido_at')->count() : 0;
 
         $defaultAppearance = [
             'theme' => 'light',
@@ -470,6 +471,9 @@
                             <div class="nav-section-body">
                                 <div class="nav-item-wrapper"><a href="{{ route('tutor.dashboard') }}" class="nav-link {{ request()->routeIs('tutor.dashboard') ? 'active' : '' }}"><i class="bi bi-grid-1x2-fill"></i> Panel tutor</a></div>
                                 @can('grupos.ver.asignados')<div class="nav-item-wrapper"><a href="{{ route('tutor.grupos.index') }}" class="nav-link {{ request()->routeIs('tutor.grupos.*') ? 'active' : '' }}"><i class="bi bi-people-fill"></i> Mis grupos</a></div>@endcan
+                        @can('alertas.ver.general')@can('grupos.ver.asignados')@can('usuarios.ver.grupo')<div class="nav-item-wrapper"><a href="{{ route('tutor.seguimiento') }}" class="nav-link {{ request()->routeIs('tutor.seguimiento') ? 'active' : '' }}"><i class="bi bi-heart-pulse"></i> Seguimiento</a></div>@endcan
+                        @endcan
+                        @endcan
                             </div>
                         </div>
 
@@ -478,7 +482,9 @@
                             <div class="nav-section-header"><span class="nav-section-title">Clínica</span><i class="bi bi-chevron-down nav-section-icon"></i></div>
                             <div class="nav-section-body">
                                 <div class="nav-item-wrapper"><a href="{{ route('psicologo.dashboard') }}" class="nav-link {{ request()->routeIs('psicologo.dashboard') ? 'active' : '' }}"><i class="bi bi-activity"></i> Panel clínico</a></div>
-                                @can('alertas.ver.clinicas')<div class="nav-item-wrapper"><a href="{{ route('alertas.index') }}" class="nav-link {{ request()->routeIs('alertas.*') ? 'active' : '' }}"><i class="bi bi-exclamation-triangle-fill"></i> Alertas</a></div>@endcan
+                                @can('evaluaciones.historial.global')<div class="nav-item-wrapper"><a href="{{ route('psicologo.tamizajes.index') }}" class="nav-link {{ request()->routeIs('psicologo.tamizajes.*') ? 'active' : '' }}"><i class="bi bi-clipboard2-pulse"></i> Tamizajes</a></div>@endcan
+                        @canany(['evaluaciones.historial.global', 'resultados_ia.ver'])<div class="nav-item-wrapper"><a href="{{ route('psicologo.casos.index') }}" class="nav-link {{ request()->routeIs('psicologo.casos.*') ? 'active' : '' }}"><i class="bi bi-journal-medical"></i> Casos de atención</a></div>@endcanany
+                        @can('alertas.ver.clinicas')<div class="nav-item-wrapper"><a href="{{ route('alertas.index') }}" class="nav-link {{ request()->routeIs('alertas.*') ? 'active' : '' }}"><i class="bi bi-exclamation-triangle-fill"></i> Alertas</a></div>@endcan
                                 @can('diagnosticos.ver')<div class="nav-item-wrapper"><a href="{{ route('diagnosticos.index') }}" class="nav-link {{ request()->routeIs('diagnosticos.*') ? 'active' : '' }}"><i class="bi bi-file-earmark-medical-fill"></i> Diagnósticos</a></div>@endcan
                                 @can('resultados_ia.ver')<div class="nav-item-wrapper"><a href="{{ route('analisis.index') }}" class="nav-link {{ request()->routeIs('analisis.*') ? 'active' : '' }}"><i class="bi bi-robot"></i> Resultados IA</a></div>@endcan
                             </div>
@@ -488,6 +494,7 @@
                     <div class="nav-section anime-sidebar-item" data-section-name="global_ajustes">
                         <div class="nav-section-header"><span class="nav-section-title">Ajustes</span><i class="bi bi-chevron-down nav-section-icon"></i></div>
                         <div class="nav-section-body">
+                            @include('components.delivery-four-nav')
                             @can('perfil.ver')<div class="nav-item-wrapper"><a href="{{ route('perfil.index') }}" class="nav-link {{ request()->routeIs('perfil.*') || request()->routeIs('profile.*') ? 'active' : '' }}"><i class="bi bi-person-circle"></i> Mi Perfil</a></div>@endcan
                             <div class="nav-item-wrapper"><a href="{{ route('aviso.privacidad') }}" class="nav-link {{ request()->routeIs('aviso.privacidad') ? 'active' : '' }}"><i class="bi bi-shield-check"></i> Aviso legal</a></div>
                         </div>
@@ -620,6 +627,9 @@
                     <div class="nav-section-body">
                         <div class="nav-item-wrapper"><a href="{{ route('tutor.dashboard') }}" class="nav-link {{ request()->routeIs('tutor.dashboard') ? 'active' : '' }}"><i class="bi bi-grid-1x2-fill"></i> Panel tutor</a></div>
                         @can('grupos.ver.asignados')<div class="nav-item-wrapper"><a href="{{ route('tutor.grupos.index') }}" class="nav-link {{ request()->routeIs('tutor.grupos.*') ? 'active' : '' }}"><i class="bi bi-people-fill"></i> Mis grupos</a></div>@endcan
+                        @can('alertas.ver.general')@can('grupos.ver.asignados')@can('usuarios.ver.grupo')<div class="nav-item-wrapper"><a href="{{ route('tutor.seguimiento') }}" class="nav-link {{ request()->routeIs('tutor.seguimiento') ? 'active' : '' }}"><i class="bi bi-heart-pulse"></i> Seguimiento</a></div>@endcan
+                        @endcan
+                        @endcan
                     </div>
                 </div>
             @elseif(auth()->user()->hasRole('psicologo'))
@@ -627,6 +637,8 @@
                     <div class="nav-section-header"><span class="nav-section-title">Clínica</span><i class="bi bi-chevron-down nav-section-icon"></i></div>
                     <div class="nav-section-body">
                         <div class="nav-item-wrapper"><a href="{{ route('psicologo.dashboard') }}" class="nav-link {{ request()->routeIs('psicologo.dashboard') ? 'active' : '' }}"><i class="bi bi-activity"></i> Panel clínico</a></div>
+                        @can('evaluaciones.historial.global')<div class="nav-item-wrapper"><a href="{{ route('psicologo.tamizajes.index') }}" class="nav-link {{ request()->routeIs('psicologo.tamizajes.*') ? 'active' : '' }}"><i class="bi bi-clipboard2-pulse"></i> Tamizajes</a></div>@endcan
+                        @canany(['evaluaciones.historial.global', 'resultados_ia.ver'])<div class="nav-item-wrapper"><a href="{{ route('psicologo.casos.index') }}" class="nav-link {{ request()->routeIs('psicologo.casos.*') ? 'active' : '' }}"><i class="bi bi-journal-medical"></i> Casos de atención</a></div>@endcanany
                         @can('alertas.ver.clinicas')<div class="nav-item-wrapper"><a href="{{ route('alertas.index') }}" class="nav-link {{ request()->routeIs('alertas.*') ? 'active' : '' }}"><i class="bi bi-exclamation-triangle-fill"></i> Alertas</a></div>@endcan
                         @can('diagnosticos.ver')<div class="nav-item-wrapper"><a href="{{ route('diagnosticos.index') }}" class="nav-link {{ request()->routeIs('diagnosticos.*') ? 'active' : '' }}"><i class="bi bi-file-earmark-medical-fill"></i> Diagnósticos</a></div>@endcan
                         @can('resultados_ia.ver')<div class="nav-item-wrapper"><a href="{{ route('analisis.index') }}" class="nav-link {{ request()->routeIs('analisis.*') ? 'active' : '' }}"><i class="bi bi-robot"></i> Resultados IA</a></div>@endcan
@@ -637,7 +649,8 @@
             <div class="nav-section" data-section-name="mobile_global_ajustes">
                 <div class="nav-section-header"><span class="nav-section-title">Ajustes</span><i class="bi bi-chevron-down nav-section-icon"></i></div>
                 <div class="nav-section-body">
-                    @can('perfil.ver')<div class="nav-item-wrapper"><a href="{{ route('perfil.index') }}" class="nav-link {{ request()->routeIs('perfil.*') || request()->routeIs('profile.*') ? 'active' : '' }}"><i class="bi bi-person-circle"></i> Mi Perfil</a></div>@endcan
+                    @include('components.delivery-four-nav')
+                            @can('perfil.ver')<div class="nav-item-wrapper"><a href="{{ route('perfil.index') }}" class="nav-link {{ request()->routeIs('perfil.*') || request()->routeIs('profile.*') ? 'active' : '' }}"><i class="bi bi-person-circle"></i> Mi Perfil</a></div>@endcan
                     <div class="nav-item-wrapper"><a href="{{ route('aviso.privacidad') }}" class="nav-link {{ request()->routeIs('aviso.privacidad') ? 'active' : '' }}"><i class="bi bi-shield-check"></i> Aviso legal</a></div>
                 </div>
             </div>

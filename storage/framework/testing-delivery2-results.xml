@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="C:\Users\imano\Proyectos_laravel\sistema_dep-and\phpunit.xml" tests="66" assertions="392" errors="0" failures="8" skipped="0" time="38.879097">
+    <testsuite name="Unit" tests="1" assertions="1" errors="0" failures="0" skipped="0" time="0.015993">
+      <testsuite name="Tests\Unit\ExampleTest" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Unit\ExampleTest.php" tests="1" assertions="1" errors="0" failures="0" skipped="0" time="0.015993">
+        <testcase name="test_that_true_is_true" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Unit\ExampleTest.php" line="12" class="Tests\Unit\ExampleTest" classname="Tests.Unit.ExampleTest" assertions="1" time="0.015993"/>
+      </testsuite>
+    </testsuite>
+    <testsuite name="Feature" tests="65" assertions="391" errors="0" failures="8" skipped="0" time="38.863104">
+      <testsuite name="Tests\Feature\AcademicSchemaTest" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AcademicSchemaTest.php" tests="11" assertions="74" errors="0" failures="0" skipped="0" time="7.814315">
+        <testcase name="test_all_migrations_build_the_complete_schema_and_can_run_again" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AcademicSchemaTest.php" line="73" class="Tests\Feature\AcademicSchemaTest" classname="Tests.Feature.AcademicSchemaTest" assertions="9" time="1.453275"/>
+        <testcase name="test_existing_imported_schema_is_adopted_without_changing_rows" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AcademicSchemaTest.php" line="91" class="Tests\Feature\AcademicSchemaTest" classname="Tests.Feature.AcademicSchemaTest" assertions="9" time="0.876279"/>
+        <testcase name="test_control_escolar_can_create_a_student_without_a_group" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AcademicSchemaTest.php" line="118" class="Tests\Feature\AcademicSchemaTest" classname="Tests.Feature.AcademicSchemaTest" assertions="8" time="0.765600"/>
+        <testcase name="test_control_escolar_can_create_a_group_without_a_tutor_and_rejects_oversized_fields" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AcademicSchemaTest.php" line="133" class="Tests\Feature\AcademicSchemaTest" classname="Tests.Feature.AcademicSchemaTest" assertions="8" time="0.661949"/>
+        <testcase name="test_assign_change_and_remove_are_recorded_once_with_the_real_origin" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AcademicSchemaTest.php" line="145" class="Tests\Feature\AcademicSchemaTest" classname="Tests.Feature.AcademicSchemaTest" assertions="15" time="0.577690"/>
+        <testcase name="test_failed_history_write_rolls_back_the_group_change" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AcademicSchemaTest.php" line="169" class="Tests\Feature\AcademicSchemaTest" classname="Tests.Feature.AcademicSchemaTest" assertions="3" time="0.550627"/>
+        <testcase name="test_inactive_or_deleted_groups_are_rejected_and_tutors_cannot_assign" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AcademicSchemaTest.php" line="183" class="Tests\Feature\AcademicSchemaTest" classname="Tests.Feature.AcademicSchemaTest" assertions="7" time="0.559538"/>
+        <testcase name="test_admin_removal_is_also_atomic_and_recorded" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AcademicSchemaTest.php" line="200" class="Tests\Feature\AcademicSchemaTest" classname="Tests.Feature.AcademicSchemaTest" assertions="5" time="0.556322"/>
+        <testcase name="test_nullable_assignments_still_enforce_foreign_keys_and_unique_student_codes" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AcademicSchemaTest.php" line="209" class="Tests\Feature\AcademicSchemaTest" classname="Tests.Feature.AcademicSchemaTest" assertions="2" time="0.533982"/>
+        <testcase name="test_rollback_is_refused_if_pending_assignments_exist_without_changing_either_table" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AcademicSchemaTest.php" line="225" class="Tests\Feature\AcademicSchemaTest" classname="Tests.Feature.AcademicSchemaTest" assertions="5" time="0.592767"/>
+        <testcase name="test_baseline_refuses_to_drop_adopted_tables" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AcademicSchemaTest.php" line="241" class="Tests\Feature\AcademicSchemaTest" classname="Tests.Feature.AcademicSchemaTest" assertions="3" time="0.686286"/>
+      </testsuite>
+      <testsuite name="Tests\Feature\AnalisisNlpProcessingTest" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AnalisisNlpProcessingTest.php" tests="13" assertions="131" errors="0" failures="0" skipped="0" time="11.501033">
+        <testcase name="test_diary_save_is_async_atomic_and_job_payload_has_no_diary_text" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AnalisisNlpProcessingTest.php" line="111" class="Tests\Feature\AnalisisNlpProcessingTest" classname="Tests.Feature.AnalisisNlpProcessingTest" assertions="14" time="0.946191"/>
+        <testcase name="test_queue_failure_rolls_back_the_entry_and_request" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AnalisisNlpProcessingTest.php" line="129" class="Tests\Feature\AnalisisNlpProcessingTest" classname="Tests.Feature.AnalisisNlpProcessingTest" assertions="6" time="0.841189"/>
+        <testcase name="test_worker_keeps_hybrid_class_confidence_and_attention_independent" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AnalisisNlpProcessingTest.php" line="140" class="Tests\Feature\AnalisisNlpProcessingTest" classname="Tests.Feature.AnalisisNlpProcessingTest" assertions="19" time="0.908501"/>
+        <testcase name="test_duplicate_and_stale_requests_cannot_overwrite_results" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AnalisisNlpProcessingTest.php" line="164" class="Tests\Feature\AnalisisNlpProcessingTest" classname="Tests.Feature.AnalisisNlpProcessingTest" assertions="8" time="0.591095"/>
+        <testcase name="test_transient_errors_retry_three_times_and_only_safe_metadata_is_logged" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AnalisisNlpProcessingTest.php" line="184" class="Tests\Feature\AnalisisNlpProcessingTest" classname="Tests.Feature.AnalisisNlpProcessingTest" assertions="9" time="0.685356"/>
+        <testcase name="test_invalid_contract_fails_without_retry_or_erasing_previous_attention" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AnalisisNlpProcessingTest.php" line="205" class="Tests\Feature\AnalisisNlpProcessingTest" classname="Tests.Feature.AnalisisNlpProcessingTest" assertions="11" time="0.763363"/>
+        <testcase name="test_contract_rejects_missing_invalid_or_inconsistent_fields" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AnalisisNlpProcessingTest.php" line="225" class="Tests\Feature\AnalisisNlpProcessingTest" classname="Tests.Feature.AnalisisNlpProcessingTest" assertions="17" time="0.784040"/>
+        <testcase name="test_network_exception_and_http_body_do_not_escape_service" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AnalisisNlpProcessingTest.php" line="246" class="Tests\Feature\AnalisisNlpProcessingTest" classname="Tests.Feature.AnalisisNlpProcessingTest" assertions="6" time="0.749823"/>
+        <testcase name="test_reanalysis_requires_psychologist_and_does_not_duplicate_queue" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AnalisisNlpProcessingTest.php" line="261" class="Tests\Feature\AnalisisNlpProcessingTest" classname="Tests.Feature.AnalisisNlpProcessingTest" assertions="11" time="1.099193"/>
+        <testcase name="test_legacy_records_are_not_presented_as_verified_or_safe" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AnalisisNlpProcessingTest.php" line="274" class="Tests\Feature\AnalisisNlpProcessingTest" classname="Tests.Feature.AnalisisNlpProcessingTest" assertions="7" time="1.043419"/>
+        <testcase name="test_worker_command_stores_only_sanitized_failure_and_payload" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AnalisisNlpProcessingTest.php" line="283" class="Tests\Feature\AnalisisNlpProcessingTest" classname="Tests.Feature.AnalisisNlpProcessingTest" assertions="7" time="1.382384"/>
+        <testcase name="test_pending_becomes_processing_then_completes_on_a_successful_retry" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AnalisisNlpProcessingTest.php" line="299" class="Tests\Feature\AnalisisNlpProcessingTest" classname="Tests.Feature.AnalisisNlpProcessingTest" assertions="9" time="0.954866"/>
+        <testcase name="test_migration_preserves_historical_rows_without_inventing_model_results" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\AnalisisNlpProcessingTest.php" line="325" class="Tests\Feature\AnalisisNlpProcessingTest" classname="Tests.Feature.AnalisisNlpProcessingTest" assertions="7" time="0.751614"/>
+      </testsuite>
+      <testsuite name="Tests\Feature\Auth\AuthenticationTest" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\AuthenticationTest.php" tests="4" assertions="8" errors="0" failures="1" skipped="0" time="1.542052">
+        <testcase name="test_login_screen_can_be_rendered" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\AuthenticationTest.php" line="13" class="Tests\Feature\Auth\AuthenticationTest" classname="Tests.Feature.Auth.AuthenticationTest" assertions="1" time="0.613445"/>
+        <testcase name="test_users_can_authenticate_using_the_login_screen" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\AuthenticationTest.php" line="20" class="Tests\Feature\Auth\AuthenticationTest" classname="Tests.Feature.Auth.AuthenticationTest" assertions="3" time="0.659519">
+          <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\Auth\AuthenticationTest::test_users_can_authenticate_using_the_login_screen&#13;
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost/dashboard'
++'http://localhost/consentimiento'
+&#13;
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponseAssert.php:45
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:432
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:206
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\AuthenticationTest.php:30</failure>
+        </testcase>
+        <testcase name="test_users_can_not_authenticate_with_invalid_password" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\AuthenticationTest.php" line="33" class="Tests\Feature\Auth\AuthenticationTest" classname="Tests.Feature.Auth.AuthenticationTest" assertions="1" time="0.243349"/>
+        <testcase name="test_users_can_logout" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\AuthenticationTest.php" line="45" class="Tests\Feature\Auth\AuthenticationTest" classname="Tests.Feature.Auth.AuthenticationTest" assertions="3" time="0.025740"/>
+      </testsuite>
+      <testsuite name="Tests\Feature\Auth\EmailVerificationTest" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\EmailVerificationTest.php" tests="3" assertions="6" errors="0" failures="0" skipped="0" time="0.610529">
+        <testcase name="test_email_verification_screen_can_be_rendered" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\EmailVerificationTest.php" line="16" class="Tests\Feature\Auth\EmailVerificationTest" classname="Tests.Feature.Auth.EmailVerificationTest" assertions="1" time="0.295244"/>
+        <testcase name="test_email_can_be_verified" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\EmailVerificationTest.php" line="25" class="Tests\Feature\Auth\EmailVerificationTest" classname="Tests.Feature.Auth.EmailVerificationTest" assertions="4" time="0.235756"/>
+        <testcase name="test_email_is_not_verified_with_invalid_hash" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\EmailVerificationTest.php" line="44" class="Tests\Feature\Auth\EmailVerificationTest" classname="Tests.Feature.Auth.EmailVerificationTest" assertions="1" time="0.079530"/>
+      </testsuite>
+      <testsuite name="Tests\Feature\Auth\PasswordConfirmationTest" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\PasswordConfirmationTest.php" tests="3" assertions="4" errors="0" failures="0" skipped="0" time="0.796727">
+        <testcase name="test_confirm_password_screen_can_be_rendered" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\PasswordConfirmationTest.php" line="13" class="Tests\Feature\Auth\PasswordConfirmationTest" classname="Tests.Feature.Auth.PasswordConfirmationTest" assertions="1" time="0.492631"/>
+        <testcase name="test_password_can_be_confirmed" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\PasswordConfirmationTest.php" line="22" class="Tests\Feature\Auth\PasswordConfirmationTest" classname="Tests.Feature.Auth.PasswordConfirmationTest" assertions="2" time="0.036930"/>
+        <testcase name="test_password_is_not_confirmed_with_invalid_password" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\PasswordConfirmationTest.php" line="34" class="Tests\Feature\Auth\PasswordConfirmationTest" classname="Tests.Feature.Auth.PasswordConfirmationTest" assertions="1" time="0.267166"/>
+      </testsuite>
+      <testsuite name="Tests\Feature\Auth\PasswordResetTest" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\PasswordResetTest.php" tests="4" assertions="8" errors="0" failures="0" skipped="0" time="2.453545">
+        <testcase name="test_reset_password_link_screen_can_be_rendered" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\PasswordResetTest.php" line="15" class="Tests\Feature\Auth\PasswordResetTest" classname="Tests.Feature.Auth.PasswordResetTest" assertions="1" time="0.527424"/>
+        <testcase name="test_reset_password_link_can_be_requested" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\PasswordResetTest.php" line="22" class="Tests\Feature\Auth\PasswordResetTest" classname="Tests.Feature.Auth.PasswordResetTest" assertions="1" time="0.501111"/>
+        <testcase name="test_reset_password_screen_can_be_rendered" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\PasswordResetTest.php" line="33" class="Tests\Feature\Auth\PasswordResetTest" classname="Tests.Feature.Auth.PasswordResetTest" assertions="2" time="1.041298"/>
+        <testcase name="test_password_can_be_reset_with_valid_token" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\PasswordResetTest.php" line="50" class="Tests\Feature\Auth\PasswordResetTest" classname="Tests.Feature.Auth.PasswordResetTest" assertions="4" time="0.383711"/>
+      </testsuite>
+      <testsuite name="Tests\Feature\Auth\PasswordUpdateTest" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\PasswordUpdateTest.php" tests="2" assertions="8" errors="0" failures="0" skipped="0" time="0.098371">
+        <testcase name="test_password_can_be_updated" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\PasswordUpdateTest.php" line="14" class="Tests\Feature\Auth\PasswordUpdateTest" classname="Tests.Feature.Auth.PasswordUpdateTest" assertions="4" time="0.047748"/>
+        <testcase name="test_correct_password_must_be_provided_to_update_password" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\PasswordUpdateTest.php" line="34" class="Tests\Feature\Auth\PasswordUpdateTest" classname="Tests.Feature.Auth.PasswordUpdateTest" assertions="4" time="0.050623"/>
+      </testsuite>
+      <testsuite name="Tests\Feature\Auth\RegistrationTest" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\RegistrationTest.php" tests="2" assertions="2" errors="0" failures="1" skipped="0" time="0.354321">
+        <testcase name="test_registration_screen_can_be_rendered" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\RegistrationTest.php" line="12" class="Tests\Feature\Auth\RegistrationTest" classname="Tests.Feature.Auth.RegistrationTest" assertions="1" time="0.312323"/>
+        <testcase name="test_new_users_can_register" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\RegistrationTest.php" line="19" class="Tests\Feature\Auth\RegistrationTest" classname="Tests.Feature.Auth.RegistrationTest" assertions="1" time="0.041999">
+          <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\Auth\RegistrationTest::test_new_users_can_register&#13;
+The user is not authenticated
+Failed asserting that false is true.
+&#13;
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Foundation\Testing\Concerns\InteractsWithAuthentication.php:64
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Auth\RegistrationTest.php:28</failure>
+        </testcase>
+      </testsuite>
+      <testsuite name="Tests\Feature\Dass21IntegrationTest" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Dass21IntegrationTest.php" tests="17" assertions="138" errors="0" failures="0" skipped="0" time="13.530143">
+        <testcase name="test_submission_links_details_answers_and_one_alert_atomically" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Dass21IntegrationTest.php" line="95" class="Tests\Feature\Dass21IntegrationTest" classname="Tests.Feature.Dass21IntegrationTest" assertions="17" time="0.713285"/>
+        <testcase name="test_invalid_question_keys_and_scores_leave_no_partial_records" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Dass21IntegrationTest.php" line="113" class="Tests\Feature\Dass21IntegrationTest" classname="Tests.Feature.Dass21IntegrationTest" assertions="7" time="0.765256"/>
+        <testcase name="test_low_scores_do_not_create_alerts_and_repeated_applications_are_allowed" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Dass21IntegrationTest.php" line="128" class="Tests\Feature\Dass21IntegrationTest" classname="Tests.Feature.Dass21IntegrationTest" assertions="3" time="0.833474"/>
+        <testcase name="test_historical_conversion_is_repeatable_preserves_dates_and_does_not_alert" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Dass21IntegrationTest.php" line="137" class="Tests\Feature\Dass21IntegrationTest" classname="Tests.Feature.Dass21IntegrationTest" assertions="10" time="1.138650"/>
+        <testcase name="test_psychologist_can_review_and_student_only_sees_shared_feedback" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Dass21IntegrationTest.php" line="157" class="Tests\Feature\Dass21IntegrationTest" classname="Tests.Feature.Dass21IntegrationTest" assertions="18" time="1.300771"/>
+        <testcase name="test_tutor_coverage_counts_people_and_never_exposes_clinical_details" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Dass21IntegrationTest.php" line="178" class="Tests\Feature\Dass21IntegrationTest" classname="Tests.Feature.Dass21IntegrationTest" assertions="10" time="1.316016"/>
+        <testcase name="test_cycle_assignments_take_precedence_and_revocation_removes_access" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Dass21IntegrationTest.php" line="193" class="Tests\Feature\Dass21IntegrationTest" classname="Tests.Feature.Dass21IntegrationTest" assertions="5" time="0.757826"/>
+        <testcase name="test_period_excludes_old_applications_and_administrative_views_only_show_coverage" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Dass21IntegrationTest.php" line="208" class="Tests\Feature\Dass21IntegrationTest" classname="Tests.Feature.Dass21IntegrationTest" assertions="8" time="0.734522"/>
+        <testcase name="test_existing_phq9_results_remain_visible_without_dass_details" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Dass21IntegrationTest.php" line="220" class="Tests\Feature\Dass21IntegrationTest" classname="Tests.Feature.Dass21IntegrationTest" assertions="4" time="0.679449"/>
+        <testcase name="test_failure_during_answer_storage_rolls_back_the_whole_submission" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Dass21IntegrationTest.php" line="229" class="Tests\Feature\Dass21IntegrationTest" classname="Tests.Feature.Dass21IntegrationTest" assertions="6" time="0.710215"/>
+        <testcase name="test_detail_permission_is_required_even_for_psychologists" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Dass21IntegrationTest.php" line="249" class="Tests\Feature\Dass21IntegrationTest" classname="Tests.Feature.Dass21IntegrationTest" assertions="4" time="0.795861"/>
+        <testcase name="test_expired_cycle_and_inactive_assignment_do_not_grant_tutor_access" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Dass21IntegrationTest.php" line="259" class="Tests\Feature\Dass21IntegrationTest" classname="Tests.Feature.Dass21IntegrationTest" assertions="5" time="0.779728"/>
+        <testcase name="test_alert_policy_preserves_the_existing_dass_severity_criterion" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Dass21IntegrationTest.php" line="273" class="Tests\Feature\Dass21IntegrationTest" classname="Tests.Feature.Dass21IntegrationTest" assertions="5" time="0.625970"/>
+        <testcase name="test_invalid_periods_are_rejected_and_filters_select_the_expected_instrument" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Dass21IntegrationTest.php" line="284" class="Tests\Feature\Dass21IntegrationTest" classname="Tests.Feature.Dass21IntegrationTest" assertions="7" time="0.643141"/>
+        <testcase name="test_linked_details_follow_existing_account_deletion_cascades" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Dass21IntegrationTest.php" line="293" class="Tests\Feature\Dass21IntegrationTest" classname="Tests.Feature.Dass21IntegrationTest" assertions="5" time="0.530425"/>
+        <testcase name="test_tutor_followup_counts_people_until_all_their_alerts_are_attended" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Dass21IntegrationTest.php" line="304" class="Tests\Feature\Dass21IntegrationTest" classname="Tests.Feature.Dass21IntegrationTest" assertions="18" time="0.633377"/>
+        <testcase name="test_tutor_followup_requires_permission_and_excludes_inactive_students" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\Dass21IntegrationTest.php" line="327" class="Tests\Feature\Dass21IntegrationTest" classname="Tests.Feature.Dass21IntegrationTest" assertions="6" time="0.572179"/>
+      </testsuite>
+      <testsuite name="Tests\Feature\ExampleTest" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\ExampleTest.php" tests="1" assertions="1" errors="0" failures="1" skipped="0" time="0.026165">
+        <testcase name="test_the_application_returns_a_successful_response" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\ExampleTest.php" line="13" class="Tests\Feature\ExampleTest" classname="Tests.Feature.ExampleTest" assertions="1" time="0.026165">
+          <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\ExampleTest::test_the_application_returns_a_successful_response&#13;
+Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+&#13;
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponseAssert.php:45
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:175
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\ExampleTest.php:17</failure>
+        </testcase>
+      </testsuite>
+      <testsuite name="Tests\Feature\ProfileTest" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\ProfileTest.php" tests="5" assertions="11" errors="0" failures="5" skipped="0" time="0.135903">
+        <testcase name="test_profile_page_is_displayed" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\ProfileTest.php" line="13" class="Tests\Feature\ProfileTest" classname="Tests.Feature.ProfileTest" assertions="1" time="0.025776">
+          <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\ProfileTest::test_profile_page_is_displayed&#13;
+Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+&#13;
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponseAssert.php:45
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:175
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\Concerns\AssertsStatusCodes.php:16
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\ProfileTest.php:21</failure>
+        </testcase>
+        <testcase name="test_profile_information_can_be_updated" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\ProfileTest.php" line="24" class="Tests\Feature\ProfileTest" classname="Tests.Feature.ProfileTest" assertions="3" time="0.027751">
+          <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\ProfileTest::test_profile_information_can_be_updated&#13;
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost/profile'
++'http://localhost/consentimiento'
+&#13;
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponseAssert.php:45
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:432
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:206
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\ProfileTest.php:37</failure>
+        </testcase>
+        <testcase name="test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\ProfileTest.php" line="46" class="Tests\Feature\ProfileTest" classname="Tests.Feature.ProfileTest" assertions="3" time="0.029895">
+          <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\ProfileTest::test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged&#13;
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost/profile'
++'http://localhost/consentimiento'
+&#13;
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponseAssert.php:45
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:432
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:206
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\ProfileTest.php:59</failure>
+        </testcase>
+        <testcase name="test_user_can_delete_their_account" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\ProfileTest.php" line="64" class="Tests\Feature\ProfileTest" classname="Tests.Feature.ProfileTest" assertions="3" time="0.027780">
+          <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\ProfileTest::test_user_can_delete_their_account&#13;
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'http://localhost'
++'http://localhost/consentimiento'
+&#13;
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponseAssert.php:45
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:432
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:206
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\ProfileTest.php:76</failure>
+        </testcase>
+        <testcase name="test_correct_password_must_be_provided_to_delete_account" file="C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\ProfileTest.php" line="82" class="Tests\Feature\ProfileTest" classname="Tests.Feature.ProfileTest" assertions="1" time="0.024702">
+          <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\ProfileTest::test_correct_password_must_be_provided_to_delete_account&#13;
+Session is missing expected key [errors].
+Failed asserting that false is true.
+&#13;
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponseAssert.php:45
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:1547
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:1634
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:1728
+C:\Users\imano\Proyectos_laravel\sistema_dep-and\tests\Feature\ProfileTest.php:94</failure>
+        </testcase>
+      </testsuite>
+    </testsuite>
+  </testsuite>
+</testsuites>

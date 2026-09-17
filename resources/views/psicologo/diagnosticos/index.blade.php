@@ -69,10 +69,10 @@
                                 $instrumento = $evaluacion?->instrumento;
                                 $persona = $evaluacion?->estudiante?->persona;
 
-                                $riesgo = $resultado?->nivel_riesgo ?? 'n/d';
+                                $riesgo = mb_strtolower($evaluacion->nivel_resumen);
 
                                 $riesgoColor = match($riesgo) {
-                                    'severo' => 'bg-danger text-white',
+                                    'severo', 'extremadamente severo' => 'bg-danger text-white',
                                     'moderado' => 'bg-warning text-dark',
                                     'leve' => 'bg-info text-dark',
                                     default => 'bg-success text-white',
@@ -98,7 +98,7 @@
                                 </td>
 
                                 <td class="text-center py-3 border-0 fw-black text-body">
-                                    {{ $resultado?->puntaje_total ?? 'N/D' }}
+                                    {{ $evaluacion->puntaje_resumen }}
                                 </td>
 
                                 <td class="text-center py-3 border-0">

@@ -7,8 +7,9 @@ use App\Http\Requests\Estudiante\StoreEvaluacionRequest;
 use App\Models\Alerta;
 use App\Models\Evaluacion;
 use App\Models\Instrumento;
-use App\Models\ResultadoClinico;
 use App\Models\Respuesta;
+use App\Models\ResultadoClinico;
+use App\Services\EvaluationContextService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -22,13 +23,15 @@ class EvaluacionController extends Controller
         $persona = $user->persona;
         $estudiante = $persona?->estudiante;
 
-        if (!$persona || !$estudiante) {
+        if (! $persona || ! $estudiante) {
             return view('estudiante.pendiente-expediente', [
                 'titulo' => 'Asignación de grupo pendiente',
                 'mensaje' => 'Tu registro existe, pero todavía no tienes expediente estudiantil completo para responder evaluaciones.',
                 'estado' => 'sin_expediente',
             ]);
         }
+
+        $dass21Eval = $estudiante->latestDass21;
 
         $instrumentos = Instrumento::whereIn('acronimo', ['PHQ9', 'GAD7', 'phq9', 'gad7'])
             ->orderBy('nombre')
@@ -57,7 +60,8 @@ class EvaluacionController extends Controller
         return view('evaluaciones.index', compact(
             'user',
             'estudiante',
-            'instrumentosDashboard'
+            'instrumentosDashboard',
+            'dass21Eval'
         ));
     }
 
@@ -68,7 +72,7 @@ class EvaluacionController extends Controller
         $persona = $user->persona;
         $estudiante = $persona?->estudiante;
 
-        if (!$persona || !$estudiante) {
+        if (! $persona || ! $estudiante) {
             return view('estudiante.pendiente-expediente', [
                 'titulo' => 'Asignación de grupo pendiente',
                 'mensaje' => 'Tu expediente aún no está completo, por eso todavía no puedes responder evaluaciones.',
@@ -95,8 +99,9 @@ class EvaluacionController extends Controller
         $persona = $user->persona;
         $estudiante = $persona?->estudiante;
 
-        if (!$persona || !$estudiante) {
+        if (! $persona || ! $estudiante) {
             Alert::warning('Expediente pendiente', 'Tu expediente aún no está completo.');
+
             return redirect()->route('evaluaciones.index');
         }
 
@@ -108,6 +113,7 @@ class EvaluacionController extends Controller
 
         if (count($respuestas) !== count($preguntas)) {
             Alert::error('Formulario incompleto', 'Debes responder todas las preguntas.');
+
             return back()->withInput();
         }
 
@@ -117,6 +123,8 @@ class EvaluacionController extends Controller
                 'instrumento_id' => $instrumento->id,
                 'estado' => 'completada',
             ]);
+
+            app(EvaluationContextService::class)->capture($evaluacion, $estudiante);
 
             $puntajeTotal = 0;
 

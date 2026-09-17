@@ -77,6 +77,7 @@
 @endpush
 
 @section('content')
+    @include('tutor.grupos.dass21')
     <div class="row g-4">
 
         <div class="col-12 anime-item">

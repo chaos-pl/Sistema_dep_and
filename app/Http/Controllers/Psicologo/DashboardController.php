@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Psicologo;
 use App\Http\Controllers\Controller;
 use App\Models\Alerta;
 use App\Models\AnalisisNlp;
+use App\Models\Dass21Evaluation;
 use App\Models\Diagnostico;
 use App\Models\ResultadoClinico;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +19,7 @@ class DashboardController extends Controller
         $persona = $user->persona;
         $psicologo = $persona?->psicologo;
 
-        if (!$persona || !$psicologo) {
+        if (! $persona || ! $psicologo) {
             return view('psicologo.pendiente-expediente', [
                 'titulo' => 'Expediente profesional pendiente',
                 'mensaje' => 'Tu cuenta tiene el rol de psicólogo, pero todavía no se ha completado tu expediente clínico en el sistema.',
@@ -30,13 +31,18 @@ class DashboardController extends Controller
         $totalAlertasAtendidas = Alerta::where('estado', 'atendida')->count();
         $totalDiagnosticosPropios = Diagnostico::where('psicologo_id', $psicologo->id)->count();
 
-        $totalCasosSeveros = ResultadoClinico::where('nivel_riesgo', 'severo')->count();
+        $totalCasosSeveros = ResultadoClinico::where('nivel_riesgo', 'severo')->count()
+            + Dass21Evaluation::whereIn('max_severity_level', ['Severo', 'Extremadamente severo'])->count();
+
+        $dass21Recientes = Dass21Evaluation::with(['estudiante.persona', 'evaluacion.alerta'])
+            ->latest('completed_at')->latest('id')->take(6)->get();
 
         $totalResultadosIaRiesgo = AnalisisNlp::where('requiere_atencion', true)->count();
 
         $alertas = Alerta::with([
             'evaluacion.instrumento',
             'evaluacion.resultadoClinico',
+            'evaluacion.dass21',
             'evaluacion.estudiante.persona',
         ])
             ->latest()
@@ -62,6 +68,7 @@ class DashboardController extends Controller
 
         return view('psicologo.dashboard', compact(
             'psicologo',
+            'dass21Recientes',
             'alertas',
             'resultados',
             'analisisNlp',

@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Psicologo\StoreDiagnosticoRequest;
 use App\Models\Diagnostico;
 use App\Models\Evaluacion;
+use App\Services\AvisoService;
+use App\Services\CasoAtencionService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class DiagnosticoController extends Controller
@@ -19,7 +22,7 @@ class DiagnosticoController extends Controller
         $persona = $user->persona;
         $psicologo = $persona?->psicologo;
 
-        if (!$persona || !$psicologo) {
+        if (! $persona || ! $psicologo) {
             return view('psicologo.pendiente-expediente', [
                 'titulo' => 'Expediente profesional pendiente',
                 'mensaje' => 'Tu cuenta tiene el rol de psicólogo, pero todavía no se ha completado tu expediente clínico en el sistema.',
@@ -30,6 +33,7 @@ class DiagnosticoController extends Controller
         $diagnosticos = Diagnostico::with([
             'evaluacion.instrumento',
             'evaluacion.resultadoClinico',
+            'evaluacion.dass21',
             'evaluacion.estudiante.persona',
         ])
             ->where('psicologo_id', $psicologo->id)
@@ -46,8 +50,9 @@ class DiagnosticoController extends Controller
         $persona = $user->persona;
         $psicologo = $persona?->psicologo;
 
-        if (!$persona || !$psicologo) {
+        if (! $persona || ! $psicologo) {
             Alert::warning('Expediente pendiente', 'Tu cuenta todavía no tiene expediente profesional completo.');
+
             return redirect()->route('psicologo.dashboard');
         }
 
@@ -55,6 +60,10 @@ class DiagnosticoController extends Controller
 
         $evaluacion = Evaluacion::with(['alerta', 'diagnostico'])
             ->findOrFail($validated['evaluacion_id']);
+
+        if ($evaluacion->dass21) {
+            abort_unless($user->can('evaluaciones.historial.global') && $user->can('evaluaciones.respuestas.detalle'), 403);
+        }
 
         if ($evaluacion->diagnostico) {
             Alert::warning('Diagnóstico existente', 'Esta evaluación ya tiene un diagnóstico registrado.');
@@ -67,6 +76,12 @@ class DiagnosticoController extends Controller
         }
 
         DB::transaction(function () use ($validated, $request, $evaluacion, $psicologo) {
+            $locked = Evaluacion::whereKey($evaluacion->id)->lockForUpdate()->firstOrFail();
+            if ($locked->diagnostico()->exists()) {
+                throw ValidationException::withMessages(['evaluacion_id' => 'Esta evaluación ya tiene una valoración.']);
+            }
+            $cases = app(CasoAtencionService::class);
+            $cases->registerAssessment($cases->forEvaluation($locked), $request->user());
             Diagnostico::create([
                 'evaluacion_id' => $evaluacion->id,
                 'psicologo_id' => $psicologo->id,
@@ -74,15 +89,15 @@ class DiagnosticoController extends Controller
                 'retroalimentacion_estudiante' => $validated['retroalimentacion_estudiante'] ?? null,
                 'requiere_derivacion' => $request->boolean('requiere_derivacion'),
             ]);
+            app(AvisoService::class)->feedback($locked->fresh());
 
-            if ($evaluacion->alerta) {
-                $evaluacion->alerta->update([
-                    'estado' => 'atendida',
-                ]);
-            }
         });
 
-        Alert::success('Diagnóstico registrado', 'El diagnóstico fue guardado correctamente.');
+        Alert::success('Valoración registrada', 'La valoración fue guardada. El caso continúa en seguimiento hasta su cierre explícito.');
+
+        if ($evaluacion->dass21 && $user->can('evaluaciones.historial.global') && $user->can('evaluaciones.respuestas.detalle')) {
+            return redirect()->route('psicologo.tamizajes.show', $evaluacion);
+        }
 
         return redirect()->route('diagnosticos.index');
     }

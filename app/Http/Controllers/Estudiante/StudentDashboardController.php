@@ -20,7 +20,7 @@ class StudentDashboardController extends Controller
         $estudiante = $persona?->estudiante;
 
         // Caso 1: el usuario todavía no tiene persona vinculada
-        if (!$persona) {
+        if (! $persona) {
             return view('estudiante.pendiente-expediente', [
                 'titulo' => 'Expediente pendiente',
                 'mensaje' => 'Tu cuenta aún no tiene una persona vinculada. Espera a que administración complete tu registro.',
@@ -29,13 +29,15 @@ class StudentDashboardController extends Controller
         }
 
         // Caso 2: sí tiene persona, pero aún no tiene expediente de estudiante
-        if (!$estudiante) {
+        if (! $estudiante) {
             return view('estudiante.pendiente-expediente', [
                 'titulo' => 'Asignación de grupo pendiente',
                 'mensaje' => 'Tu registro fue creado correctamente, pero todavía no se te ha asignado un grupo ni completado tu expediente académico.',
                 'estado' => 'sin_expediente',
             ]);
         }
+
+        $dass21Eval = $estudiante->latestDass21;
 
         $instrumentos = Instrumento::whereIn('acronimo', ['PHQ9', 'GAD7', 'phq9', 'gad7'])
             ->orderBy('nombre')
@@ -65,6 +67,8 @@ class StudentDashboardController extends Controller
             ->where('estado', 'completada')
             ->count();
 
+        $totalCompletadas += $estudiante->dass21Evaluations()->whereNull('evaluacion_id')->count();
+
         $ultimaEntrada = AnalisisNlp::where('codigo_anonimo', $estudiante->codigo_anonimo)
             ->latest()
             ->first();
@@ -73,6 +77,7 @@ class StudentDashboardController extends Controller
             'user',
             'estudiante',
             'instrumentosDashboard',
+            'dass21Eval',
             'totalCompletadas',
             'ultimaEntrada'
         ));

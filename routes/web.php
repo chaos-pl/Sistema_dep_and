@@ -1,5 +1,6 @@
 <?php
-use App\Http\Controllers\Psicologo\AnalisisNlpController as PsicologoAnalisisNlpController;
+
+use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\CarreraController;
 use App\Http\Controllers\Admin\EstudianteController as AdminEstudianteController;
 use App\Http\Controllers\Admin\ExpedientePendienteController;
@@ -9,8 +10,9 @@ use App\Http\Controllers\Admin\PersonaController;
 use App\Http\Controllers\Admin\PsicologoController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\TutorController;
-use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\UsuarioSinPersonaController;
+use App\Http\Controllers\AvisoController;
 use App\Http\Controllers\ControlEscolar\AsignacionController as CEAsignacionController;
 use App\Http\Controllers\ControlEscolar\CarreraController as CECarreraController;
 use App\Http\Controllers\ControlEscolar\CicloEscolarController as CECicloEscolarController;
@@ -18,25 +20,26 @@ use App\Http\Controllers\ControlEscolar\DashboardController as CEDashboardContro
 use App\Http\Controllers\ControlEscolar\EstudianteController as CEEstudianteController;
 use App\Http\Controllers\ControlEscolar\GrupoController as CEGrupoController;
 use App\Http\Controllers\ControlEscolar\TutorController as CETutorController;
+use App\Http\Controllers\Dass21Controller;
 use App\Http\Controllers\Estudiante\DiarioController;
 use App\Http\Controllers\Estudiante\EvaluacionController;
 use App\Http\Controllers\Estudiante\StudentDashboardController;
+use App\Http\Controllers\EvolucionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Psicologo\AlertaController as PsicologoAlertaController;
+use App\Http\Controllers\Psicologo\AnalisisNlpController as PsicologoAnalisisNlpController;
+use App\Http\Controllers\Psicologo\CasoAtencionController;
 use App\Http\Controllers\Psicologo\DashboardController as PsicologoDashboardController;
 use App\Http\Controllers\Psicologo\DiagnosticoController as PsicologoDiagnosticoController;
+use App\Http\Controllers\Psicologo\TamizajeController;
+use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\Tutor\DashboardController as TutorDashboardController;
 use App\Http\Controllers\Tutor\EstudianteController as TutorEstudianteController;
 use App\Http\Controllers\Tutor\GrupoController as TutorGrupoController;
-use App\Models\Persona;
 use App\Models\Tutor;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use RealRashid\SweetAlert\Facades\Alert;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use App\Http\Controllers\Dass21Controller;
 
 Route::get('/', function () {
     return auth()->check()
@@ -87,6 +90,15 @@ Route::middleware(['auth', 'no.cache'])->group(function () {
 });
 
 Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
+    Route::get('/evolucion', [EvolucionController::class, 'own'])->name('evolucion.own');
+    Route::get('/psicologo/estudiantes/{estudiante}/evolucion', [EvolucionController::class, 'show'])->name('evolucion.show');
+    Route::get('/notificaciones', [AvisoController::class, 'index'])->name('avisos.index');
+    Route::patch('/notificaciones/{aviso}', [AvisoController::class, 'update'])->name('avisos.update');
+    Route::post('/notificaciones/{aviso}/abrir', [AvisoController::class, 'open'])->name('avisos.open');
+    Route::get('/retroalimentacion/{evaluacion}', [AvisoController::class, 'feedback'])->name('retroalimentacion.show');
+    Route::get('/reportes/participacion', [ReporteController::class, 'index'])->name('reportes.index');
+    Route::get('/reportes/participacion/exportar', [ReporteController::class, 'export'])->name('reportes.export');
+
     Route::get('/dashboard', function () {
         $user = auth()->user();
 
@@ -158,6 +170,7 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
         ->name('dass21.')
         ->middleware(['role:estudiante', 'permission:evaluaciones.realizar'])
         ->group(function () {
+            Route::get('/historial', [Dass21Controller::class, 'history'])->middleware('permission:evaluaciones.historial.propio')->name('history');
             Route::get('/aplicar', [Dass21Controller::class, 'create'])->name('create');
             Route::post('/aplicar', [Dass21Controller::class, 'store'])->name('store');
             Route::get('/resultados/{evaluation}', [Dass21Controller::class, 'show'])->name('show');
@@ -187,6 +200,9 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
         ->middleware('role:tutor')
         ->group(function () {
             Route::get('/dashboard', [TutorDashboardController::class, 'index'])->name('dashboard');
+            Route::get('/seguimiento', [TutorGrupoController::class, 'seguimiento'])
+                ->middleware(['permission:alertas.ver.general', 'permission:grupos.ver.asignados', 'permission:usuarios.ver.grupo'])
+                ->name('seguimiento');
 
             Route::prefix('grupos')
                 ->name('grupos.')
@@ -219,6 +235,11 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
         ->name('psicologo.')
         ->middleware('role:psicologo')
         ->group(function () {
+            Route::get('/casos', [CasoAtencionController::class, 'index'])->name('casos.index');
+            Route::get('/casos/{caso}', [CasoAtencionController::class, 'show'])->name('casos.show');
+            Route::post('/casos/{caso}', [CasoAtencionController::class, 'update'])->middleware('permission:diagnosticos.crear')->name('casos.update');
+            Route::get('/tamizajes', [TamizajeController::class, 'index'])->middleware('permission:evaluaciones.historial.global')->name('tamizajes.index');
+            Route::get('/tamizajes/{evaluacion}', [TamizajeController::class, 'show'])->middleware(['permission:evaluaciones.historial.global', 'permission:evaluaciones.respuestas.detalle'])->name('tamizajes.show');
             Route::get('/dashboard', [PsicologoDashboardController::class, 'index'])
                 ->name('dashboard');
         });
@@ -231,6 +252,7 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
                 ->name('index');
 
             Route::get('/{alerta}', [PsicologoAlertaController::class, 'show'])
+                ->middleware('permission:evaluaciones.respuestas.detalle')
                 ->name('show');
         });
 
@@ -284,9 +306,9 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
             Route::prefix('usuarios-sin-persona')
                 ->name('usuarios-sin-persona.')
                 ->group(function () {
-                    Route::get('/', [\App\Http\Controllers\Admin\UsuarioSinPersonaController::class, 'index'])->name('index');
-                    Route::get('/{user}/edit', [\App\Http\Controllers\Admin\UsuarioSinPersonaController::class, 'edit'])->name('edit');
-                    Route::put('/{user}', [\App\Http\Controllers\Admin\UsuarioSinPersonaController::class, 'update'])->name('update');
+                    Route::get('/', [UsuarioSinPersonaController::class, 'index'])->name('index');
+                    Route::get('/{user}/edit', [UsuarioSinPersonaController::class, 'edit'])->name('edit');
+                    Route::put('/{user}', [UsuarioSinPersonaController::class, 'update'])->name('update');
                 });
 
             Route::get('/dashboard', [AdminDashboardController::class, 'index'])

@@ -13,6 +13,9 @@
 @endpush
 
 @section('content')
+    @canany(['evaluaciones.historial.global', 'resultados_ia.ver'])
+    <div class="d-flex justify-content-end mb-3"><a class="btn btn-primary tm-action" href="{{ route('psicologo.casos.index') }}"><i class="bi bi-journal-medical"></i> Asignar y dar seguimiento a casos</a></div>
+    @endcanany
     <div class="row g-4">
         <div class="col-md-4 anime-item">
             <div class="app-card bg-body-tertiary p-4 border border-secondary border-opacity-10 shadow-sm rounded-4 h-100">
@@ -80,9 +83,9 @@
                         <tbody class="border-top-0">
                         @forelse($alertas as $alerta)
                             @php
-                                $riesgo = $alerta->evaluacion->resultadoClinico->nivel_riesgo ?? 'n/d';
+                                $riesgo = mb_strtolower($alerta->evaluacion->nivel_resumen);
                                 $riesgoColor = match($riesgo) {
-                                    'severo' => 'bg-danger text-danger',
+                                    'severo', 'extremadamente severo' => 'bg-danger text-danger',
                                     'moderado' => 'bg-warning text-warning-emphasis',
                                     'leve' => 'bg-info text-info',
                                     default => 'bg-success text-success',
@@ -106,7 +109,7 @@
                                 </td>
 
                                 <td class="text-center py-3 border-0 fw-black fs-5 text-body">
-                                    {{ $alerta->evaluacion->resultadoClinico->puntaje_total ?? 'N/D' }}
+                                    {{ $alerta->evaluacion->puntaje_resumen }}
                                 </td>
 
                                 <td class="text-center py-3 border-0">

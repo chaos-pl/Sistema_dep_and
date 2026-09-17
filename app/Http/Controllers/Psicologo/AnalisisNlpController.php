@@ -4,10 +4,8 @@ namespace App\Http\Controllers\Psicologo;
 
 use App\Http\Controllers\Controller;
 use App\Models\AnalisisNlp;
-use App\Services\PrometeoIaService;
-use Illuminate\Support\Facades\Log;
+use App\Services\AnalisisNlpQueueService;
 use RealRashid\SweetAlert\Facades\Alert;
-use Throwable;
 
 class AnalisisNlpController extends Controller
 {
@@ -21,19 +19,18 @@ class AnalisisNlpController extends Controller
         $totalRiesgo = AnalisisNlp::where('requiere_atencion', true)->count();
         $totalAnalisis = AnalisisNlp::count();
         $totalSinRiesgo = AnalisisNlp::where('requiere_atencion', false)
-            ->where('etiqueta_roberta', '!=', 'pendiente')
+            ->where('estado_analisis', 'completado')
             ->count();
 
-        $totalPendientes = AnalisisNlp::where('etiqueta_roberta', 'pendiente')->count();
+        $totalPendientes = AnalisisNlp::where('estado_analisis', '!=', 'completado')->count();
 
         $promedioConfianza = AnalisisNlp::where('requiere_atencion', true)
-            ->avg('score_confianza');
+            ->where('estado_analisis', 'completado')->avg('confianza_hibrida');
 
         $pendientes = AnalisisNlp::with('estudiante.persona')
-            ->where('etiqueta_roberta', 'pendiente')
+            ->where('estado_analisis', '!=', 'completado')
             ->latest()
-            ->take(10)
-            ->get();
+            ->paginate(10, ['*'], 'pendientes_page');
 
         return view('psicologo.analisis-nlp.index', compact(
             'analisisRiesgo',
@@ -53,95 +50,25 @@ class AnalisisNlpController extends Controller
         return view('psicologo.analisis-nlp.show', compact('analisisNlp'));
     }
 
-    public function reanalizar(AnalisisNlp $analisisNlp, PrometeoIaService $ia)
+    public function reanalizar(AnalisisNlp $analisisNlp, AnalisisNlpQueueService $queue)
     {
-        try {
-            $resultadoIa = $ia->evaluar(
-                $analisisNlp->texto_ingresado,
-                0,
-                0
-            );
-
-            $analisisNlp->update([
-                'etiqueta_roberta' => $resultadoIa['hibrido']['etiqueta_final'] ?? 'SIN_RESULTADO',
-                'score_confianza' => round((float) ($resultadoIa['hibrido']['confianza'] ?? 0), 4),
-                'requiere_atencion' => (bool) ($resultadoIa['requiere_atencion'] ?? false),
-            ]);
-
-            Alert::success('Análisis actualizado', 'La entrada fue reanalizada correctamente.');
-
-        } catch (Throwable $e) {
-            Log::error('Error al reanalizar entrada NLP', [
-                'analisis_nlp_id' => $analisisNlp->id,
-                'error' => $e->getMessage(),
-            ]);
-
-            Alert::error(
-                'No se pudo reanalizar',
-                'Verifica que la API de IA esté activa y que la URL de ngrok sea correcta.'
-            );
-        }
+        $queued = $queue->solicitar($analisisNlp);
+        Alert::info('Análisis en cola', $queued
+            ? 'Se procesará en segundo plano. Actualiza el listado para consultar su estado.'
+            : 'Esta entrada ya tiene un análisis en curso.');
 
         return redirect()->route('analisis.index');
     }
 
-    public function reanalizarPendientes(PrometeoIaService $ia)
+    public function reanalizarPendientes(AnalisisNlpQueueService $queue)
     {
-        $pendientes = AnalisisNlp::where('etiqueta_roberta', 'pendiente')
-            ->latest()
-            ->take(20)
-            ->get();
-
-        if ($pendientes->isEmpty()) {
-            Alert::info('Sin pendientes', 'No hay entradas pendientes por reanalizar.');
-            return redirect()->route('analisis.index');
+        $entries = AnalisisNlp::whereIn('estado_analisis', ['fallido', 'legacy'])
+            ->oldest()->take(20)->get();
+        $queued = 0;
+        foreach ($entries as $entry) {
+            $queued += (int) $queue->solicitar($entry);
         }
-
-        $procesadas = 0;
-        $fallidas = 0;
-
-        foreach ($pendientes as $analisis) {
-            try {
-                $resultadoIa = $ia->evaluar(
-                    $analisis->texto_ingresado,
-                    0,
-                    0
-                );
-
-                $analisis->update([
-                    'etiqueta_roberta' => $resultadoIa['hibrido']['etiqueta_final'] ?? 'SIN_RESULTADO',
-                    'score_confianza' => round((float) ($resultadoIa['hibrido']['confianza'] ?? 0), 4),
-                    'requiere_atencion' => (bool) ($resultadoIa['requiere_atencion'] ?? false),
-                ]);
-
-                $procesadas++;
-
-            } catch (Throwable $e) {
-                $fallidas++;
-
-                Log::error('Error al reanalizar pendiente NLP', [
-                    'analisis_nlp_id' => $analisis->id,
-                    'error' => $e->getMessage(),
-                ]);
-            }
-        }
-
-        if ($procesadas > 0 && $fallidas === 0) {
-            Alert::success(
-                'Reanálisis completado',
-                "Se reanalizaron {$procesadas} entradas pendientes correctamente."
-            );
-        } elseif ($procesadas > 0 && $fallidas > 0) {
-            Alert::warning(
-                'Reanálisis parcial',
-                "Se reanalizaron {$procesadas} entradas, pero {$fallidas} fallaron."
-            );
-        } else {
-            Alert::error(
-                'No se pudo reanalizar',
-                'Ninguna entrada pudo ser procesada. Verifica que la API esté activa.'
-            );
-        }
+        Alert::info('Procesamiento en segundo plano', "{$queued} entradas enviadas a la cola. Las entradas ya en curso no se duplican.");
 
         return redirect()->route('analisis.index');
     }

@@ -7,8 +7,8 @@
 @push('styles')
     <style>
         .anime-item {
-            opacity: 0;
-            transform: translateY(20px);
+            opacity: 1;
+            transform: none;
         }
 
         .hover-elevate {
@@ -62,6 +62,9 @@
 @endpush
 
 @section('content')
+    @canany(['evaluaciones.historial.global', 'resultados_ia.ver'])
+    <div class="d-flex justify-content-end mb-3"><a class="btn btn-primary tm-action" href="{{ route('psicologo.casos.index') }}"><i class="bi bi-journal-medical"></i> Asignar y dar seguimiento a casos</a></div>
+    @endcanany
     <div class="row g-4">
 
         <div class="col-md-6 col-xl anime-item">
@@ -83,14 +86,14 @@
             <div class="app-card bg-body-tertiary p-4 border border-secondary border-opacity-10 shadow-sm rounded-4 h-100">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="text-body-secondary fw-bold text-uppercase mb-0" style="font-size:.8rem; letter-spacing:.5px;">
-                        Total Analizados
+                        Total de entradas
                     </h6>
                     <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width:48px;height:48px;">
                         <i class="bi bi-cpu-fill fs-5"></i>
                     </div>
                 </div>
                 <h2 class="fw-black mb-1 text-body">{{ $totalAnalisis ?? 0 }}</h2>
-                <p class="text-body-secondary mb-0 small">Entradas procesadas por la IA.</p>
+                <p class="text-body-secondary mb-0 small">Registros guardados, incluidos los pendientes.</p>
             </div>
         </div>
 
@@ -98,7 +101,7 @@
             <div class="app-card bg-body-tertiary p-4 border border-secondary border-opacity-10 shadow-sm rounded-4 h-100">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="text-body-secondary fw-bold text-uppercase mb-0" style="font-size:.8rem; letter-spacing:.5px;">
-                        Sin Riesgo
+                        Sin señal de atención
                     </h6>
                     <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width:48px;height:48px;">
                         <i class="bi bi-shield-check fs-5"></i>
@@ -120,7 +123,7 @@
                     </div>
                 </div>
                 <h2 class="fw-black mb-1 text-body">{{ $totalPendientes ?? 0 }}</h2>
-                <p class="text-body-secondary mb-0 small">Entradas guardadas sin analizar.</p>
+                <p class="text-body-secondary mb-0 small">En cola, en proceso, fallidas o históricas sin verificar.</p>
             </div>
         </div>
 
@@ -128,16 +131,16 @@
             <div class="app-card bg-body-tertiary p-4 border border-secondary border-opacity-10 shadow-sm rounded-4 h-100">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="text-body-secondary fw-bold text-uppercase mb-0" style="font-size:.8rem; letter-spacing:.5px;">
-                        Confianza Prom.
+                        Confianza híbrida prom.
                     </h6>
                     <div class="bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width:48px;height:48px;">
                         <i class="bi bi-graph-up-arrow fs-5"></i>
                     </div>
                 </div>
                 <h2 class="fw-black mb-1 text-body">
-                    {{ $promedioConfianza ? number_format($promedioConfianza * 100, 2) . '%' : '0%' }}
+                    {{ $promedioConfianza !== null ? number_format($promedioConfianza * 100, 2) . '%' : 'Sin datos' }}
                 </h2>
-                <p class="text-body-secondary mb-0 small">Promedio en casos de atención.</p>
+                <p class="text-body-secondary mb-0 small">Confianza de la clase híbrida en resultados completados con señal de atención.</p>
             </div>
         </div>
 
@@ -154,7 +157,7 @@
                             <div>
                                 <h4 class="fw-black mb-1 text-body">Entradas pendientes de análisis</h4>
                                 <p class="text-body-secondary mb-0 small">
-                                    Registros guardados cuando la API de IA no estaba disponible.
+                                    Estado del procesamiento. Reintentar envía hasta 20 entradas fallidas o históricas; las que están en curso no se duplican.
                                 </p>
                             </div>
                         </div>
@@ -163,7 +166,7 @@
                             @csrf
                             <button type="submit" class="btn btn-warning rounded-pill fw-bold px-4 shadow-sm hover-elevate">
                                 <i class="bi bi-arrow-repeat me-1"></i>
-                                Reanalizar pendientes
+                                Reintentar fallidos e históricos
                             </button>
                         </form>
                     </div>
@@ -201,7 +204,7 @@
                                     <td class="text-center py-3 border-0">
                                         <span class="badge rounded-pill px-3 py-2 fw-bold shadow-sm nlp-badge-warning">
                                             <i class="bi bi-hourglass-split me-1"></i>
-                                            Pendiente
+                                            {{ $pendiente->estado_texto }}
                                         </span>
                                     </td>
 
@@ -212,7 +215,7 @@
                                     <td class="text-end px-4 py-3 border-0">
                                         <form action="{{ route('analisis.reanalizar', $pendiente->id) }}" method="POST" class="d-inline">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm btn-primary rounded-pill fw-bold px-3 shadow-sm hover-elevate">
+                                            <button type="submit" @disabled(in_array($pendiente->estado_analisis, ['pendiente', 'procesando'])) class="btn btn-sm btn-primary rounded-pill fw-bold px-3 shadow-sm hover-elevate">
                                                 <i class="bi bi-arrow-repeat me-1"></i>
                                                 Reanalizar
                                             </button>
@@ -223,6 +226,7 @@
                             </tbody>
                         </table>
                     </div>
+                    {{ $pendientes->withQueryString()->links() }}
                 </div>
             </div>
         @endif
@@ -237,7 +241,7 @@
                         <div>
                             <h4 class="fw-black mb-1 text-body">Diarios emocionales con posible riesgo</h4>
                             <p class="text-body-secondary mb-0 small">
-                                Entradas donde el modelo BETO + XGBoost marcó atención prioritaria.
+                                Señales de atención enviadas por la API, incluidas las anteriores conservadas durante un reanálisis.
                             </p>
                         </div>
                     </div>
@@ -247,7 +251,7 @@
                             @csrf
                             <button type="submit" class="btn btn-warning rounded-pill fw-bold px-4 shadow-sm hover-elevate">
                                 <i class="bi bi-arrow-repeat me-1"></i>
-                                Reanalizar pendientes
+                                Reintentar fallidos e históricos
                             </button>
                         </form>
 
@@ -264,7 +268,7 @@
                             <th class="py-3 px-4 rounded-start-3 text-body-secondary fw-bold border-0">Estudiante</th>
                             <th class="py-3 text-body-secondary fw-bold border-0 text-center">Código</th>
                             <th class="py-3 text-body-secondary fw-bold border-0 text-center">Resultado IA</th>
-                            <th class="py-3 text-body-secondary fw-bold border-0 text-center">Confianza</th>
+                            <th class="py-3 text-body-secondary fw-bold border-0 text-center">Confianza híbrida</th>
                             <th class="py-3 text-body-secondary fw-bold border-0 text-center">Fecha</th>
                             <th class="py-3 px-4 rounded-end-3 text-end text-body-secondary fw-bold border-0">Acciones</th>
                         </tr>
@@ -274,24 +278,6 @@
                         @forelse($analisisRiesgo as $analisis)
                             @php
                                 $persona = $analisis->estudiante?->persona;
-                                $confianza = (float) $analisis->score_confianza;
-
-                                $etiquetaOriginal = $analisis->etiqueta_roberta ?? 'pendiente';
-                                $etiqueta = strtolower(trim($etiquetaOriginal));
-
-                                $etiquetaTexto = match($etiqueta) {
-                                    'sin_riesgo' => 'SIN RIESGO',
-                                    'riesgo_depresivo' => 'RIESGO DEPRESIVO',
-                                    'pendiente' => 'PENDIENTE',
-                                    default => strtoupper(str_replace('_', ' ', $etiquetaOriginal)),
-                                };
-
-                                $etiquetaClase = match($etiqueta) {
-                                    'sin_riesgo' => 'nlp-badge-success',
-                                    'riesgo_depresivo' => 'nlp-badge-danger',
-                                    'pendiente' => 'nlp-badge-warning',
-                                    default => 'nlp-badge-neutral',
-                                };
                             @endphp
 
                             <tr class="border-bottom border-secondary border-opacity-10">
@@ -313,13 +299,12 @@
                                 </td>
 
                                 <td class="text-center py-3 border-0">
-                                    <span class="badge rounded-pill px-3 py-2 fw-bold shadow-sm {{ $etiquetaClase }}">
-                                        {{ $etiquetaTexto }}
-                                    </span>
+                                    <x-nlp-result :analysis="$analisis" />
+                                    <div class="small mt-2">{{ $analisis->etiqueta_hibrida ? str_replace('_', ' ', $analisis->etiqueta_hibrida) : 'Clasificación sin verificar' }}</div>
                                 </td>
 
                                 <td class="text-center py-3 border-0 fw-black text-body">
-                                    {{ number_format($confianza * 100, 2) }}%
+                                    {{ $analisis->confianza_hibrida !== null ? number_format($analisis->confianza_hibrida * 100, 2).' %' : 'Sin verificar' }}
                                 </td>
 
                                 <td class="text-center py-3 border-0 text-body-secondary fw-medium">
@@ -357,7 +342,7 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            if (typeof anime !== 'undefined') {
+            if (typeof anime !== 'undefined' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                 anime({
                     targets: '.anime-item',
                     translateY: [30, 0],

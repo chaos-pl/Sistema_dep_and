@@ -235,11 +235,6 @@
         {{-- INICIO TARJETA DASS-21 (IMPLEMENTACIÓN INDEPENDIENTE)   --}}
         {{-- ======================================================= --}}
         @php
-            // Buscamos si el estudiante ya resolvió el DASS-21
-            $dass21Eval = $estudiante
-                ? \App\Models\Dass21Evaluation::where('codigo_anonimo', $estudiante->codigo_anonimo)->latest('completed_at')->first()
-                : null;
-
             $dassEstado = $dass21Eval ? 'completada' : 'pendiente';
             $dassEstadoClass = $dass21Eval ? 'bg-success text-white' : 'bg-warning text-dark';
 
@@ -306,6 +301,7 @@
             </div>
         </div>
         {{-- ======================================================= --}}
+        <a class="btn btn-outline-primary my-3" href="{{ route('dass21.history') }}">Historial DASS-21</a>
         {{-- FIN TARJETA DASS-21                                     --}}
         {{-- ======================================================= --}}
 

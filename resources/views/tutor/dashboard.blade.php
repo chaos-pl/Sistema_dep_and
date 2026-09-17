@@ -91,6 +91,7 @@
 @endpush
 
 @section('content')
+    @include('shared.dass21-coverage', ['cobertura' => $grupos])
     <div class="row g-4">
 
         <div class="col-12 anime-item">
@@ -105,7 +106,7 @@
                         </span>
                         <h2 class="fw-black mb-2 text-white" style="font-size: 2.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Bienvenido, {{ auth()->user()->name }}</h2>
                         <p class="mb-0 text-white text-opacity-90 fs-5" style="text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
-                            Consulta el avance general de evaluaciones completadas y alumnos en riesgo de tus grupos asignados.
+                            Consulta la participación DASS-21 de tus grupos asignados.
                         </p>
                     </div>
                     <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
@@ -133,26 +134,26 @@
         <div class="col-md-4 anime-item">
             <div class="app-card p-4 h-100 border border-secondary border-opacity-10 shadow-sm rounded-4 bg-body-tertiary hover-elevate">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="text-body-secondary fw-bold mb-0 text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">Evaluaciones Completas</h6>
+                    <h6 class="text-body-secondary fw-bold mb-0 text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">Estudiantes con DASS-21</h6>
                     <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px;">
                         <i class="bi bi-check-circle-fill fs-5"></i>
                     </div>
                 </div>
                 <h2 class="fw-black mb-1 text-body count-up" data-value="{{ $completadas ?? 0 }}">0</h2>
-                <p class="text-body-secondary mb-0 small">Instrumentos finalizados con éxito.</p>
+                <p class="text-body-secondary mb-0 small">Con aplicación DASS-21 en el periodo.</p>
             </div>
         </div>
 
         <div class="col-md-4 anime-item">
             <div class="app-card p-4 h-100 border border-secondary border-opacity-10 shadow-sm rounded-4 bg-body-tertiary hover-elevate">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="text-body-secondary fw-bold mb-0 text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">Evaluaciones Pendientes</h6>
+                    <h6 class="text-body-secondary fw-bold mb-0 text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">DASS-21 pendiente</h6>
                     <div class="bg-warning bg-opacity-10 text-warning-emphasis rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px;">
                         <i class="bi bi-hourglass-bottom fs-5"></i>
                     </div>
                 </div>
-                <h2 class="fw-black mb-1 text-body count-up" data-value="{{ $abandonadas ?? 0 }}">0</h2>
-                <p class="text-body-secondary mb-0 small">Alumnos que no han concluido.</p>
+                <h2 class="fw-black mb-1 text-body count-up" data-value="{{ $pendientes ?? 0 }}">0</h2>
+                <p class="text-body-secondary mb-0 small">Sin aplicación DASS-21 en el periodo.</p>
             </div>
         </div>
 
@@ -189,7 +190,7 @@
                                 </td>
                                 <td class="border-0 text-center"><span class="badge bg-body-tertiary text-body-secondary border border-secondary border-opacity-25 shadow-sm rounded-pill px-3">{{ $grupo->periodo }}</span></td>
                                 <td class="text-center fw-black text-success border-0 fs-5">{{ $grupo->completadas ?? 0 }}</td>
-                                <td class="text-center fw-black text-warning-emphasis border-0 fs-5">{{ $grupo->abandonadas ?? 0 }}</td>
+                                <td class="text-center fw-black text-warning-emphasis border-0 fs-5">{{ $grupo->pendientes ?? 0 }}</td>
                                 <td class="text-end border-0 px-3">
                                     <a href="{{ route('tutor.grupos.show', $grupo->id) }}" class="btn btn-sm btn-light border text-primary rounded-pill shadow-sm fw-bold px-3 hover-elevate">
                                         Entrar <i class="bi bi-arrow-right ms-1"></i>
@@ -231,19 +232,19 @@
                                 <small class="text-warning-emphasis text-opacity-75">Alumnos faltantes de evaluación</small>
                             </div>
                         </div>
-                        <span class="badge bg-warning text-dark rounded-pill fs-6 shadow-sm">{{ $abandonadas ?? 0 }}</span>
+                        <span class="badge bg-warning text-dark rounded-pill fs-6 shadow-sm">{{ $pendientes ?? 0 }}</span>
                     </div>
 
-                    <div class="p-3 bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded-4 d-flex align-items-center justify-content-between hover-elevate cursor-pointer" onclick="window.location='{{ route('tutor.grupos.index') }}'">
+                    @can('alertas.ver.general')
+                    <a class="p-3 bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded-4 d-flex align-items-center justify-content-between tm-alert-link" href="{{ route('tutor.seguimiento') }}">
                         <div class="d-flex align-items-center gap-3">
-                            <i class="bi bi-heart-pulse text-danger fs-3"></i>
-                            <div>
-                                <span class="fw-bold text-danger d-block" style="line-height: 1;">Posible Riesgo</span>
-                                <small class="text-danger text-opacity-75">Casos canalizados a psicología</small>
-                            </div>
+                            <i class="bi bi-heart-pulse text-danger fs-3" aria-hidden="true"></i>
+                            <div><span class="fw-bold text-danger d-block">Seguimiento pendiente</span><small class="text-danger">Estudiantes con casos por atender</small></div>
                         </div>
-                        <span class="badge bg-danger rounded-pill fs-6 shadow-sm">{{ $alumnosRiesgo ?? 0 }}</span>
-                    </div>
+                        <span class="badge bg-danger rounded-pill fs-6">{{ $alumnosRiesgo }}</span>
+                    </a>
+                    <small class="text-body-secondary">Incluye seguimiento abierto de cualquier fecha. Cada estudiante cuenta una vez.</small>
+                    @endcan
 
                 </div>
 

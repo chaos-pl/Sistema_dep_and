@@ -6,15 +6,15 @@
 
 @push('styles')
     <style>
-        .anime-item { opacity: 0; transform: translateY(20px); }
+        .anime-item { opacity: 1; transform: none; }
     </style>
 @endpush
 
 @section('content')
+    <x-case-link :source="$analisisNlp" />
     @php
         $estudiante = $analisisNlp->estudiante;
         $persona = $estudiante?->persona;
-        $confianza = (float) $analisisNlp->score_confianza;
     @endphp
 
     <div class="row g-4">
@@ -45,15 +45,7 @@
                         </div>
                     </div>
 
-                    <div class="d-flex flex-wrap gap-2">
-                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-4 py-2 shadow-sm">
-                            {{ str_replace('_', ' ', $analisisNlp->etiqueta_roberta) }}
-                        </span>
-
-                        <span class="badge bg-body text-body border border-secondary border-opacity-25 rounded-pill px-4 py-2 shadow-sm">
-                            Confianza: <strong>{{ number_format($confianza * 100, 2) }}%</strong>
-                        </span>
-                    </div>
+                    <span class="badge text-bg-primary rounded-pill px-3 py-2">{{ $analisisNlp->estado_texto }}</span>
                 </div>
             </div>
         </div>
@@ -94,33 +86,14 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label fw-bold text-body-secondary text-uppercase" style="font-size:.75rem; letter-spacing:.5px;">
-                        Etiqueta
-                    </label>
-                    <div class="p-3 bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded-4 fw-bold text-danger">
-                        {{ str_replace('_', ' ', $analisisNlp->etiqueta_roberta) }}
-                    </div>
+                    <x-nlp-result :analysis="$analisisNlp" :details="true" />
                 </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-bold text-body-secondary text-uppercase" style="font-size:.75rem; letter-spacing:.5px;">
-                        Confianza
-                    </label>
-                    <div class="p-3 bg-body-tertiary border border-secondary border-opacity-10 rounded-4 text-body fw-black fs-4">
-                        {{ number_format($confianza * 100, 2) }}%
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-bold text-body-secondary text-uppercase" style="font-size:.75rem; letter-spacing:.5px;">
-                        Atención prioritaria
-                    </label>
-                    <div class="p-3 rounded-4 fw-bold {{ $analisisNlp->requiere_atencion ? 'bg-warning bg-opacity-10 text-warning-emphasis border border-warning border-opacity-25' : 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' }}">
-                        <i class="bi {{ $analisisNlp->requiere_atencion ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill' }} me-2"></i>
-                        {{ $analisisNlp->requiere_atencion ? 'Sí requiere revisión profesional' : 'No requiere atención prioritaria' }}
-                    </div>
-                </div>
-
+                <form action="{{ route('analisis.reanalizar', $analisisNlp->id) }}" method="POST" class="mb-4">
+                    @csrf
+                    <button class="btn btn-outline-primary rounded-pill" @disabled(in_array($analisisNlp->estado_analisis, ['pendiente', 'procesando']))>
+                        <i class="bi bi-arrow-repeat me-1"></i> Solicitar reanálisis
+                    </button>
+                </form>
                 <div class="alert alert-info border-0 rounded-4 shadow-sm small mb-4">
                     <i class="bi bi-info-circle-fill me-1"></i>
                     Este resultado es un apoyo de tamizaje. No sustituye la valoración clínica del psicólogo.
@@ -143,7 +116,7 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            if (typeof anime !== 'undefined') {
+            if (typeof anime !== 'undefined' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                 anime({
                     targets: '.anime-item',
                     translateY: [30, 0],

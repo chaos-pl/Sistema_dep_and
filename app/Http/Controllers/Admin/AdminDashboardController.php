@@ -3,10 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Dass21Evaluation;
+use App\Models\Evaluacion;
+use App\Models\Grupo;
 use App\Models\Persona;
 use App\Models\Tutor;
 use App\Models\User;
+use App\Services\Dass21CoverageService;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\Models\Permission;
@@ -14,12 +19,16 @@ use Spatie\Permission\Models\Role;
 
 class AdminDashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request, Dass21CoverageService $coverage)
     {
         $metricas = $this->obtenerMetricas();
+        $periodo = $coverage->period($request);
+        $cobertura = $coverage->groups(Grupo::where('estado', 'activo'), $periodo);
 
         return view('admin.dashboard', array_merge([
             'metricas' => $metricas,
+            'periodo' => $periodo,
+            'cobertura' => $cobertura,
         ], $this->variablesCompatibles($metricas)));
     }
 
@@ -55,15 +64,17 @@ class AdminDashboardController extends Controller
         $phq9 = $this->contarEvaluacionesPorTipo(['PHQ-9', 'PHQ9', 'phq9', 'phq-9']);
         $gad7 = $this->contarEvaluacionesPorTipo(['GAD-7', 'GAD7', 'gad7', 'gad-7']);
 
-        $diarios = $this->contarTabla('analisis_nlps');
+        $diarios = $this->contarTabla('analisis_nlp');
 
         $alertasPendientes = $this->contarAlertasPorEstado([
+            'generada',
             'pendiente',
             'Pendiente',
             'PENDIENTE',
         ]);
 
         $alertasActivas = $this->contarAlertasPorEstado([
+            'asignada_psicologo',
             'activa',
             'activo',
             'Activa',
@@ -104,6 +115,7 @@ class AdminDashboardController extends Controller
 
             'evaluaciones' => [
                 'phq9' => $phq9,
+                'dass21' => Dass21Evaluation::count(),
                 'gad7' => $gad7,
                 'diarios' => $diarios,
             ],
@@ -156,37 +168,8 @@ class AdminDashboardController extends Controller
 
     private function contarEvaluacionesPorTipo(array $tipos): int
     {
-        $tablasPosibles = [
-            'evaluaciones',
-            'resultados_evaluaciones',
-            'respuestas_evaluaciones',
-            'evaluacion_resultados',
-        ];
-
-        foreach ($tablasPosibles as $tabla) {
-            if (! Schema::hasTable($tabla)) {
-                continue;
-            }
-
-            $columnasPosibles = [
-                'tipo',
-                'instrumento',
-                'nombre',
-                'test',
-                'escala',
-                'cuestionario',
-            ];
-
-            foreach ($columnasPosibles as $columna) {
-                if (Schema::hasColumn($tabla, $columna)) {
-                    return DB::table($tabla)
-                        ->whereIn($columna, $tipos)
-                        ->count();
-                }
-            }
-        }
-
-        return 0;
+        return Evaluacion::where('estado', 'completada')
+            ->whereHas('instrumento', fn ($q) => $q->whereIn('acronimo', $tipos))->count();
     }
 
     private function contarAlertasPorEstado(array $estados): int

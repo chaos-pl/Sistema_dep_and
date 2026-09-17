@@ -1,3 +1,5 @@
+@import './tamizajes.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

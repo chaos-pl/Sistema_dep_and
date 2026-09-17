@@ -36,6 +36,7 @@
 @endphp
 
 @section('content')
+    @include('shared.dass21-coverage')
     <div class="row g-4">
         {{-- Banner --}}
         <div class="col-12 anime-item">

@@ -11,6 +11,7 @@
 @endpush
 
 @section('content')
+    <x-case-link :source="$alerta->evaluacion" />
     @php
         $evaluacion = $alerta->evaluacion;
         $estudiante = $evaluacion->estudiante;

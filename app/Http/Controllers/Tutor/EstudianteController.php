@@ -30,8 +30,8 @@ class EstudianteController extends Controller
 
         DB::transaction(function () use ($request, $grupo) {
             $nombreCompleto = trim(
-                $request->nombre . ' ' .
-                $request->apellido_paterno . ' ' .
+                $request->nombre.' '.
+                $request->apellido_paterno.' '.
                 ($request->apellido_materno ?? '')
             );
 
@@ -84,8 +84,8 @@ class EstudianteController extends Controller
             $user = $persona->user;
 
             $nombreCompleto = trim(
-                $request->nombre . ' ' .
-                $request->apellido_paterno . ' ' .
+                $request->nombre.' '.
+                $request->apellido_paterno.' '.
                 ($request->apellido_materno ?? '')
             );
 
@@ -123,7 +123,7 @@ class EstudianteController extends Controller
     {
         $tutor = $this->obtenerTutorAutenticado();
 
-        abort_unless((int) $grupo->tutor_id === (int) $tutor->id, 403, 'No puedes registrar estudiantes en un grupo ajeno.');
+        abort_unless(Grupo::visibleToTutor($tutor)->whereKey($grupo->id)->exists(), 403, 'No puedes registrar estudiantes en un grupo ajeno.');
     }
 
     private function verificarEstudianteDelTutor(Estudiante $estudiante): void
@@ -132,7 +132,7 @@ class EstudianteController extends Controller
 
         $estudiante->loadMissing('grupo');
 
-        abort_unless((int) $estudiante->grupo->tutor_id === (int) $tutor->id, 403, 'No puedes editar estudiantes de un grupo ajeno.');
+        abort_unless(Grupo::visibleToTutor($tutor)->whereKey($estudiante->grupo_id)->exists(), 403, 'No puedes editar estudiantes de un grupo ajeno.');
     }
 
     private function obtenerTutorAutenticado()
@@ -148,7 +148,7 @@ class EstudianteController extends Controller
     private function generarCodigoAnonimo(): string
     {
         do {
-            $codigo = 'EST-' . strtoupper(Str::random(8));
+            $codigo = 'EST-'.strtoupper(Str::random(8));
         } while (Estudiante::where('codigo_anonimo', $codigo)->exists());
 
         return $codigo;

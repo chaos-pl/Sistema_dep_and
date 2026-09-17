@@ -93,6 +93,10 @@
 @endpush
 
 @section('content')
+    @canany(['evaluaciones.historial.global', 'resultados_ia.ver'])
+    <div class="d-flex justify-content-end mb-3"><a class="btn btn-primary tm-action" href="{{ route('psicologo.casos.index') }}"><i class="bi bi-journal-medical"></i> Asignar y dar seguimiento a casos</a></div>
+    @endcanany
+    @include('psicologo.tamizajes.dashboard')
     <div class="row g-4">
         <div class="col-12 anime-item">
             <div class="app-card bg-welcome-psicologo p-4 p-md-5 rounded-4 border-0 shadow-lg text-white">
@@ -193,8 +197,8 @@
                         <tbody class="border-top-0">
                         @forelse($alertas as $alerta)
                             @php
-                                $riesgo = $alerta->evaluacion->resultadoClinico->nivel_riesgo ?? 'n/d';
-                                $riesgoColor = match($riesgo) { 'severo' => 'bg-danger text-danger', 'moderado' => 'bg-warning text-warning-emphasis', 'leve' => 'bg-info text-info', default => 'bg-success text-success' };
+                                $riesgo = mb_strtolower($alerta->evaluacion->nivel_resumen);
+                                $riesgoColor = match($riesgo) { 'severo', 'extremadamente severo' => 'bg-danger text-danger', 'moderado' => 'bg-warning text-warning-emphasis', 'leve' => 'bg-info text-info', default => 'bg-success text-success' };
                             @endphp
                             <tr class="border-bottom border-secondary border-opacity-10">
                                 <td class="px-4 py-3 border-0 fw-bold text-body">

@@ -69,6 +69,10 @@
 @endpush
 
 @section('content')
+    <a class="btn btn-outline-primary mb-3" href="{{ route('dass21.history') }}">Mi historial DASS-21</a>
+    @if($evaluation->evaluacion?->diagnostico?->retroalimentacion_estudiante)
+        <div class="app-card p-4 mb-3"><h3>Retroalimentación del psicólogo</h3><p>{{ $evaluation->evaluacion->diagnostico->retroalimentacion_estudiante }}</p></div>
+    @endif
     <div class="row g-4">
 
         <div class="col-12 anime-item">

@@ -264,6 +264,7 @@
 @endpush
 
 @section('content')
+    @include('shared.dass21-coverage')
     <div class="admin-realtime">
 
         <div class="row g-4">
@@ -914,17 +915,19 @@
                 evaluacionesChart = new Chart(evaluacionesCtx, {
                     type: 'bar',
                     data: {
-                        labels: ['PHQ-9', 'GAD-7', 'Diario emocional'],
+                        labels: ['PHQ-9', 'GAD-7', 'DASS-21', 'Diario emocional'],
                         datasets: [{
                             label: 'Registros',
                             data: [
                                 evaluaciones.phq9 || 0,
                                 evaluaciones.gad7 || 0,
+                                evaluaciones.dass21 || 0,
                                 evaluaciones.diarios || 0
                             ],
                             backgroundColor: [
                                 chartColors.info,
                                 chartColors.primary,
+                                chartColors.warning,
                                 chartColors.success
                             ],
                             borderRadius: 14,
@@ -1037,6 +1040,7 @@
                     evaluacionesChart.data.datasets[0].data = [
                         evaluaciones.phq9 || 0,
                         evaluaciones.gad7 || 0,
+                                evaluaciones.dass21 || 0,
                         evaluaciones.diarios || 0
                     ];
                     evaluacionesChart.update();

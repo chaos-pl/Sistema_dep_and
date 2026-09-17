@@ -7,8 +7,8 @@
 @push('styles')
     <style>
         .anime-item {
-            opacity: 0;
-            transform: translateY(20px);
+            opacity: 1;
+            transform: none;
         }
 
         .diario-card {
@@ -131,43 +131,6 @@
                 </div>
 
                 @forelse($entradas as $entrada)
-                    @php
-                        $etiquetaOriginal = $entrada->etiqueta_roberta ?? 'pendiente';
-                        $etiqueta = strtolower(trim($etiquetaOriginal));
-
-                        $etiquetaTexto = match($etiqueta) {
-                            'sin_riesgo' => 'SIN RIESGO',
-                            'riesgo_depresivo' => 'RIESGO DEPRESIVO',
-                            'pendiente' => 'PENDIENTE',
-                            default => strtoupper(str_replace('_', ' ', $etiquetaOriginal)),
-                        };
-
-                        $etiquetaClase = match($etiqueta) {
-                            'sin_riesgo' => 'nlp-badge-success',
-                            'riesgo_depresivo' => 'nlp-badge-danger',
-                            'pendiente' => 'nlp-badge-warning',
-                            default => 'nlp-badge-neutral',
-                        };
-
-                        $estadoTexto = match(true) {
-                            $etiqueta === 'pendiente' => 'Análisis pendiente',
-                            $entrada->requiere_atencion => 'Requiere atención',
-                            default => 'Sin atención inmediata',
-                        };
-
-                        $estadoClase = match(true) {
-                            $etiqueta === 'pendiente' => 'nlp-badge-warning',
-                            $entrada->requiere_atencion => 'nlp-badge-danger',
-                            default => 'nlp-badge-success',
-                        };
-
-                        $estadoIcono = match(true) {
-                            $etiqueta === 'pendiente' => 'bi-hourglass-split',
-                            $entrada->requiere_atencion => 'bi-exclamation-triangle-fill',
-                            default => 'bi-check-circle-fill',
-                        };
-                    @endphp
-
                     <div class="diario-card bg-body-tertiary rounded-4 p-4 mb-3 shadow-sm border border-secondary border-opacity-10">
                         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
                             <div class="fw-bold text-body">
@@ -175,25 +138,8 @@
                                 {{ $entrada->created_at?->format('d/m/Y H:i') }}
                             </div>
 
-                            <div class="d-flex flex-wrap gap-2">
-                                <span class="badge rounded-pill px-3 py-2 fw-bold shadow-sm {{ $etiquetaClase }}">
-                                    <i class="bi bi-cpu-fill me-1"></i>
-                                    Etiqueta: {{ $etiquetaTexto }}
-                                </span>
-
-                                <span class="badge rounded-pill px-3 py-2 fw-bold shadow-sm {{ $estadoClase }}">
-                                    <i class="bi {{ $estadoIcono }} me-1"></i>
-                                    {{ $estadoTexto }}
-                                </span>
-                            </div>
+                            <x-nlp-result :analysis="$entrada" />
                         </div>
-
-                        @if($etiqueta === 'pendiente')
-                            <div class="alert alert-warning bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-4 py-2 px-3 small fw-semibold mb-3">
-                                <i class="bi bi-info-circle-fill me-1"></i>
-                                Esta entrada fue guardada, pero aún no ha sido procesada por la IA.
-                            </div>
-                        @endif
 
                         <p class="text-body-secondary diario-texto mb-0">{{ $entrada->texto_ingresado }}</p>
                     </div>
@@ -214,7 +160,7 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            if (typeof anime !== 'undefined') {
+            if (typeof anime !== 'undefined' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                 anime({
                     targets: '.anime-item',
                     translateY: [30, 0],

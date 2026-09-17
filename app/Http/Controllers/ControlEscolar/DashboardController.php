@@ -10,11 +10,16 @@ use App\Models\Grupo;
 use App\Models\MovimientoEstudiante;
 use App\Models\Tutor;
 use App\Models\User;
+use App\Services\Dass21CoverageService;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request, Dass21CoverageService $coverage)
     {
+        $periodo = $coverage->period($request);
+        $cobertura = $coverage->groups(Grupo::where('estado', 'activo'), $periodo);
+
         // Métricas principales
         $totalEstudiantes = Estudiante::count();
         $estudiantesSinGrupo = Estudiante::whereNull('grupo_id')->count();
@@ -30,7 +35,7 @@ class DashboardController extends Controller
         $sinExpediente = User::role('estudiante')
             ->where(function ($q) {
                 $q->whereDoesntHave('persona')
-                  ->orWhereDoesntHave('persona.estudiante');
+                    ->orWhereDoesntHave('persona.estudiante');
             })
             ->count();
 
@@ -46,11 +51,11 @@ class DashboardController extends Controller
 
         // Últimos movimientos para la sección de actividad reciente
         $ultimosMovimientos = MovimientoEstudiante::with([
-                'estudiante.persona',
-                'grupoOrigen',
-                'grupoDestino',
-                'realizadoPor',
-            ])
+            'estudiante.persona',
+            'grupoOrigen',
+            'grupoDestino',
+            'realizadoPor',
+        ])
             ->latest()
             ->take(5)
             ->get();
@@ -59,6 +64,8 @@ class DashboardController extends Controller
         $totalPendientes = $sinExpediente + $estudiantesSinGrupo;
 
         return view('control_escolar.dashboard', compact(
+            'periodo',
+            'cobertura',
             'totalEstudiantes',
             'estudiantesSinGrupo',
             'estudiantesActivos',

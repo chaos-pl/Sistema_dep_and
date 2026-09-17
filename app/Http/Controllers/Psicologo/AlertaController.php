@@ -15,7 +15,7 @@ class AlertaController extends Controller
         $persona = $user->persona;
         $psicologo = $persona?->psicologo;
 
-        if (!$persona || !$psicologo) {
+        if (! $persona || ! $psicologo) {
             return view('psicologo.pendiente-expediente', [
                 'titulo' => 'Expediente profesional pendiente',
                 'mensaje' => 'Tu cuenta tiene el rol de psicólogo, pero todavía no se ha completado tu expediente clínico en el sistema.',
@@ -26,6 +26,7 @@ class AlertaController extends Controller
         $alertas = Alerta::with([
             'evaluacion.instrumento',
             'evaluacion.resultadoClinico',
+            'evaluacion.dass21',
             'evaluacion.estudiante.persona',
             'evaluacion.diagnostico',
         ])
@@ -51,7 +52,7 @@ class AlertaController extends Controller
         $persona = $user->persona;
         $psicologo = $persona?->psicologo;
 
-        if (!$persona || !$psicologo) {
+        if (! $persona || ! $psicologo) {
             return view('psicologo.pendiente-expediente', [
                 'titulo' => 'Expediente profesional pendiente',
                 'mensaje' => 'Tu cuenta tiene el rol de psicólogo, pero todavía no se ha completado tu expediente clínico en el sistema.',
@@ -59,15 +60,14 @@ class AlertaController extends Controller
             ]);
         }
 
-        if ($alerta->estado === 'generada') {
-            $alerta->update([
-                'estado' => 'asignada_psicologo',
-            ]);
+        if ($alerta->evaluacion->dass21) {
+            return redirect()->route('psicologo.tamizajes.show', $alerta->evaluacion_id);
         }
 
         $alerta->load([
             'evaluacion.instrumento',
             'evaluacion.resultadoClinico',
+            'evaluacion.dass21',
             'evaluacion.respuestas',
             'evaluacion.estudiante.persona.user',
             'evaluacion.diagnostico',

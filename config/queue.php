@@ -31,6 +31,16 @@ return [
 
     'connections' => [
 
+        // Misma base de datos que el diario para guardar entrada y trabajo atómicamente.
+        'prometeo' => [
+            'driver' => 'database',
+            'connection' => null,
+            'table' => 'jobs',
+            'queue' => 'prometeo-ia',
+            'retry_after' => 120,
+            'after_commit' => false,
+        ],
+
         'sync' => [
             'driver' => 'sync',
         ],

@@ -15,9 +15,7 @@
     };
 
     // Lógica para el Atajo del DASS-21
-    $dass21EvalShortcut = $estudiante
-        ? \App\Models\Dass21Evaluation::where('codigo_anonimo', $estudiante->codigo_anonimo)->latest('completed_at')->first()
-        : null;
+    $dass21EvalShortcut = $dass21Eval;
     $dassRequiereAtencion = $dass21EvalShortcut && $dass21EvalShortcut->completed_at->diffInDays(now()) >= 14;
 @endphp
 

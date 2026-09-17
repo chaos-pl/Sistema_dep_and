@@ -11,6 +11,7 @@ class Dass21Evaluation extends Model
     protected $table = 'dass21_evaluations';
 
     protected $fillable = [
+        'evaluacion_id',
         'codigo_anonimo',
         'instrument_id',
         'depression_raw',
@@ -29,24 +30,33 @@ class Dass21Evaluation extends Model
     protected function casts(): array
     {
         return [
-            'depression_raw'   => 'integer',
+            'depression_raw' => 'integer',
             'depression_score' => 'integer',
-            'anxiety_raw'      => 'integer',
-            'anxiety_score'    => 'integer',
-            'stress_raw'       => 'integer',
-            'stress_score'     => 'integer',
-            'completed_at'     => 'datetime',
+            'anxiety_raw' => 'integer',
+            'anxiety_score' => 'integer',
+            'stress_raw' => 'integer',
+            'stress_score' => 'integer',
+            'completed_at' => 'datetime',
         ];
     }
 
     /* ------------------------------------------------------------------ */
-    /*  Relaciones                                                         */
+    /*  Relaciones */
     /* ------------------------------------------------------------------ */
-
 
     public function instrumento(): BelongsTo
     {
         return $this->belongsTo(Instrumento::class, 'instrument_id');
+    }
+
+    public function evaluacion(): BelongsTo
+    {
+        return $this->belongsTo(Evaluacion::class);
+    }
+
+    public function estudiante(): BelongsTo
+    {
+        return $this->belongsTo(Estudiante::class, 'codigo_anonimo', 'codigo_anonimo');
     }
 
     public function answers(): HasMany
@@ -55,7 +65,7 @@ class Dass21Evaluation extends Model
     }
 
     /* ------------------------------------------------------------------ */
-    /*  Helpers                                                            */
+    /*  Helpers */
     /* ------------------------------------------------------------------ */
 
     /**

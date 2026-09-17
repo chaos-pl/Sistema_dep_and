@@ -9,10 +9,12 @@ use App\Models\Grupo;
 use App\Models\MovimientoEstudiante;
 use App\Models\Persona;
 use App\Models\User;
+use App\Services\StudentGroupAssignmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class EstudianteController extends Controller
@@ -56,7 +58,7 @@ class EstudianteController extends Controller
                 // No tiene persona
                 $q->whereDoesntHave('persona')
                 // O tiene persona pero no tiene estudiante
-                ->orWhereDoesntHave('persona.estudiante');
+                    ->orWhereDoesntHave('persona.estudiante');
             })
             ->latest()
             ->paginate(15, ['*'], 'sin_expediente');
@@ -72,35 +74,18 @@ class EstudianteController extends Controller
     /**
      * Asignar grupo desde la vista de pendientes.
      */
-    public function asignarGrupo(Request $request, Estudiante $estudiante)
+    public function asignarGrupo(Request $request, Estudiante $estudiante, StudentGroupAssignmentService $assignments)
     {
-        $request->validate([
-            'grupo_id' => 'required|exists:grupos,id',
+        $data = $request->validate([
+            'grupo_id' => 'required|integer|exists:grupos,id',
             'observaciones' => 'nullable|string|max:1000',
-        ], [
-            'grupo_id.required' => 'Debes seleccionar un grupo.',
         ]);
+        $changed = $assignments->assign($estudiante, (int) $data['grupo_id'], auth()->id(),
+            'Asignación de grupo desde pendientes', $data['observaciones'] ?? null);
+        Alert::info($changed ? 'Grupo asignado' : 'Sin cambios', $changed
+            ? 'La asignación y su movimiento se guardaron correctamente.'
+            : 'El estudiante ya pertenece a ese grupo.');
 
-        // Evitar asignación duplicada
-        if ($estudiante->grupo_id == $request->grupo_id) {
-            Alert::warning('Sin cambios', 'El estudiante ya pertenece a ese grupo.');
-            return redirect()->route('control_escolar.pendientes.index');
-        }
-
-        MovimientoEstudiante::create([
-            'estudiante_id' => $estudiante->id,
-            'grupo_origen_id' => null,
-            'grupo_destino_id' => $request->grupo_id,
-            'accion' => 'asignado',
-            'motivo' => 'Asignación inicial de grupo',
-            'observaciones' => $request->observaciones,
-            'realizado_por' => auth()->id(),
-        ]);
-
-        $estudiante->update(['grupo_id' => $request->grupo_id]);
-
-        $grupoName = Grupo::find($request->grupo_id)->nombre;
-        Alert::success('Grupo asignado', "El estudiante fue asignado al grupo {$grupoName}.");
         return redirect()->route('control_escolar.pendientes.index');
     }
 
@@ -130,11 +115,11 @@ class EstudianteController extends Controller
             'matricula' => 'required|string|max:50|unique:estudiantes,matricula',
             'email' => 'required|email|max:255|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'grupo_id' => 'nullable|exists:grupos,id',
+            'grupo_id' => ['nullable', Rule::exists('grupos', 'id')->where('estado', 'activo')->whereNull('deleted_at')],
         ]);
 
         DB::transaction(function () use ($request) {
-            $nombreCompleto = trim($request->nombre . ' ' . $request->apellido_paterno . ' ' . ($request->apellido_materno ?? ''));
+            $nombreCompleto = trim($request->nombre.' '.$request->apellido_paterno.' '.($request->apellido_materno ?? ''));
 
             $user = User::create([
                 'name' => $nombreCompleto,
@@ -158,12 +143,13 @@ class EstudianteController extends Controller
                 'persona_id' => $persona->id,
                 'matricula' => $request->matricula,
                 'grupo_id' => $request->grupo_id,
-                'codigo_anonimo' => 'EST-' . Str::random(8),
+                'codigo_anonimo' => 'EST-'.Str::random(8),
                 'estado' => 'activo',
             ]);
         });
 
         Alert::success('Estudiante registrado', 'El estudiante fue dado de alta correctamente.');
+
         return redirect()->route('control_escolar.estudiantes.index');
     }
 
@@ -189,7 +175,7 @@ class EstudianteController extends Controller
             'nombre' => 'required|string|max:100',
             'apellido_paterno' => 'required|string|max:100',
             'apellido_materno' => 'nullable|string|max:100',
-            'matricula' => 'required|string|max:50|unique:estudiantes,matricula,' . $estudiante->id,
+            'matricula' => 'required|string|max:50|unique:estudiantes,matricula,'.$estudiante->id,
             'estado' => 'required|in:activo,baja_temporal,baja_definitiva',
         ]);
 
@@ -200,7 +186,7 @@ class EstudianteController extends Controller
                 'apellido_materno' => $request->apellido_materno,
             ]);
 
-            $nombreCompleto = trim($request->nombre . ' ' . $request->apellido_paterno . ' ' . ($request->apellido_materno ?? ''));
+            $nombreCompleto = trim($request->nombre.' '.$request->apellido_paterno.' '.($request->apellido_materno ?? ''));
             $estudiante->persona->user->update(['name' => $nombreCompleto]);
 
             $estudiante->update([
@@ -210,6 +196,7 @@ class EstudianteController extends Controller
         });
 
         Alert::success('Estudiante actualizado', 'Los datos fueron actualizados correctamente.');
+
         return redirect()->route('control_escolar.estudiantes.index');
     }
 
@@ -222,49 +209,25 @@ class EstudianteController extends Controller
         $estudiante->delete();
 
         Alert::success('Estudiante dado de baja', 'El estudiante fue dado de baja del sistema.');
+
         return redirect()->route('control_escolar.estudiantes.index');
     }
 
     /**
      * Cambiar grupo de un estudiante.
      */
-    public function updateGrupo(Request $request, Estudiante $estudiante)
+    public function updateGrupo(Request $request, Estudiante $estudiante, StudentGroupAssignmentService $assignments)
     {
-        $request->validate([
-            'grupo_id' => 'nullable|exists:grupos,id',
+        $data = $request->validate([
+            'grupo_id' => 'nullable|integer|exists:grupos,id',
             'motivo' => 'required|string|max:500',
             'observaciones' => 'nullable|string|max:1000',
-        ], [
-            'motivo.required' => 'Debes registrar un motivo para el movimiento.',
         ]);
-
-        // No permitir cambiar al mismo grupo
-        if ($request->grupo_id && $estudiante->grupo_id == $request->grupo_id) {
-            Alert::warning('Sin cambios', 'El estudiante ya pertenece a ese grupo.');
-            return redirect()->route('control_escolar.estudiantes.index');
-        }
-
-        $grupoOrigenId = $estudiante->grupo_id;
-        $accion = $request->grupo_id ? 'cambiado' : 'quitado';
-
-        MovimientoEstudiante::create([
-            'estudiante_id' => $estudiante->id,
-            'grupo_origen_id' => $grupoOrigenId,
-            'grupo_destino_id' => $request->grupo_id,
-            'accion' => $accion,
-            'motivo' => $request->motivo,
-            'observaciones' => $request->observaciones,
-            'realizado_por' => auth()->id(),
-        ]);
-
-        $estudiante->update(['grupo_id' => $request->grupo_id]);
-
-        if ($request->grupo_id) {
-            $grupoName = Grupo::find($request->grupo_id)->nombre;
-            Alert::success('Grupo cambiado', "El estudiante fue asignado al grupo {$grupoName}.");
-        } else {
-            Alert::success('Grupo removido', 'El estudiante ha sido removido de su grupo.');
-        }
+        $groupId = isset($data['grupo_id']) ? (int) $data['grupo_id'] : null;
+        $changed = $assignments->assign($estudiante, $groupId, auth()->id(), $data['motivo'], $data['observaciones'] ?? null);
+        Alert::info($changed ? 'Asignación actualizada' : 'Sin cambios', $changed
+            ? 'El grupo y su movimiento se guardaron correctamente.'
+            : 'El estudiante ya tiene esa asignación.');
 
         return redirect()->route('control_escolar.estudiantes.index');
     }
@@ -272,33 +235,17 @@ class EstudianteController extends Controller
     /**
      * Quitar estudiante de su grupo sin eliminarlo.
      */
-    public function quitarGrupo(Request $request, Estudiante $estudiante)
+    public function quitarGrupo(Request $request, Estudiante $estudiante, StudentGroupAssignmentService $assignments)
     {
-        $request->validate([
+        $data = $request->validate([
             'motivo' => 'required|string|max:500',
             'observaciones' => 'nullable|string|max:1000',
-        ], [
-            'motivo.required' => 'Debes registrar un motivo para quitar al estudiante del grupo.',
         ]);
+        $changed = $assignments->assign($estudiante, null, auth()->id(), $data['motivo'], $data['observaciones'] ?? null);
+        Alert::info($changed ? 'Grupo removido' : 'Sin grupo', $changed
+            ? 'El estudiante queda pendiente de asignación.'
+            : 'El estudiante ya no pertenece a ningún grupo.');
 
-        if (!$estudiante->grupo_id) {
-            Alert::info('Sin grupo', 'El estudiante ya no pertenece a ningún grupo.');
-            return redirect()->route('control_escolar.estudiantes.index');
-        }
-
-        MovimientoEstudiante::create([
-            'estudiante_id' => $estudiante->id,
-            'grupo_origen_id' => $estudiante->grupo_id,
-            'grupo_destino_id' => null,
-            'accion' => 'quitado',
-            'motivo' => $request->motivo,
-            'observaciones' => $request->observaciones,
-            'realizado_por' => auth()->id(),
-        ]);
-
-        $estudiante->update(['grupo_id' => null]);
-
-        Alert::success('Grupo removido', 'El estudiante fue removido de su grupo y queda pendiente de asignación.');
         return redirect()->route('control_escolar.estudiantes.index');
     }
 

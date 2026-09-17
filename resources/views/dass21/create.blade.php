@@ -86,6 +86,7 @@
 @endpush
 
 @section('content')
+    @if($errors->any())<div class="alert alert-danger"><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
     @php
         $totalPreguntas = count($questions);
         $descripcion = 'Por favor, lee cada afirmación e indica qué tanto se aplicó a ti durante la última semana.';
