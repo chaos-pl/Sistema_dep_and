@@ -57,6 +57,7 @@
         }
     </style>
 
+    @vite(['resources/js/app.js'])
     @stack('styles')
 </head>
 <body>
@@ -66,12 +67,13 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 
-<script src="{{ asset('js/granim.min.js') }}"></script>
+
+
 
 @include('sweetalert::alert')
 
 @stack('scripts')
+<script src="{{ asset('js/granim.min.js') }}"></script>
 </body>
 </html>

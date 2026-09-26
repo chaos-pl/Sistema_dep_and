@@ -11,14 +11,33 @@ use App\Models\Persona;
 use App\Models\User;
 use App\Services\StudentGroupAssignmentService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use RealRashid\SweetAlert\Facades\Alert;
 
-class EstudianteController extends Controller
+class EstudianteController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:estudiantes.ver', only: ['index']),
+            new Middleware('permission:estudiantes.ver_pendientes', only: ['pendientes']),
+            new Middleware('permission:estudiantes.crear', only: ['create']),
+            new Middleware('permission:estudiantes.crear', only: ['store']),
+            new Middleware('permission:estudiantes.editar', only: ['edit']),
+            new Middleware('permission:estudiantes.editar', only: ['update']),
+            new Middleware('permission:usuarios.eliminar', only: ['destroy']),
+            new Middleware('permission:estudiantes.asignar_grupo', only: ['asignarGrupo']),
+            new Middleware('permission:estudiantes.cambiar_grupo', only: ['updateGrupo']),
+            new Middleware('permission:estudiantes.quitar_grupo', only: ['quitarGrupo']),
+            new Middleware('permission:estudiantes.ver_historial', only: ['historial']),
+        ];
+    }
+
     /**
      * Lista general de estudiantes.
      */

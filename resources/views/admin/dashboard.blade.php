@@ -15,28 +15,7 @@
 
     $userAccentColor = auth()->user()->appearance_settings['accent_color'] ?? 'purple';
 
-    $granimPalettes = match($userAccentColor) {
-        'blue' => "
-            ['#1e3a8a', '#2563eb'],
-            ['#2563eb', '#38bdf8'],
-            ['#0f172a', '#3b82f6']
-        ",
-        'green' => "
-            ['#064e3b', '#059669'],
-            ['#059669', '#2dd4bf'],
-            ['#022c22', '#10b981']
-        ",
-        'pink' => "
-            ['#831843', '#db2777'],
-            ['#db2777', '#f43f5e'],
-            ['#4c0519', '#ec4899']
-        ",
-        default => "
-            ['#4c1d95', '#7c3aed'],
-            ['#7c3aed', '#db2777'],
-            ['#1e1b4b', '#8b5cf6']
-        "
-    };
+
 @endphp
 
 @push('styles')
@@ -62,7 +41,7 @@
             box-shadow: 0 22px 55px rgba(76, 29, 149, .28);
         }
 
-        #granim-canvas-admin {
+        #granim-dashboard {
             position: absolute;
             inset: 0;
             width: 100%;
@@ -252,7 +231,7 @@
         }
 
         .anime-item {
-            opacity: 0;
+            opacity: 1;
             transform: translateY(22px);
         }
 
@@ -264,15 +243,14 @@
 @endpush
 
 @section('content')
-    @include('shared.dass21-coverage')
     <div class="admin-realtime">
 
         <div class="row g-4">
 
             {{-- HERO --}}
             <div class="col-12 anime-item">
-                <div class="admin-hero-realtime">
-                    <canvas id="granim-canvas-admin"></canvas>
+                <div class="admin-hero-realtime accent-gradient granim-surface">
+                    <canvas id="granim-dashboard" class="granim-canvas" data-prometeo-granim aria-hidden="true" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;"></canvas>
 
                     <div class="hero-content">
                         <div class="row align-items-center g-4">
@@ -312,6 +290,8 @@
                     </div>
                 </div>
             </div>
+<div class="col-12 dashboard-dass">@include('shared.dass21-coverage')</div>
+
 
             {{-- MÉTRICAS PRINCIPALES --}}
             <div class="col-md-6 col-xl-3 anime-item">
@@ -699,8 +679,8 @@
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/granim@2.0.0/dist/granim.min.js"></script>
+
+
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -1089,21 +1069,7 @@
                 }
             }
 
-            if (typeof Granim !== 'undefined') {
-                new Granim({
-                    element: '#granim-canvas-admin',
-                    direction: 'diagonal',
-                    isPausedWhenNotInView: true,
-                    states: {
-                        'default-state': {
-                            gradients: [
-                                {!! $granimPalettes !!}
-                            ],
-                            transitionSpeed: 5000
-                        }
-                    }
-                });
-            }
+
 
             if (typeof anime !== 'undefined') {
                 anime({

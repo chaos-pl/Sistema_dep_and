@@ -19,31 +19,10 @@
         </div>
     </div>
 
-    <form method="POST" action="{{ route('perfil.appearance.update') }}">
+    @include('perfil.partials.photo-form')
+    <form method="POST" data-appearance-form action="{{ route('perfil.appearance.update') }}">
         @csrf
         @method('PUT')
-
-        <div class="mb-4">
-            <label class="form-label fw-bold text-secondary d-block mb-3">Icono de perfil</label>
-            <div class="row g-3">
-                @foreach($avatarIcons as $key => $icon)
-                    <div class="col-6 col-md-3 col-xl-2">
-                        <label class="appearance-icon-card w-100">
-                            <input type="radio" name="avatar_icon" value="{{ $key }}" class="d-none appearance-icon-input" {{ old('avatar_icon', $user->avatar_icon) === $key ? 'checked' : '' }}>
-                            <div class="appearance-icon-option text-center p-3 rounded-4 border bg-light shadow-sm">
-                                <div class="mb-2">
-                                    <i class="{{ $icon['class'] }} fs-2"></i>
-                                </div>
-                                <div class="fw-bold small text-secondary">{{ $icon['label'] }}</div>
-                            </div>
-                        </label>
-                    </div>
-                @endforeach
-            </div>
-            @if($errors->updateAppearance->has('avatar_icon'))
-                <small class="text-danger fw-bold d-block mt-2">{{ $errors->updateAppearance->first('avatar_icon') }}</small>
-            @endif
-        </div>
 
         <div class="row g-4 mb-4 border-top pt-4">
             <div class="col-md-4">
@@ -84,16 +63,19 @@
         </div>
 
         <div class="p-3 bg-light rounded-4 border border-secondary border-opacity-10 d-flex align-items-center gap-3">
-            <div class="form-check form-switch m-0 fs-4">
-                <input class="form-check-input shadow-none" type="checkbox" name="reduced_motion" id="reduced_motion" value="1" {{ old('reduced_motion', $appearance['reduced_motion']) ? 'checked' : '' }}>
+            <div class="motion-switch">
+                <input class="motion-checkbox" type="checkbox" name="reduced_motion" id="reduced_motion" value="1" {{ old('reduced_motion', $appearance['reduced_motion']) ? 'checked' : '' }}>
             </div>
             <label class="form-check-label fw-bold text-secondary mb-0" style="cursor: pointer;" for="reduced_motion">
                 Reducir animaciones y transiciones <br>
-                <small class="text-muted fw-normal">Activa esta opción si notas que el sistema funciona lento en tu dispositivo.</small>
+                <small class="text-muted fw-normal">Reduce el movimiento. También se respeta la preferencia de accesibilidad de tu dispositivo.</small>
             </label>
         </div>
 
-        <div class="mt-4 text-end border-top pt-3">
+        <p class="small mt-3 text-muted" role="status" data-appearance-status>Vista previa: guarda para conservar tus preferencias.</p>
+        @foreach($errors->updateAppearance->all() as $message)<p class="text-danger">{{ $message }}</p>@endforeach
+        <div class="mt-4 d-flex flex-wrap justify-content-end gap-2 border-top pt-3">
+            <button type="button" class="btn btn-outline-secondary" data-appearance-reset>Restablecer apariencia</button>
             <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">
                 <i class="bi bi-stars me-2"></i>Guardar Apariencia
             </button>

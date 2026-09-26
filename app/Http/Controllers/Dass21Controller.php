@@ -6,6 +6,7 @@ use App\Http\Requests\StoreDass21Request;
 use App\Models\Dass21Evaluation;
 use App\Models\Dass21Question;
 use App\Services\Dass21EvaluationService;
+use App\Services\QuestionnaireDraftService;
 use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -40,7 +41,7 @@ class Dass21Controller extends Controller
 
         $hasRecentEvaluation = $lastEvaluation && $lastEvaluation->completed_at->diffInDays(now()) < 14;
 
-        return view('dass21.create', compact('questions', 'hasRecentEvaluation', 'estudiante'));
+        return view('dass21.create', compact('questions', 'hasRecentEvaluation', 'estudiante') + app(QuestionnaireDraftService::class)->read($estudiante, 'DASS21'));
     }
 
     public function store(StoreDass21Request $request, Dass21EvaluationService $service)
@@ -52,7 +53,7 @@ class Dass21Controller extends Controller
             return redirect()->route('evaluaciones.index');
         }
 
-        $evaluation = $service->submit($estudiante, $request->validated('answers'));
+        $evaluation = $service->submit($estudiante, $request->validated('answers'), $request->filled('draft_version') ? (int) $request->input('draft_version') : null);
 
         Alert::success('Tamizaje completado', 'Tus resultados DASS-21 han sido procesados.');
 

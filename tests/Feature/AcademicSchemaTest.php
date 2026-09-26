@@ -97,7 +97,7 @@ class AcademicSchemaTest extends TestCase
             'migrations', 'roles', 'permissions', 'model_has_roles', 'model_has_permissions', 'role_has_permissions',
             'personas', 'carreras', 'tutores', 'psicologos', 'grupos', 'estudiantes', 'instrumentos', 'evaluaciones',
             'respuestas', 'resultados_clinicos', 'alertas', 'diagnosticos', 'analisis_nlp', 'ciclos_escolares',
-            'grupo_tutor', 'movimientos_estudiantes', 'dass21_questions', 'dass21_evaluations', 'dass21_evaluation_answers', 'casos_atencion', 'seguimientos_caso', 'avisos'];
+            'grupo_tutor', 'movimientos_estudiantes', 'dass21_questions', 'dass21_evaluations', 'dass21_evaluation_answers', 'casos_atencion', 'seguimientos_caso', 'avisos', 'questionnaire_drafts'];
         $this->assertEqualsCanonicalizing($expected, array_column(Schema::getTables(), 'name'));
         $this->assertTrue(Schema::hasColumns('users', ['acepto_consentimiento', 'consentimiento_aceptado_at']));
         $this->assertTrue(Schema::hasColumn('dass21_evaluations', 'evaluacion_id'));
@@ -119,6 +119,7 @@ class AcademicSchemaTest extends TestCase
         (require database_path('migrations/2026_09_10_000001_add_processing_to_analisis_nlp.php'))->up();
         (require database_path('migrations/2026_09_10_000003_create_casos_atencion.php'))->up();
         (require database_path('migrations/2026_09_15_000001_add_evolution_reports_and_notices.php'))->up();
+        (require database_path('migrations/2026_09_19_000001_create_questionnaire_drafts.php'))->up();
         foreach (glob(database_path('migrations/*.php')) as $file) {
             if (! str_contains($file, 'create_domain_baseline') && ! str_contains($file, 'allow_pending_academic_assignments')) {
                 DB::table('migrations')->insert(['migration' => basename($file, '.php'), 'batch' => 1]);

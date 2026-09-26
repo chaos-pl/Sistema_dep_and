@@ -17,7 +17,7 @@
 
 @push('styles')
     <style>
-        .anime-item { opacity: 0; transform: translateY(20px); }
+        .anime-item { opacity: 1; transform: translateY(20px); }
 
         /* --- HERO BANNER --- */
         .eval-hero { position: relative; overflow: hidden; background-color: var(--app-primary); }
@@ -74,7 +74,7 @@
         .option-tile.active { border-width: 3px; border-color: var(--app-primary); background: var(--app-primary-soft); box-shadow: 0 12px 30px rgba(124, 58, 237, 0.2); transform: scale(1.03); }
         .option-tile.active .reactivo-valor, .option-tile.active .reactivo-texto { color: var(--app-primary-dark); }
         .option-tile.active .reactivo-valor { transform: scale(1.15); }
-        .option-input { display: none; }
+        .option-input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 
         /* Ajustes Modo Oscuro */
         body.theme-dark .question-text, body.theme-system .question-text { color: #f8fafc; }
@@ -115,7 +115,7 @@
                     </div>
                     <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
                         <a href="{{ route('evaluaciones.index') }}" class="btn glass-btn rounded-pill fw-bold px-4 py-2 shadow-sm btn-cancelar-eval">
-                            <i class="bi bi-x-circle me-1 text-danger"></i> Cancelar Evaluación
+                            <i class="bi bi-x-circle me-1 text-danger"></i> Guardar y salir
                         </a>
                     </div>
                 </div>
@@ -132,8 +132,9 @@
                     <div class="progress-bar-fill" id="progress-bar"></div>
                 </div>
 
-                <form action="{{ route('dass21.store') }}" method="POST" id="form-evaluacion">
+                <form action="{{ route('dass21.store') }}" method="POST" id="form-evaluacion" data-initial-dirty="{{ session()->hasOldInput('answers') ? 1 : 0 }}" data-draft-url="{{ route('questionnaires.draft', 'DASS21') }}">
                     @csrf
+                    @include('components.questionnaire-draft')
                     <div class="wizard-container" id="wizard-container">
                         @foreach($questions as $question)
                             <div class="question-step {{ $loop->first ? 'active' : '' }}" data-step="{{ $loop->iteration }}">
@@ -152,7 +153,7 @@
                                         ] as $valor => $texto)
                                             <div class="col-6 col-lg-3">
                                                 <label class="option-tile w-100" for="p{{ $question->id }}_{{ $valor }}">
-                                                    <input class="option-input step-radio" type="radio" name="answers[{{ $question->id }}]" id="p{{ $question->id }}_{{ $valor }}" value="{{ $valor }}" data-step="{{ $loop->parent->iteration }}">
+                                                    <input class="option-input step-radio" type="radio" name="answers[{{ $question->id }}]" @checked((string) old("answers.$question->id", $draftAnswers[$question->id] ?? '') === (string) $valor) id="p{{ $question->id }}_{{ $valor }}" value="{{ $valor }}" data-step="{{ $loop->parent->iteration }}">
                                                     <div class="reactivo-valor">{{ $valor }}</div>
                                                     <div class="reactivo-texto">{{ $texto }}</div>
                                                 </label>
@@ -183,123 +184,3 @@
         </div>
     </div>
 @endsection
-
-@push('scripts')
-    <script src="{{ asset('js/granim.min.js') }}"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if(typeof anime !== 'undefined') {
-                anime({ targets: '.anime-item', translateY: [30, 0], opacity: [0, 1], delay: anime.stagger(150), easing: 'easeOutExpo', duration: 1000 });
-            }
-
-            if (document.getElementById('granim-canvas-eval-show') && typeof Granim !== 'undefined') {
-                new Granim({
-                    element: '#granim-canvas-eval-show',
-                    direction: 'left-right',
-                    isPausedWhenNotInView: true,
-                    states : { "default-state": { gradients: [ {!! $granimPalettes !!} ], transitionSpeed: 7000 } }
-                });
-            }
-
-            const totalSteps = {{ $totalPreguntas }};
-            let currentStep = 1;
-            const progressBar = document.getElementById('progress-bar');
-            const progressText = document.getElementById('progress-text');
-            const submitBtn = document.getElementById('btn-submit');
-
-            function updateProgress() {
-                const percentage = ((currentStep - 1) / totalSteps) * 100;
-                progressBar.style.width = percentage + '%';
-                progressText.textContent = currentStep;
-                if(currentStep > totalSteps) { progressBar.style.width = '100%'; progressText.textContent = totalSteps; }
-            }
-
-            function goToStep(fromStep, toStep, direction = 'forward') {
-                const fromEl = document.querySelector(`.question-step[data-step="${fromStep}"]`);
-                const toEl = document.querySelector(`.question-step[data-step="${toStep}"]`);
-                if (!fromEl || !toEl) return;
-
-                const translateOut = direction === 'forward' ? -80 : 80;
-                const translateIn = direction === 'forward' ? 80 : -80;
-
-                anime({
-                    targets: fromEl, translateX: [0, translateOut], opacity: [1, 0], duration: 350, easing: 'easeInQuad',
-                    complete: function() {
-                        fromEl.classList.remove('active');
-                        toEl.classList.add('active');
-                        anime({ targets: toEl, translateX: [translateIn, 0], opacity: [0, 1], duration: 600, easing: 'easeOutElastic(1, .8)' });
-                    }
-                });
-                currentStep = toStep;
-                updateProgress();
-            }
-
-            document.querySelectorAll('.step-radio').forEach(radio => {
-                radio.addEventListener('change', function() {
-                    const step = parseInt(this.getAttribute('data-step'));
-                    const allTiles = this.closest('.row').querySelectorAll('.option-tile');
-                    allTiles.forEach(t => t.classList.remove('active'));
-                    this.closest('.option-tile').classList.add('active');
-
-                    anime({ targets: this.closest('.question-card'), scale: [1.02, 1], duration: 400, easing: 'easeOutExpo' });
-
-                    const nextBtn = this.closest('.question-step').querySelector('.btn-next');
-                    if(nextBtn) {
-                        nextBtn.style.opacity = '1'; nextBtn.style.pointerEvents = 'auto';
-                        anime({ targets: nextBtn, scale: [0.9, 1.05, 1], duration: 500, easing: 'easeOutQuad' });
-                    }
-
-                    if (step === totalSteps) {
-                        submitBtn.classList.remove('d-none');
-                        anime({ targets: submitBtn, scale: [0.8, 1.1, 1], opacity: [0, 1], duration: 800, easing: 'easeOutElastic(1, .6)' });
-                    }
-                });
-            });
-
-            document.querySelectorAll('.btn-prev').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const stepEl = this.closest('.question-step');
-                    const step = parseInt(stepEl.getAttribute('data-step'));
-                    if (step > 1) goToStep(step, step - 1, 'backward');
-                });
-            });
-
-            document.querySelectorAll('.btn-next').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const stepEl = this.closest('.question-step');
-                    const step = parseInt(stepEl.getAttribute('data-step'));
-                    if (step < totalSteps) goToStep(step, step + 1, 'forward');
-                });
-            });
-
-            updateProgress();
-
-            document.querySelectorAll('.btn-cancelar-eval').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const urlDestino = this.getAttribute('href');
-                    const isDark = document.body.classList.contains('theme-dark') || document.body.classList.contains('theme-system') && window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-                    Swal.fire({
-                        title: '¿Abandonar evaluación?',
-                        text: "Perderás todo el progreso actual de este cuestionario.",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: '<i class="bi bi-box-arrow-right me-1"></i> Sí, salir',
-                        cancelButtonText: 'Continuar respondiendo',
-                        background: isDark ? '#1e293b' : '#ffffff',
-                        color: isDark ? '#f8fafc' : '#1e293b',
-                        customClass: {
-                            popup: 'rounded-4 shadow-lg border border-secondary border-opacity-10',
-                            confirmButton: 'btn btn-danger rounded-pill px-4 fw-bold shadow-sm',
-                            cancelButton: 'btn rounded-pill px-4 fw-bold ms-2 ' + (isDark ? 'btn-outline-light' : 'btn-outline-secondary')
-                        },
-                        buttonsStyling: false
-                    }).then((result) => {
-                        if (result.isConfirmed) window.location.href = urlDestino;
-                    });
-                });
-            });
-        });
-    </script>
-@endpush

@@ -50,6 +50,7 @@
         .btn-primary:hover { background: #8258bb; border-color: #8258bb; }
     </style>
     @stack('styles')
+@vite(['resources/js/app.js'])
 </head>
 <body>
 
@@ -60,7 +61,7 @@
 @stack('modals')
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -76,5 +77,6 @@
 
 @include('sweetalert::alert')
 @stack('scripts')
+<script src="{{ asset('js/granim.min.js') }}"></script>
 </body>
 </html>

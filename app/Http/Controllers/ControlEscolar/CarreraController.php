@@ -5,13 +5,27 @@ namespace App\Http\Controllers\ControlEscolar;
 use App\Http\Controllers\Controller;
 use App\Models\Carrera;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use RealRashid\SweetAlert\Facades\Alert;
 
-class CarreraController extends Controller
+class CarreraController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:carreras.ver', only: ['index']),
+            new Middleware('permission:carreras.ver', only: ['show']),
+            new Middleware('permission:carreras.crear', only: ['store']),
+            new Middleware('permission:carreras.editar', only: ['update']),
+            new Middleware('permission:carreras.eliminar', only: ['destroy']),
+        ];
+    }
+
     public function index()
     {
         $carreras = Carrera::withCount('grupos')->latest()->paginate(10);
+
         return view('control_escolar.carreras.index', compact('carreras'));
     }
 
@@ -25,6 +39,7 @@ class CarreraController extends Controller
         Carrera::create($request->only('nombre', 'clave'));
 
         Alert::success('Carrera registrada', 'La carrera fue creada correctamente.');
+
         return redirect()->route('control_escolar.carreras.index');
     }
 
@@ -32,13 +47,14 @@ class CarreraController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
-            'clave' => 'nullable|string|max:50|unique:carreras,clave,' . $carrera->id,
+            'clave' => 'nullable|string|max:50|unique:carreras,clave,'.$carrera->id,
             'estado' => 'required|in:activo,inactivo',
         ]);
 
         $carrera->update($request->only('nombre', 'clave', 'estado'));
 
         Alert::success('Carrera actualizada', 'Los datos fueron actualizados correctamente.');
+
         return redirect()->route('control_escolar.carreras.index');
     }
 
@@ -48,12 +64,14 @@ class CarreraController extends Controller
 
         if ($carrera->grupos_count > 0) {
             Alert::warning('No permitido', 'No puedes eliminar una carrera que ya tiene grupos registrados.');
+
             return redirect()->route('control_escolar.carreras.index');
         }
 
         $carrera->delete();
 
         Alert::success('Carrera eliminada', 'La carrera fue eliminada correctamente.');
+
         return redirect()->route('control_escolar.carreras.index');
     }
 }

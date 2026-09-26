@@ -85,7 +85,7 @@ class ProfileController extends Controller
         $user = $request->user();
 
         $user->update([
-            'avatar_icon' => $request->avatar_icon,
+            'avatar_icon' => $request->input('avatar_icon', $user->avatar_icon ?? 'person-circle'),
             'appearance_settings' => [
                 'theme' => $request->theme,
                 'accent_color' => $request->accent_color,

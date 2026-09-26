@@ -4,8 +4,8 @@
 
 @push('styles')
     <style>
-        .anime-badge { opacity: 0; transform: scale(0.5); }
-        .anime-item { opacity: 0; }
+        .anime-badge { opacity: 1; transform: scale(0.5); }
+        .anime-item { opacity: 1; }
     </style>
 @endpush
 

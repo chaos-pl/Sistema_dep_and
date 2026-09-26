@@ -18,7 +18,7 @@ class UpdateAppearanceRequest extends FormRequest
     {
         return [
             'avatar_icon' => [
-                'required',
+                'sometimes',
                 'string',
                 Rule::in(array_keys(config('appearance.avatar_icons', []))),
             ],

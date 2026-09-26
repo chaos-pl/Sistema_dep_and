@@ -6,7 +6,7 @@
 
 @push('styles')
     <style>
-        .anime-item { opacity: 0; transform: translateY(20px); }
+        .anime-item { opacity: 1; transform: translateY(20px); }
         .hover-elevate {
             transition: transform .2s ease, box-shadow .2s ease;
         }

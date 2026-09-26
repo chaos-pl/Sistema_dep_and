@@ -35,7 +35,7 @@
 
 @push('styles')
     <style>
-        .anime-item { opacity: 0; transform: translateY(20px); }
+        .anime-item { opacity: 1; transform: translateY(20px); }
 
         .hover-elevate { transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease; border: 1px solid transparent; }
         .hover-elevate:hover { transform: translateY(-5px); box-shadow: 0 10px 24px rgba(0,0,0,0.08) !important; border-color: var(--app-primary-soft) !important; }
@@ -240,7 +240,7 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/granim.min.js') }}"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if(typeof anime !== 'undefined') {

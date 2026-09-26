@@ -26,12 +26,14 @@ use App\Http\Controllers\Estudiante\EvaluacionController;
 use App\Http\Controllers\Estudiante\StudentDashboardController;
 use App\Http\Controllers\EvolucionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProfilePhotoController;
 use App\Http\Controllers\Psicologo\AlertaController as PsicologoAlertaController;
 use App\Http\Controllers\Psicologo\AnalisisNlpController as PsicologoAnalisisNlpController;
 use App\Http\Controllers\Psicologo\CasoAtencionController;
 use App\Http\Controllers\Psicologo\DashboardController as PsicologoDashboardController;
 use App\Http\Controllers\Psicologo\DiagnosticoController as PsicologoDiagnosticoController;
 use App\Http\Controllers\Psicologo\TamizajeController;
+use App\Http\Controllers\QuestionnaireDraftController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\Tutor\DashboardController as TutorDashboardController;
 use App\Http\Controllers\Tutor\EstudianteController as TutorEstudianteController;
@@ -90,6 +92,8 @@ Route::middleware(['auth', 'no.cache'])->group(function () {
 });
 
 Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
+    Route::put('/cuestionarios/{instrument}/borrador', [QuestionnaireDraftController::class, 'store'])
+        ->middleware(['role:estudiante', 'permission:evaluaciones.realizar'])->name('questionnaires.draft');
     Route::get('/evolucion', [EvolucionController::class, 'own'])->name('evolucion.own');
     Route::get('/psicologo/estudiantes/{estudiante}/evolucion', [EvolucionController::class, 'show'])->name('evolucion.show');
     Route::get('/notificaciones', [AvisoController::class, 'index'])->name('avisos.index');
@@ -131,6 +135,9 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
+    Route::get('/perfil/foto', [ProfilePhotoController::class, 'show'])->name('perfil.photo.show');
+    Route::post('/perfil/foto', [ProfilePhotoController::class, 'store'])->name('perfil.photo.store');
+    Route::delete('/perfil/foto', [ProfilePhotoController::class, 'destroy'])->name('perfil.photo.destroy');
     Route::get('/perfil', [ProfileController::class, 'edit'])->name('perfil.index');
     Route::patch('/perfil', [ProfileController::class, 'update'])->name('perfil.update');
     Route::put('/perfil/persona', [ProfileController::class, 'updatePersona'])->name('perfil.persona.update');

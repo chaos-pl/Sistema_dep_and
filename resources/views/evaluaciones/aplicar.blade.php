@@ -33,7 +33,7 @@
 
 @push('styles')
     <style>
-        .anime-item { opacity: 0; transform: translateY(20px); }
+        .anime-item { opacity: 1; transform: translateY(20px); }
 
         /* --- HERO BANNER --- */
         .eval-hero {
@@ -196,7 +196,7 @@
         }
 
         /* Input oculto */
-        .option-input { display: none; }
+        .option-input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 
         /* Ajustes Modo Oscuro */
         body.theme-dark .question-text, body.theme-system .question-text { color: #f8fafc; }
@@ -245,7 +245,7 @@
                     </div>
                     <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
                         <a href="{{ route('evaluaciones.index') }}" class="btn glass-btn rounded-pill fw-bold px-4 py-2 shadow-sm btn-cancelar-eval">
-                            <i class="bi bi-x-circle me-1 text-danger"></i> Cancelar Evaluación
+                            <i class="bi bi-x-circle me-1 text-danger"></i> Guardar y salir
                         </a>
                     </div>
                 </div>
@@ -263,8 +263,9 @@
                     <div class="progress-bar-fill" id="progress-bar"></div>
                 </div>
 
-                <form action="{{ route('evaluaciones.responder', strtolower($instrumento->acronimo)) }}" method="POST" id="form-evaluacion">
+                <form action="{{ route('evaluaciones.responder', strtolower($instrumento->acronimo)) }}" method="POST" id="form-evaluacion" data-initial-dirty="{{ session()->hasOldInput('respuestas') ? 1 : 0 }}" data-draft-url="{{ route('questionnaires.draft', strtoupper($instrumento->acronimo)) }}">
                     @csrf
+                    @include('components.questionnaire-draft')
 
                     <div class="wizard-container" id="wizard-container">
                         @foreach($preguntas as $numero => $pregunta)
@@ -288,7 +289,7 @@
                                                 <label class="option-tile w-100" for="p{{ $numero }}_{{ $valor }}">
                                                     <input class="option-input step-radio"
                                                            type="radio"
-                                                           name="respuestas[{{ $numero }}]"
+                                                           name="respuestas[{{ $numero }}]" @checked((string) old("respuestas.$numero", $draftAnswers[$numero] ?? '') === (string) $valor)
                                                            id="p{{ $numero }}_{{ $valor }}"
                                                            value="{{ $valor }}"
                                                            data-step="{{ $loop->parent->iteration }}">
@@ -325,176 +326,3 @@
         </div>
     </div>
 @endsection
-
-@push('scripts')
-    <script src="{{ asset('js/granim.min.js') }}"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Animación de entrada inicial
-            if(typeof anime !== 'undefined') {
-                anime({ targets: '.anime-item', translateY: [30, 0], opacity: [0, 1], delay: anime.stagger(150), easing: 'easeOutExpo', duration: 1000 });
-            }
-
-            // Inicialización de Granim para el Banner
-            if (document.getElementById('granim-canvas-eval-show') && typeof Granim !== 'undefined') {
-                new Granim({
-                    element: '#granim-canvas-eval-show',
-                    direction: 'left-right',
-                    isPausedWhenNotInView: true,
-                    states : {
-                        "default-state": {
-                            gradients: [ {!! $granimPalettes !!} ],
-                            transitionSpeed: 7000
-                        }
-                    }
-                });
-            }
-
-            // Lógica del Wizard (Paso a Paso)
-            const totalSteps = {{ $totalPreguntas }};
-            let currentStep = 1;
-
-            const progressBar = document.getElementById('progress-bar');
-            const progressText = document.getElementById('progress-text');
-            const submitBtn = document.getElementById('btn-submit');
-
-            function updateProgress() {
-                const percentage = ((currentStep - 1) / totalSteps) * 100;
-                progressBar.style.width = percentage + '%';
-                progressText.textContent = currentStep;
-
-                if(currentStep > totalSteps) {
-                    progressBar.style.width = '100%';
-                    progressText.textContent = totalSteps;
-                }
-            }
-
-            function goToStep(fromStep, toStep, direction = 'forward') {
-                const fromEl = document.querySelector(`.question-step[data-step="${fromStep}"]`);
-                const toEl = document.querySelector(`.question-step[data-step="${toStep}"]`);
-
-                if (!fromEl || !toEl) return;
-
-                // Dirección de la animación
-                const translateOut = direction === 'forward' ? -80 : 80;
-                const translateIn = direction === 'forward' ? 80 : -80;
-
-                // Animación de salida más rápida
-                anime({
-                    targets: fromEl,
-                    translateX: [0, translateOut],
-                    opacity: [1, 0],
-                    duration: 350,
-                    easing: 'easeInQuad',
-                    complete: function() {
-                        fromEl.classList.remove('active');
-                        toEl.classList.add('active');
-
-                        // Animación de entrada con un leve rebote
-                        anime({
-                            targets: toEl,
-                            translateX: [translateIn, 0],
-                            opacity: [0, 1],
-                            duration: 600,
-                            easing: 'easeOutElastic(1, .8)'
-                        });
-                    }
-                });
-
-                currentStep = toStep;
-                updateProgress();
-            }
-
-            // Manejo de selección de opciones
-            document.querySelectorAll('.step-radio').forEach(radio => {
-                radio.addEventListener('change', function() {
-                    const step = parseInt(this.getAttribute('data-step'));
-
-                    // Estilo visual de la opción seleccionada
-                    const allTiles = this.closest('.row').querySelectorAll('.option-tile');
-                    allTiles.forEach(t => t.classList.remove('active'));
-                    this.closest('.option-tile').classList.add('active');
-
-                    // Pequeña animación a la tarjeta de la pregunta al responder
-                    anime({
-                        targets: this.closest('.question-card'),
-                        scale: [1.02, 1],
-                        duration: 400,
-                        easing: 'easeOutExpo'
-                    });
-
-                    // Habilitar botón "Siguiente" manual para esta pregunta
-                    const nextBtn = this.closest('.question-step').querySelector('.btn-next');
-                    if(nextBtn) {
-                        nextBtn.style.opacity = '1';
-                        nextBtn.style.pointerEvents = 'auto';
-                        // Destello para indicar que ya puede avanzar
-                        anime({ targets: nextBtn, scale: [0.9, 1.05, 1], duration: 500, easing: 'easeOutQuad' });
-                    }
-
-                    // Si es la última pregunta, mostramos el botón de enviar
-                    if (step === totalSteps) {
-                        submitBtn.classList.remove('d-none');
-                        anime({ targets: submitBtn, scale: [0.8, 1.1, 1], opacity: [0, 1], duration: 800, easing: 'easeOutElastic(1, .6)' });
-                    }
-                });
-            });
-
-            // Botones manuales Anterior
-            document.querySelectorAll('.btn-prev').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const stepEl = this.closest('.question-step');
-                    const step = parseInt(stepEl.getAttribute('data-step'));
-                    if (step > 1) {
-                        goToStep(step, step - 1, 'backward');
-                    }
-                });
-            });
-
-            // Botones manuales Siguiente
-            document.querySelectorAll('.btn-next').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const stepEl = this.closest('.question-step');
-                    const step = parseInt(stepEl.getAttribute('data-step'));
-                    if (step < totalSteps) {
-                        goToStep(step, step + 1, 'forward');
-                    }
-                });
-            });
-
-            // Inicializar progreso
-            updateProgress();
-
-            // --- ALERTA MODERNA DE SWEETALERT2 PARA CANCELAR EVALUACIÓN ---
-            document.querySelectorAll('.btn-cancelar-eval').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const urlDestino = this.getAttribute('href');
-
-                    const isDark = document.body.classList.contains('theme-dark') || document.body.classList.contains('theme-system') && window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-                    Swal.fire({
-                        title: '¿Abandonar evaluación?',
-                        text: "Perderás todo el progreso actual de este cuestionario.",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: '<i class="bi bi-box-arrow-right me-1"></i> Sí, salir',
-                        cancelButtonText: 'Continuar respondiendo',
-                        background: isDark ? '#1e293b' : '#ffffff',
-                        color: isDark ? '#f8fafc' : '#1e293b',
-                        customClass: {
-                            popup: 'rounded-4 shadow-lg border border-secondary border-opacity-10',
-                            confirmButton: 'btn btn-danger rounded-pill px-4 fw-bold shadow-sm',
-                            cancelButton: 'btn rounded-pill px-4 fw-bold ms-2 ' + (isDark ? 'btn-outline-light' : 'btn-outline-secondary')
-                        },
-                        buttonsStyling: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = urlDestino;
-                        }
-                    });
-                });
-            });
-        });
-    </script>
-@endpush

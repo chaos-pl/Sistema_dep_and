@@ -1,0 +1,19 @@
+# Plantilla Linux/systemd. Ajustar rutas, usuario y PHP antes de instalar.
+[Unit]
+Description=Procesamiento IA de PROMETEO
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/prometeo
+ExecStart=/usr/bin/php /var/www/prometeo/artisan queue:work prometeo --queue=prometeo-ia --sleep=3 --tries=3 --timeout=75 --max-time=3600
+Restart=always
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=100
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target

@@ -8,10 +8,21 @@ use App\Models\Grupo;
 use App\Models\GrupoTutor;
 use App\Models\Tutor;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use RealRashid\SweetAlert\Facades\Alert;
 
-class AsignacionController extends Controller
+class AsignacionController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:tutores.asignar_grupo', only: ['index']),
+            new Middleware('permission:tutores.asignar_grupo', only: ['store']),
+            new Middleware('permission:tutores.asignar_grupo', only: ['destroy']),
+        ];
+    }
+
     public function index()
     {
         $asignaciones = GrupoTutor::with(['grupo.carrera', 'tutor.persona', 'cicloEscolar'])
@@ -41,12 +52,14 @@ class AsignacionController extends Controller
 
         if ($exists) {
             Alert::warning('Ya existe', 'Esta asignación de tutor-grupo ya está registrada.');
+
             return redirect()->route('control_escolar.asignaciones.index');
         }
 
         GrupoTutor::create($request->only('grupo_id', 'tutor_id', 'ciclo_escolar_id'));
 
         Alert::success('Asignación creada', 'El tutor fue asignado al grupo correctamente.');
+
         return redirect()->route('control_escolar.asignaciones.index');
     }
 
@@ -55,6 +68,7 @@ class AsignacionController extends Controller
         $asignacione->delete();
 
         Alert::success('Asignación eliminada', 'La asignación fue removida correctamente.');
+
         return redirect()->route('control_escolar.asignaciones.index');
     }
 }

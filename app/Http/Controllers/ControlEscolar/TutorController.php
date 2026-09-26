@@ -7,12 +7,26 @@ use App\Models\Persona;
 use App\Models\Tutor;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
 
-class TutorController extends Controller
+class TutorController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:tutores.ver', only: ['index']),
+            new Middleware('permission:tutores.crear', only: ['create']),
+            new Middleware('permission:tutores.crear', only: ['store']),
+            new Middleware('permission:tutores.editar', only: ['edit']),
+            new Middleware('permission:tutores.editar', only: ['update']),
+            new Middleware('permission:usuarios.eliminar', only: ['destroy']),
+        ];
+    }
+
     public function index()
     {
         $tutores = Tutor::with(['persona.user'])
@@ -43,7 +57,7 @@ class TutorController extends Controller
         ]);
 
         DB::transaction(function () use ($request) {
-            $nombreCompleto = trim($request->nombre . ' ' . $request->apellido_paterno . ' ' . ($request->apellido_materno ?? ''));
+            $nombreCompleto = trim($request->nombre.' '.$request->apellido_paterno.' '.($request->apellido_materno ?? ''));
 
             $user = User::create([
                 'name' => $nombreCompleto,
@@ -70,6 +84,7 @@ class TutorController extends Controller
         });
 
         Alert::success('Tutor registrado', 'El tutor fue dado de alta correctamente.');
+
         return redirect()->route('control_escolar.tutores.index');
     }
 
@@ -88,12 +103,12 @@ class TutorController extends Controller
             'nombre' => 'required|string|max:100',
             'apellido_paterno' => 'required|string|max:100',
             'apellido_materno' => 'nullable|string|max:100',
-            'numero_empleado' => 'required|string|max:50|unique:tutores,numero_empleado,' . $tutor->id,
-            'email' => 'required|email|max:255|unique:users,email,' . $tutor->persona->user->id,
+            'numero_empleado' => 'required|string|max:50|unique:tutores,numero_empleado,'.$tutor->id,
+            'email' => 'required|email|max:255|unique:users,email,'.$tutor->persona->user->id,
         ]);
 
         DB::transaction(function () use ($request, $tutor) {
-            $nombreCompleto = trim($request->nombre . ' ' . $request->apellido_paterno . ' ' . ($request->apellido_materno ?? ''));
+            $nombreCompleto = trim($request->nombre.' '.$request->apellido_paterno.' '.($request->apellido_materno ?? ''));
 
             $tutor->persona->user->update([
                 'name' => $nombreCompleto,
@@ -112,6 +127,7 @@ class TutorController extends Controller
         });
 
         Alert::success('Tutor actualizado', 'Los datos del tutor fueron actualizados.');
+
         return redirect()->route('control_escolar.tutores.index');
     }
 
@@ -124,12 +140,14 @@ class TutorController extends Controller
 
         if ($tutor->grupos_count > 0) {
             Alert::warning('No permitido', 'No puedes dar de baja un tutor que tiene grupos asignados.');
+
             return redirect()->route('control_escolar.tutores.index');
         }
 
         $tutor->delete(); // soft-delete
 
         Alert::success('Tutor dado de baja', 'El tutor fue dado de baja del sistema.');
+
         return redirect()->route('control_escolar.tutores.index');
     }
 }

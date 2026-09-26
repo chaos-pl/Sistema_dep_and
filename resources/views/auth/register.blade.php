@@ -3,176 +3,27 @@
 @section('title', 'Registro - PROMETEO')
 
 @push('styles')
-    <style>
-        /* VARIABLES DE COLOR (Tema Morado) */
-        :root {
-            --app-primary: #7c3aed; /* Morado principal */
-            --app-primary-rgb: 124, 58, 237;
-            --app-secondary: #db2777; /* Magenta para contraste */
-            --app-surface: #ffffff;
-        }
-
-        /* Ocultamos elementos base para la animación */
-        .anime-card { opacity: 0; transform: scale(0.95); }
-        .anime-input, .anime-btn { opacity: 0; transform: translateY(20px); }
-
-        /* =========================================
-           FONDO ANIMADO LÍQUIDO (Tonos Morados)
-           ========================================= */
-        body {
-            /* Fondo oscuro base con tonos violeta oscuro */
-            background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #1e1b4b 100%);
-            background-size: 400% 400%;
-            animation: liquidBackground 15s ease infinite;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        @keyframes liquidBackground {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* Capa de plasma difuso */
-        .plasma-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1;
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        .plasma-orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(90px);
-            opacity: 0.25;
-            will-change: transform;
-        }
-
-        /* Orbe Morado brillante */
-        .orb-1 {
-            width: 550px; height: 550px;
-            background: var(--app-primary);
-            top: -150px; left: -100px;
-            animation: orbFloat1 22s infinite alternate;
-        }
-
-        /* Orbe Magenta/Rosa */
-        .orb-2 {
-            width: 450px; height: 450px;
-            background: var(--app-secondary);
-            bottom: -100px; right: -100px;
-            animation: orbFloat2 28s infinite alternate-reverse;
-        }
-
-        @keyframes orbFloat1 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(150px, 150px) scale(1.1); } }
-        @keyframes orbFloat2 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(-150px, -150px) scale(1.2); } }
-
-        /* =========================================
-           TARJETA DE REGISTRO (Glassmorphism)
-           ========================================= */
-        .auth-card {
-            background: rgba(255, 255, 255, 0.92);
-            border-radius: 2rem;
-            box-shadow: 0 40px 100px rgba(124, 58, 237, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            position: relative;
-            z-index: 2;
-        }
-
-        .icon-circle {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, var(--app-primary) 0%, #5b21b6 100%);
-            color: white;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            box-shadow: 0 10px 25px rgba(124, 58, 237, 0.4);
-            margin-bottom: 1.5rem;
-        }
-
-        /* =========================================
-           FORMULARIO
-           ========================================= */
-        .form-control, .form-select {
-            border-radius: 1rem;
-            border: 2px solid #e2e8f0;
-            padding: 0.85rem 1.2rem;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            background-color: #f8fafc;
-            color: #1e293b;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: var(--app-primary);
-            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
-            background-color: #ffffff;
-        }
-
-        .section-title {
-            color: var(--app-primary);
-            font-size: 1.1rem;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            border-bottom: 2px solid rgba(124, 58, 237, 0.1);
-            padding-bottom: 0.5rem;
-            margin-bottom: 1.5rem;
-            margin-top: 1rem;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--app-primary) 0%, #5b21b6 100%);
-            border: none;
-            border-radius: 1rem;
-            padding: 0.9rem 2rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(124, 58, 237, 0.4);
-        }
-
-        /* Estilos personalizados para el input del Modal SweetAlert */
-        .swal2-input[type="date"] {
-            border-radius: 1rem !important;
-            border: 2px solid #e2e8f0 !important;
-            padding: 0.85rem 1.2rem !important;
-            font-size: 1.1rem !important;
-            color: #1e293b !important;
-            height: auto !important;
-        }
-        .swal2-input[type="date"]:focus {
-            border-color: var(--app-primary) !important;
-            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15) !important;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/login.css') }}?v={{ filemtime(public_path('css/login.css')) }}">
 @endpush
 
 @section('content')
-    <div class="plasma-bg">
-        <div class="plasma-orb orb-1"></div>
-        <div class="plasma-orb orb-2"></div>
+    <main class="register-page">
+    <div class="login__backdrop" aria-hidden="true">
+        <span class="login__aurora login__aurora--deep"></span>
+        <span class="login__aurora login__aurora--cyan"></span>
+        <span class="login__aurora login__aurora--dawn"></span>
+        <x-auth-logo-background />
     </div>
-
-    <div class="container py-5 position-relative z-2">
-        <div class="row justify-content-center align-items-center min-vh-100">
+    <a href="{{ route('login') }}" class="login__brand register-brand">
+        <img class="login__emblem" src="{{ asset('img/logo_prometeo.png') }}" width="112" height="112" alt="">
+        <span class="login__wordmark">PROMETEO<small>Monitoreo emocional</small></span>
+    </a>
+    <div class="container pb-4 position-relative z-2">
+        <div class="row justify-content-center">
             <div class="col-xl-9 col-lg-10">
-                <div class="auth-card p-4 p-md-5 anime-card">
+                <div class="register-card p-4 p-md-5 anime-card">
 
                     <div class="text-center mb-4 anime-input">
-                        <div class="icon-circle">
-                            <i class="bi bi-person-badge fs-2"></i>
-                        </div>
                         <h2 class="fw-black text-dark mb-1">Registro de Estudiante</h2>
                         <p class="text-muted mb-0 fw-medium">Crea tu cuenta para acceder al sistema PROMETEO</p>
                     </div>
@@ -282,12 +133,13 @@
             </div>
         </div>
     </div>
+    </main>
 @endsection
 
 @push('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+
     <script>
         // Función reutilizable para alternar visibilidad en cualquier campo de contraseña
         function togglePasswordVisibility(inputId, iconId) {
@@ -297,7 +149,7 @@
             if (input.type === 'password') {
                 input.type = 'text';
                 icon.classList.replace('bi-eye', 'bi-eye-slash');
-                icon.style.color = 'var(--app-primary)'; // Se pone morado al mostrar
+                icon.style.color = 'var(--lg-brand)';
             } else {
                 input.type = 'password';
                 icon.classList.replace('bi-eye-slash', 'bi-eye');
@@ -306,38 +158,11 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Animaciones de entrada
-            anime({
-                targets: '.anime-card',
-                translateY: [40, 0],
-                scale: [0.98, 1],
-                opacity: [0, 1],
-                easing: 'easeOutExpo',
-                duration: 1200
-            });
-
-            anime({
-                targets: '.anime-input',
-                translateY: [20, 0],
-                opacity: [0, 1],
-                delay: anime.stagger(60, {start: 300}), // Efecto cascada rápido
-                easing: 'easeOutQuad',
-                duration: 800
-            });
-
-            anime({
-                targets: '.anime-btn',
-                translateY: [15, 0],
-                opacity: [0, 1],
-                delay: 1100,
-                easing: 'easeOutQuad'
-            });
-
             // ==============================================================
             // LÓGICA DE SWEETALERT2 PARA LA FECHA DE NACIMIENTO
             // ==============================================================
             const fechaInput = document.getElementById('fechaNacimientoInput');
-            
+
             fechaInput.addEventListener('click', function() {
                 // Obtenemos la fecha de hoy en formato YYYY-MM-DD para limitar el input
                 const today = new Date().toISOString().split('T')[0];
@@ -352,10 +177,10 @@
                     showCancelButton: true,
                     confirmButtonText: '<i class="bi bi-calendar-check me-1"></i> Aceptar',
                     cancelButtonText: 'Cancelar',
-                    confirmButtonColor: '#7c3aed',
+                    confirmButtonColor: '#036b9b',
                     customClass: {
                         popup: 'rounded-4 shadow-lg',
-                        confirmButton: 'btn rounded-pill px-4 fw-bold shadow-sm',
+                        confirmButton: 'btn btn-primary rounded-pill px-4 fw-bold shadow-sm',
                         cancelButton: 'btn btn-light rounded-pill px-4 fw-bold shadow-sm'
                     },
                     buttonsStyling: false,

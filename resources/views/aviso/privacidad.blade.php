@@ -4,8 +4,8 @@
 
 @push('styles')
     <style>
-        .anime-icon { opacity: 0; transform: scale(0.5); }
-        .anime-content { opacity: 0; }
+        .anime-icon { opacity: 1; transform: scale(0.5); }
+        .anime-content { opacity: 1; }
     </style>
 @endpush
 

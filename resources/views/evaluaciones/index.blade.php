@@ -33,7 +33,7 @@
 
 @push('styles')
     <style>
-        .anime-item { opacity: 0; transform: translateY(20px); }
+        .anime-item { opacity: 1; transform: translateY(20px); }
 
         .eval-hero {
             position: relative;
@@ -118,6 +118,18 @@
 @endpush
 
 @section('content')
+@if($borradores->isNotEmpty())
+<section class="tm-panel tm-body mb-4" aria-label="Cuestionarios en borrador">
+    <h2 class="h5">Continúa tus cuestionarios</h2>
+    <p class="text-body-secondary">Los borradores no cuentan como evaluaciones completadas. Revisa tus respuestas antes de enviarlas.</p>
+    <div class="d-flex flex-wrap gap-2">
+    @foreach($borradores as $borrador)
+        <a class="btn btn-outline-primary" href="{{ $borrador->instrument === 'DASS21' ? route('dass21.create') : route('evaluaciones.aplicar', strtolower($borrador->instrument)) }}">Continuar {{ $borrador->instrument }} · {{ count($borrador->answers) }} respuestas</a>
+    @endforeach
+    </div>
+</section>
+@endif
+
     @php
         $totalInstrumentos = $instrumentosDashboard->count();
         $totalCompletadas = $instrumentosDashboard->where('estado', 'completada')->count();
@@ -309,7 +321,7 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/granim.min.js') }}"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if(typeof anime !== 'undefined') {

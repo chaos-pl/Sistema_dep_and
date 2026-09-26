@@ -14,6 +14,7 @@ class StoreEvaluacionRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'draft_version' => ['nullable', 'integer', 'min:0'],
             'respuestas' => ['required', 'array'],
             'respuestas.*' => ['required', 'integer', 'min:0', 'max:3'],
         ];

@@ -1,452 +1,106 @@
 @extends('layouts.guest')
-
-@section('title', 'Iniciar sesión - PROMETEO')
+@section('title', 'Iniciar sesión | PROMETEO')
 
 @push('styles')
-    <style>
-        /* VARIABLES DE COLOR (Tema Morado) */
-        :root {
-            --app-primary: #7c3aed; /* Morado principal */
-            --app-primary-rgb: 124, 58, 237;
-            --app-secondary: #db2777; /* Magenta */
-            --app-surface: #ffffff;
-        }
-
-        /* Ocultamos elementos base para la animación */
-        .anime-form-item, .anime-left-text {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        /* Contenedor principal (Glassmorphism sutil) */
-        .login-card {
-            background: rgba(255, 255, 255, 0.92);
-            border-radius: 2.5rem;
-            box-shadow: 0 40px 100px rgba(124, 58, 237, 0.25);
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.4);
-            backdrop-filter: blur(12px);
-            z-index: 10;
-            position: relative;
-        }
-
-        /* =========================================
-           1. FONDO ANIMADO DE GRADIENTE LÍQUIDO
-           ========================================= */
-        body {
-            background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #1e1b4b 100%);
-            background-size: 400% 400%;
-            animation: liquidBackground 15s ease infinite;
-            overflow-x: hidden;
-        }
-
-        @keyframes liquidBackground {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* Capa de plasma difuso (Morado y Magenta) */
-        .plasma-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1;
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        .plasma-orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(90px);
-            opacity: 0.25;
-            will-change: transform;
-        }
-
-        .orb-1 {
-            width: 550px; height: 550px;
-            background: var(--app-primary);
-            top: -100px; left: -100px;
-            animation: orbFloat1 22s infinite alternate;
-        }
-
-        .orb-2 {
-            width: 450px; height: 450px;
-            background: var(--app-secondary);
-            bottom: -100px; right: -100px;
-            animation: orbFloat2 28s infinite alternate-reverse;
-        }
-
-        @keyframes orbFloat1 { 0% { transform: translate(0, 0); } 100% { transform: translate(150px, 150px); } }
-        @keyframes orbFloat2 { 0% { transform: translate(0, 0); } 100% { transform: translate(-150px, -150px); } }
-
-        /* =========================================
-           PANEL IZQUIERDO Y LOGO
-           ========================================= */
-        .login-sidebar {
-            background: linear-gradient(135deg, rgba(30, 27, 75, 0.8) 0%, rgba(124, 58, 237, 0.8) 100%);
-            color: #ffffff;
-            padding: 3rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-
-        .logo-wrapper {
-            position: relative;
-            margin-bottom: 1.5rem;
-            animation: logoFloat 6s infinite ease-in-out;
-            opacity: 0;
-            display: flex;
-            justify-content: center;
-        }
-
-        @keyframes logoFloat {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-
-        .logo-container {
-            width: 120px;
-            height: 120px;
-            border-radius: 2rem;
-            overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            border: 3px solid rgba(255,255,255,0.1);
-            position: relative;
-            z-index: 2;
-            background: white;
-        }
-
-        .logo-container img { width: 100%; height: 100%; object-fit: cover; }
-
-        .logo-particle {
-            position: absolute; width: 6px; height: 6px; border-radius: 50%; pointer-events: none; opacity: 0; z-index: 1;
-        }
-
-        /* =========================================
-           TEXTO PROMETEO (Neón Morado/Magenta)
-           ========================================= */
-        .prometeo-logo-container {
-            display: flex;
-            gap: 0.15rem;
-            margin-bottom: 0.5rem;
-            justify-content: center;
-            width: 100%;
-        }
-
-        .neon-tube {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 3.5rem;
-            font-weight: 900;
-            color: #ffffff;
-            opacity: 0;
-            filter: blur(12px);
-            transform: translateY(40px) scale(0.8);
-            will-change: transform, opacity, filter, text-shadow;
-            display: inline-block;
-        }
-
-        .neon-steady .neon-tube { animation: etherealBreathe 4s infinite alternate ease-in-out; }
-
-        @keyframes etherealBreathe {
-            0% { text-shadow: 0 0 10px rgba(255,255,255,0.3), 0 0 20px rgba(124, 58, 237, 0.4); }
-        100= { text-shadow: 0 0 15px rgba(255,255,255,0.8), 0 0 35px rgba(219, 39, 119, 0.6); }
-        }
-
-        /* =========================================
-           TEXTO DESCRIPTIVO (Kinetic Typography 3D)
-           ========================================= */
-        .siglas-container {
-            font-family: 'Montserrat', sans-serif;
-            /* 🔴 CORRECCIÓN AQUÍ: Fuente más gruesa (800) y más grande (1.4rem) */
-            font-size: 1.4rem;
-            font-weight: 800;
-            /* 🔴 CORRECCIÓN AQUÍ: Color blanco brillante puro */
-            color: #ffffff;
-            margin-bottom: 3rem;
-            line-height: 1.6;
-            width: 100%;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            text-align: center;
-            perspective: 1000px;
-        }
-
-        .sigla-word {
-            display: inline-flex;
-            margin-right: 4px;
-        }
-
-        .sigla-letter {
-            opacity: 0;
-            display: inline-block;
-            transform-origin: center center;
-            will-change: transform, opacity, filter, color;
-            /* 🔴 CORRECCIÓN AQUÍ: Resplandor blanco sutil y uniforme en todas las letras */
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-        }
-
-        /* 🔴 SE ELIMINÓ: Clase highlight-sigla y animación siglaPulse para asegurar uniformidad */
-
-        /* Lista de características centrada */
-        .features-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            align-items: flex-start;
-            margin: 0 auto;
-            width: fit-content;
-        }
-
-        /* =========================================
-           FORMULARIO
-           ========================================= */
-        .form-control-lg {
-            border-radius: 1.25rem;
-            border: 2px solid #e5e7eb;
-            padding: 1.1rem 1.4rem;
-            font-size: 1rem;
-            transition: all 0.2s;
-        }
-
-        .form-control-lg:focus {
-            border-color: var(--app-primary);
-            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
-        }
-
-        .btn-lg {
-            border-radius: 1.25rem;
-            padding: 1.1rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            background: linear-gradient(135deg, var(--app-primary) 0%, #5b21b6 100%);
-            border: none;
-            color: white;
-            transition: all 0.3s ease;
-        }
-
-        .btn-lg:hover {
-            box-shadow: 0 10px 25px rgba(124, 58, 237, 0.4);
-            transform: translateY(-2px);
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/login.css') }}?v={{ filemtime(public_path('css/login.css')) }}">
 @endpush
 
 @section('content')
-    <div class="plasma-bg">
-        <div class="plasma-orb orb-1"></div>
-        <div class="plasma-orb orb-2"></div>
-    </div>
+    <main class="login" data-login-scene>
 
-    <div class="container py-5 mt-5 position-relative z-2">
-        <div class="row justify-content-center align-items-center min-vh-100">
-            <div class="col-xl-10 col-lg-11">
-                <div class="row g-0 login-card shadow-lg">
+        {{-- Atmósfera con los azules, turquesas y ámbar del logo original. --}}
+        <div class="login__backdrop" aria-hidden="true">
+            <x-auth-logo-background />
+            <span class="login__aurora login__aurora--deep"></span>
+            <span class="login__aurora login__aurora--cyan"></span>
+            <span class="login__aurora login__aurora--dawn"></span>
 
-                    <div class="col-lg-6 login-sidebar d-none d-lg-flex">
-                        <div class="w-100 position-relative z-1 d-flex flex-column align-items-center">
 
-                            <div class="logo-wrapper" id="logo-wrapper">
-                                <div class="logo-container">
-                                    <img src="{{ asset('img/logo_prometeo.png') }}" alt="Logo Prometeo">
-                                </div>
-                            </div>
-
-                            <div id="prometeo-logo" class="prometeo-logo-container">
-                                <span class="neon-tube">P</span>
-                                <span class="neon-tube">R</span>
-                                <span class="neon-tube">O</span>
-                                <span class="neon-tube">M</span>
-                                <span class="neon-tube">E</span>
-                                <span class="neon-tube">T</span>
-                                <span class="neon-tube">E</span>
-                                <span class="neon-tube">O</span>
-                            </div>
-
-                            <div class="siglas-container" id="siglas-text"></div>
-
-                            <div class="anime-left-text opacity-75 mt-2 fw-medium w-100">
-                                <div class="features-list">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="bg-white bg-opacity-10 p-2 rounded-3 text-info"><i class="bi bi-shield-check fs-5"></i></div>
-                                        <span>Entorno confidencial y seguro</span>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="bg-white bg-opacity-10 p-2 rounded-3 text-warning"><i class="bi bi-robot fs-5"></i></div>
-                                        <span>Detección oportuna con IA</span>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="bg-white bg-opacity-10 p-2 rounded-3 text-danger"><i class="bi bi-heart-pulse fs-5"></i></div>
-                                        <span>Enfoque en tu bienestar emocional</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-6 p-5 bg-white d-flex flex-column justify-content-center">
-                        <div class="text-center mb-5 anime-form-item">
-                            <h2 class="fw-black text-dark fs-1">Iniciar sesión</h2>
-                            <p class="text-muted">Accede a tu cuenta de forma segura</p>
-                        </div>
-
-                        <form method="POST" action="{{ route('login') }}">
-                            @csrf
-                            <div class="mb-4 anime-form-item">
-                                <label class="form-label fw-bold text-secondary">Correo electrónico</label>
-                                <input type="email" name="email" value="{{ old('email') }}" class="form-control form-control-lg bg-light" required autofocus placeholder="tu@correo.com">
-                                @error('email')<small class="text-danger mt-2 d-block fw-bold"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</small>@enderror
-                            </div>
-                            <div class="mb-4 anime-form-item">
-                                <label class="form-label fw-bold text-secondary">Contraseña</label>
-                                <div class="position-relative">
-                                    <input type="password" name="password" id="password" class="form-control form-control-lg bg-light pe-5" required placeholder="Tu contraseña">
-                                    <button type="button" class="btn position-absolute end-0 top-50 translate-middle-y text-muted border-0 bg-transparent me-2" onclick="togglePassword()"><i class="bi bi-eye" id="togglePasswordIcon"></i></button>
-                                </div>
-                                @error('password')<small class="text-danger mt-2 d-block fw-bold"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</small>@enderror
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-2 anime-form-item">
-                                <div class="form-check">
-                                    <input class="form-check-input shadow-none" type="checkbox" name="remember" id="remember_me">
-                                    <label class="form-check-label text-secondary fw-medium" for="remember_me">Recordarme</label>
-                                </div>
-                                @if(Route::has('password.request'))<a href="{{ route('password.request') }}" style="color: var(--app-primary);" class="text-decoration-none fw-bold">¿Olvidaste tu contraseña?</a>@endif
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-lg w-100 anime-form-item text-white"><i class="bi bi-box-arrow-in-right me-2"></i>Entrar a PROMETEO</button>
-                        </form>
-                        <div class="text-center mt-5 anime-form-item">
-                            <p class="text-muted">¿Aún no tienes cuenta? <a href="{{ route('register') }}" style="color: var(--app-primary);" class="fw-black text-decoration-none ms-1">Regístrate aquí</a></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
-    </div>
+
+        <div class="login__grid">
+
+            <section class="login__story" aria-labelledby="welcome-title">
+                <a href="{{ url('/') }}" class="login__brand login-anim" data-anim="brand">
+                    <img class="login__emblem" src="{{ asset('img/logo_prometeo.png') }}" width="112" height="112" alt="">
+                    <span class="login__wordmark">PROMETEO<small>Monitoreo emocional</small></span>
+                </a>
+
+                <div class="login__copy">
+                    <h1 id="welcome-title" class="login-anim" data-anim="title">Tu bienestar merece<br>un espacio propio.</h1>
+
+                    <p class="login__purpose login-anim" data-anim="purpose">Sistema web para la detección oportuna de depresión y ansiedad estudiantil</p>
+
+                    <p class="login__lead login-anim" data-anim="lead">Reconoce cómo te sientes, observa tu evolución durante el semestre y encuentra acompañamiento dentro de tu comunidad universitaria.</p>
+
+                    <ul class="login__pills login-anim" data-anim="pills">
+                        <li>Tamizajes y seguimiento</li>
+                        <li>Acompañamiento tutorial</li>
+                        <li>Atención psicológica</li>
+                    </ul>
+                </div>
+
+                <p class="login__note login-anim" data-anim="note">PROMETEO acompaña y detecta a tiempo. No sustituye la atención profesional.</p>
+            </section>
+
+            <section class="login__access" aria-labelledby="login-heading">
+                <div class="login-card login__card login-anim" data-anim="card">
+
+                    <div class="login__card-head">
+                        <h2 id="login-heading">Inicia sesión</h2>
+                        <p class="login__muted">Ingresa a tu espacio en PROMETEO.</p>
+                    </div>
+
+                    @if(session('status'))
+                        <div class="login__status" role="status">{{ session('status') }}</div>
+                    @endif
+
+                    @if($errors->any())
+                        <div class="login__errors" role="alert" id="login-errors">
+                            <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+                            <div>
+                                @foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('login') }}" data-login-form>
+                        @csrf
+
+                        <div class="login__field login-anim" data-anim="row">
+                            <label for="email">Correo electrónico</label>
+                            <input id="email" name="email" type="email" value="{{ old('email') }}" autocomplete="username" inputmode="email" spellcheck="false" required autofocus placeholder="tu@correo.com" @if($errors->has('email')) aria-invalid="true" aria-describedby="login-errors" @endif>
+                        </div>
+
+                        <div class="login__field login-anim" data-anim="row">
+                            <label for="password">Contraseña</label>
+                            <div class="login__password">
+                                <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Tu contraseña" @if($errors->has('password')) aria-invalid="true" aria-describedby="login-errors" @endif>
+                                <button type="button" class="login__toggle" data-toggle-password aria-controls="password" aria-pressed="false">Mostrar</button>
+                            </div>
+                        </div>
+
+                        <div class="login__options login-anim" data-anim="row">
+                            <label class="login__remember">
+                                <input type="checkbox" name="remember" @checked(old('remember'))>
+                                <span class="login__box" aria-hidden="true"></span>
+                                <span>Recordarme</span>
+                            </label>
+                            @if(Route::has('password.request'))
+                                <a class="login__quiet" href="{{ route('password.request') }}">Recuperar contraseña</a>
+                            @endif
+                        </div>
+
+                        <button type="submit" class="login-submit login__submit login-anim" data-anim="row">Iniciar sesión</button>
+                    </form>
+
+                    @if(Route::has('register'))
+                        <p class="login__register login-anim" data-anim="row">¿Es tu primera visita? <a href="{{ route('register') }}">Crear cuenta</a></p>
+                    @endif
+
+                    <p class="login__footnote login-anim" data-anim="row">Un paso a la vez. Estamos para acompañarte.</p>
+                </div>
+            </section>
+        </div>
+    </main>
 @endsection
-
-@push('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-    <script>
-        function togglePassword() {
-            const password = document.getElementById('password');
-            const icon = document.getElementById('togglePasswordIcon');
-            if (password.type === 'password') {
-                password.type = 'text';
-                icon.classList.replace('bi-eye', 'bi-eye-slash');
-                icon.style.color = 'var(--app-primary)';
-            } else {
-                password.type = 'password';
-                icon.classList.replace('bi-eye-slash', 'bi-eye');
-                icon.style.color = '';
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-
-            const textoOriginal = "Sistema web para la detección oportuna de depresión y ansiedad estudiantil mediante herramientas de tamizaje.";
-            const textContainer = document.getElementById('siglas-text');
-
-            const words = textoOriginal.split(' ');
-            textContainer.innerHTML = words.map(word => {
-                /* 🔴 CORRECCIÓN AQUÍ: Se eliminó la lógica condicional ([A-Z]). Ahora todas las letras son iguales. */
-                return `<span class="sigla-word">${word.split('').map(char => `<span class="sigla-letter">${char}</span>`).join('')}</span>`;
-            }).join(' ');
-
-            const tl = anime.timeline({ easing: 'easeOutExpo' });
-
-            tl.add({
-                targets: '.logo-wrapper',
-                scale: [0.8, 1],
-                opacity: [0, 1],
-                filter: ['brightness(1.5)', 'brightness(1)'],
-                duration: 600,
-            }, 0)
-                .add({
-                    targets: '.neon-tube',
-                    translateY: [20, 0],
-                    opacity: [0, 1],
-                    filter: ['blur(5px)', 'blur(0px)'],
-                    color: ['#c084fc', '#ffffff'],
-                    textShadow: [
-                        '0 0 0px rgba(124, 58, 237, 0)',
-                        '0 0 15px rgba(219, 39, 119, 0.8)',
-                        '0 0 5px rgba(124, 58, 237, 0.4)'
-                    ],
-                    duration: 600,
-                    delay: anime.stagger(30),
-                    complete: function() {
-                        document.getElementById('prometeo-logo').classList.add('neon-steady');
-                    }
-                }, 100)
-                // ==============================================================
-                // ANIMACIÓN TEXTO UNIFORME Y BRILLANTE
-                // ==============================================================
-                .add({
-                    targets: '.sigla-letter',
-                    opacity: [0, 1],
-                    translateY: [30, 0],
-                    scale: [2, 1],
-                    rotateX: [-90, 0],
-                    filter: ['blur(15px)', 'blur(0px)'],
-                    /* 🔴 SE ELIMINÓ: Color condicional. Ahora todas las letras aparecen en blanco brillante. */
-                    duration: 900,
-                    delay: anime.stagger(15, {start: 100}),
-                    easing: 'easeOutCubic',
-                }, '-=300')
-                // ==============================================================
-                .add({
-                    targets: '.anime-left-text',
-                    translateY: [15, 0],
-                    opacity: [0, 1],
-                    duration: 500,
-                    delay: anime.stagger(50),
-                }, '-=200')
-                .add({
-                    targets: '.anime-form-item',
-                    translateY: [15, 0],
-                    opacity: [0, 1],
-                    duration: 500,
-                    delay: anime.stagger(50),
-                }, '-=400');
-
-            // Partículas actualizadas a Morado y Magenta
-            const logoWrapper = document.getElementById('logo-wrapper');
-            const colors = ['#7c3aed', '#db2777', '#a855f7'];
-
-            function createParticle() {
-                const particle = document.createElement('div');
-                particle.classList.add('logo-particle');
-                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-                particle.style.left = '50%';
-                particle.style.top = '50%';
-                logoWrapper.appendChild(particle);
-
-                const angle = Math.random() * Math.PI * 2;
-                const radius = 50 + Math.random() * 80;
-
-                anime({
-                    targets: particle,
-                    translateX: [0, Math.cos(angle) * radius],
-                    translateY: [0, Math.sin(angle) * radius],
-                    opacity: [0, 0.8, 0],
-                    scale: [0, 1, 0.5],
-                    easing: 'easeOutCubic',
-                    duration: 2000 + Math.random() * 1000,
-                    complete: function() {
-                        particle.remove();
-                    }
-                });
-            }
-
-            tl.finished.then(() => {
-                for(let i=0; i<30; i++) { setTimeout(createParticle, i * 20); }
-                setInterval(createParticle, 500);
-            });
-        });
-    </script>
-@endpush

@@ -7,33 +7,12 @@
 @php
     $userAccentColor = auth()->user()->appearance_settings['accent_color'] ?? 'purple';
 
-    $granimPalettes = match($userAccentColor) {
-        'blue' => "
-            [ { color: '#1e3a8a', pos: 0 }, { color: '#2563eb', pos: .5 }, { color: '#93c5fd', pos: 1 } ],
-            [ { color: '#2563eb', pos: 0 }, { color: '#0284c7', pos: .5 }, { color: '#38bdf8', pos: 1 } ],
-            [ { color: '#0f172a', pos: 0 }, { color: '#1d4ed8', pos: .5 }, { color: '#3b82f6', pos: 1 } ]
-        ",
-        'green' => "
-            [ { color: '#064e3b', pos: 0 }, { color: '#059669', pos: .5 }, { color: '#6ee7b7', pos: 1 } ],
-            [ { color: '#059669', pos: 0 }, { color: '#0d9488', pos: .5 }, { color: '#2dd4bf', pos: 1 } ],
-            [ { color: '#022c22', pos: 0 }, { color: '#047857', pos: .5 }, { color: '#10b981', pos: 1 } ]
-        ",
-        'pink' => "
-            [ { color: '#831843', pos: 0 }, { color: '#db2777', pos: .5 }, { color: '#f9a8d4', pos: 1 } ],
-            [ { color: '#db2777', pos: 0 }, { color: '#e11d48', pos: .5 }, { color: '#f43f5e', pos: 1 } ],
-            [ { color: '#4c0519', pos: 0 }, { color: '#be185d', pos: .5 }, { color: '#ec4899', pos: 1 } ]
-        ",
-        default => "
-            [ { color: '#4c1d95', pos: 0 }, { color: '#7c3aed', pos: .5 }, { color: '#a78bfa', pos: 1 } ],
-            [ { color: '#7c3aed', pos: 0 }, { color: '#c026d3', pos: .5 }, { color: '#db2777', pos: 1 } ],
-            [ { color: '#1e1b4b', pos: 0 }, { color: '#6d28d9', pos: .5 }, { color: '#8b5cf6', pos: 1 } ]
-        "
-    };
+
 @endphp
 
 @push('styles')
     <style>
-        .anime-item { opacity: 0; transform: translateY(20px); }
+        .anime-item { opacity: 1; transform: translateY(20px); }
 
         .hover-elevate { transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease; }
         .hover-elevate:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,0.08) !important; border-color: var(--app-primary-soft) !important; }
@@ -204,14 +183,14 @@
 
     <div class="row g-4">
         <div class="col-12 anime-item">
-            <div class="app-card bg-profile-banner p-4 p-md-5 rounded-4 border-0 shadow-lg text-white">
+            <div class="app-card accent-gradient granim-surface bg-profile-banner p-4 p-md-5 rounded-4 border-0 shadow-lg text-white">
 
-                <canvas id="granim-canvas-profile"></canvas>
+                <canvas id="granim-canvas-profile" class="granim-canvas" data-prometeo-granim aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;z-index:0;"></canvas>
 
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4 profile-banner-content">
                     <div class="d-flex align-items-center gap-4">
                         <div class="profile-avatar-large anime-avatar">
-                            <i class="{{ config('appearance.avatar_icons')[$user->avatar_icon ?? 'person-circle']['class'] ?? 'bi bi-person-circle' }}"></i>
+                            <x-profile-avatar :user="$user" />
                         </div>
                         <div>
                             <h1 class="fw-black mb-1 text-white" style="font-size: 2.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">{{ $user->name }}</h1>
@@ -289,7 +268,7 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/granim.min.js') }}"></script>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -298,21 +277,7 @@
                 anime({ targets: '.anime-avatar', scale: [1, 1.05, 1], opacity: [0.8, 1, 0.8], duration: 4000, loop: true, easing: 'easeInOutSine' });
             }
 
-            if (document.getElementById('granim-canvas-profile') && typeof Granim !== 'undefined') {
-                var granimInstance = new Granim({
-                    element: '#granim-canvas-profile',
-                    direction: 'left-right',
-                    isPausedWhenNotInView: true,
-                    states : {
-                        "default-state": {
-                            gradients: [
-                                {!! $granimPalettes !!}
-                            ],
-                            transitionSpeed: 7000
-                        }
-                    }
-                });
-            }
+
         });
     </script>
 @endpush

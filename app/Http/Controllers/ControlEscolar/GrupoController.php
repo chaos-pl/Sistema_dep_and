@@ -8,10 +8,23 @@ use App\Models\CicloEscolar;
 use App\Models\Grupo;
 use App\Models\Tutor;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use RealRashid\SweetAlert\Facades\Alert;
 
-class GrupoController extends Controller
+class GrupoController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:grupos.ver', only: ['index']),
+            new Middleware('permission:grupos.ver', only: ['show']),
+            new Middleware('permission:grupos.crear', only: ['store']),
+            new Middleware('permission:grupos.editar', only: ['update']),
+            new Middleware('permission:grupos.eliminar', only: ['destroy']),
+        ];
+    }
+
     public function index()
     {
         $grupos = Grupo::with(['carrera', 'tutor.persona', 'cicloEscolar'])

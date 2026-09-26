@@ -20,58 +20,12 @@
             ? array_merge($defaultAppearance, $authUser->appearance_settings ?? [])
             : $defaultAppearance;
 
-        $accentMap = [
-            'purple' => [
-                'primary' => '#7c3aed',
-                'primary_dark' => '#6d28d9',
-                'primary_soft' => '#ede9fe',
-                'sidebar_start' => '#2e1065',
-                'sidebar_end' => '#7c3aed',
-            ],
-            'blue' => [
-                'primary' => '#2563eb',
-                'primary_dark' => '#1d4ed8',
-                'primary_soft' => '#dbeafe',
-                'sidebar_start' => '#1e3a8a',
-                'sidebar_end' => '#2563eb',
-            ],
-            'green' => [
-                'primary' => '#059669',
-                'primary_dark' => '#047857',
-                'primary_soft' => '#d1fae5',
-                'sidebar_start' => '#064e3b',
-                'sidebar_end' => '#059669',
-            ],
-            'pink' => [
-                'primary' => '#db2777',
-                'primary_dark' => '#be185d',
-                'primary_soft' => '#fce7f3',
-                'sidebar_start' => '#831843',
-                'sidebar_end' => '#db2777',
-            ],
-        ];
+        $accentMap = config('appearance.palettes');
 
         $accent = $accentMap[$appearance['accent_color'] ?? 'purple'] ?? $accentMap['purple'];
 
         // PALETAS DE COLORES PROFUNDOS PARA LA ANIMACIÓN DEL SIDEBAR
-        $sidebarPalettes = match($appearance['accent_color'] ?? 'purple') {
-            'blue' => "
-                [ { color: '#0f172a', pos: 0 }, { color: '#1e3a8a', pos: .5 }, { color: '#2563eb', pos: 1 } ],
-                [ { color: '#172554', pos: 0 }, { color: '#1d4ed8', pos: .5 }, { color: '#1e3a8a', pos: 1 } ]
-            ",
-            'green' => "
-                [ { color: '#022c22', pos: 0 }, { color: '#064e3b', pos: .5 }, { color: '#059669', pos: 1 } ],
-                [ { color: '#022c22', pos: 0 }, { color: '#047857', pos: .5 }, { color: '#064e3b', pos: 1 } ]
-            ",
-            'pink' => "
-                [ { color: '#4c0519', pos: 0 }, { color: '#831843', pos: .5 }, { color: '#db2777', pos: 1 } ],
-                [ { color: '#4c0519', pos: 0 }, { color: '#be185d', pos: .5 }, { color: '#831843', pos: 1 } ]
-            ",
-            default => "
-                [ { color: '#1e1b4b', pos: 0 }, { color: '#2e1065', pos: .5 }, { color: '#7c3aed', pos: 1 } ],
-                [ { color: '#2e1065', pos: 0 }, { color: '#4c1d95', pos: .5 }, { color: '#5b21b6', pos: 1 } ]
-            " // Morado oscuro (Purple)
-        };
+
 
         $themeClass = match($appearance['theme'] ?? 'light') {
             'dark' => 'theme-dark',
@@ -134,76 +88,69 @@
         .app-shell{ min-height: 100vh; display: flex; }
 
         /* 3. TEMA OSCURO Y SISTEMA */
-        body.theme-dark, body.theme-system {
+        body.theme-dark, body.theme-system.system-dark {
             --app-bg: #0f172a; --app-surface: #111827; --app-text: #e5e7eb; --app-muted: #94a3b8; --app-border: #1f2937;
         }
-        body.theme-dark .topbar, body.theme-system .topbar { background: rgba(17, 24, 39, 0.88); border-bottom: 1px solid rgba(31, 41, 55, 0.9); }
-        body.theme-dark .app-card, body.theme-system .app-card { background: var(--app-surface); color: var(--app-text); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20); }
+        body.theme-dark .topbar, body.theme-system.system-dark .topbar { background: rgba(17, 24, 39, 0.88); border-bottom: 1px solid rgba(31, 41, 55, 0.9); }
+        body.theme-dark .app-card, body.theme-system.system-dark .app-card { background: var(--app-surface); color: var(--app-text); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.20); }
 
         /* Ajuste de contraste para textos globales en modo oscuro */
-        body.theme-dark .text-body-secondary, body.theme-system .text-body-secondary { color: #94a3b8 !important; }
-        body.theme-dark .text-body, body.theme-system .text-body { color: #f8fafc !important; }
+        body.theme-dark .text-body-secondary, body.theme-system.system-dark .text-body-secondary { color: #94a3b8 !important; }
+        body.theme-dark .text-body, body.theme-system.system-dark .text-body { color: #f8fafc !important; }
 
         /* Ajuste de contraste para centros de alertas y avisos en modo oscuro */
-        body.theme-dark .alert-warning, body.theme-system .alert-warning { background-color: rgba(245, 158, 11, 0.15) !important; color: #fcd34d !important; border-color: rgba(245, 158, 11, 0.3) !important; }
-        body.theme-dark .alert-info, body.theme-system .alert-info { background-color: rgba(56, 189, 248, 0.15) !important; color: #7dd3fc !important; border-color: rgba(56, 189, 248, 0.3) !important; }
-        body.theme-dark .alert-danger, body.theme-system .alert-danger { background-color: rgba(239, 68, 68, 0.15) !important; color: #fca5a5 !important; border-color: rgba(239, 68, 68, 0.3) !important; }
-        body.theme-dark .alert-success, body.theme-system .alert-success { background-color: rgba(34, 197, 94, 0.15) !important; color: #86efac !important; border-color: rgba(34, 197, 94, 0.3) !important; }
+        body.theme-dark .alert-warning, body.theme-system.system-dark .alert-warning { background-color: rgba(245, 158, 11, 0.15) !important; color: #fcd34d !important; border-color: rgba(245, 158, 11, 0.3) !important; }
+        body.theme-dark .alert-info, body.theme-system.system-dark .alert-info { background-color: rgba(56, 189, 248, 0.15) !important; color: #7dd3fc !important; border-color: rgba(56, 189, 248, 0.3) !important; }
+        body.theme-dark .alert-danger, body.theme-system.system-dark .alert-danger { background-color: rgba(239, 68, 68, 0.15) !important; color: #fca5a5 !important; border-color: rgba(239, 68, 68, 0.3) !important; }
+        body.theme-dark .alert-success, body.theme-system.system-dark .alert-success { background-color: rgba(34, 197, 94, 0.15) !important; color: #86efac !important; border-color: rgba(34, 197, 94, 0.3) !important; }
 
         /* Ajuste de íconos/widgets con opacidad en los dashboards para no verse opacados */
-        body.theme-dark .bg-primary.bg-opacity-10, body.theme-system .bg-primary.bg-opacity-10 { background-color: rgba(96, 165, 250, 0.15) !important; }
-        body.theme-dark .bg-success.bg-opacity-10, body.theme-system .bg-success.bg-opacity-10 { background-color: rgba(52, 211, 153, 0.15) !important; }
-        body.theme-dark .bg-info.bg-opacity-10, body.theme-system .bg-info.bg-opacity-10 { background-color: rgba(56, 189, 248, 0.15) !important; }
-        body.theme-dark .bg-warning.bg-opacity-10, body.theme-system .bg-warning.bg-opacity-10 { background-color: rgba(251, 191, 36, 0.15) !important; }
-        body.theme-dark .bg-danger.bg-opacity-10, body.theme-system .bg-danger.bg-opacity-10 { background-color: rgba(248, 113, 113, 0.15) !important; }
+        body.theme-dark .bg-primary.bg-opacity-10, body.theme-system.system-dark .bg-primary.bg-opacity-10 { background-color: rgba(96, 165, 250, 0.15) !important; }
+        body.theme-dark .bg-success.bg-opacity-10, body.theme-system.system-dark .bg-success.bg-opacity-10 { background-color: rgba(52, 211, 153, 0.15) !important; }
+        body.theme-dark .bg-info.bg-opacity-10, body.theme-system.system-dark .bg-info.bg-opacity-10 { background-color: rgba(56, 189, 248, 0.15) !important; }
+        body.theme-dark .bg-warning.bg-opacity-10, body.theme-system.system-dark .bg-warning.bg-opacity-10 { background-color: rgba(251, 191, 36, 0.15) !important; }
+        body.theme-dark .bg-danger.bg-opacity-10, body.theme-system.system-dark .bg-danger.bg-opacity-10 { background-color: rgba(248, 113, 113, 0.15) !important; }
 
-        body.theme-dark .text-primary, body.theme-system .text-primary { color: #60a5fa !important; }
-        body.theme-dark .text-success, body.theme-system .text-success { color: #34d399 !important; }
-        body.theme-dark .text-info, body.theme-system .text-info { color: #38bdf8 !important; }
-        body.theme-dark .text-warning, body.theme-system .text-warning { color: #fbbf24 !important; }
-        body.theme-dark .text-danger, body.theme-system .text-danger { color: #f87171 !important; }
-        body.theme-dark .text-dark, body.theme-dark .text-body, body.theme-system .text-dark, body.theme-system .text-body { color: #f8fafc !important; }
-        body.theme-dark .text-secondary, body.theme-system .text-secondary { color: #cbd5e1 !important; }
-        body.theme-dark .text-muted, body.theme-dark .text-body-secondary, body.theme-system .text-muted, body.theme-system .text-body-secondary { color: #94a3b8 !important; }
-        body.theme-dark .bg-light, body.theme-dark .bg-body, body.theme-system .bg-light, body.theme-system .bg-body { background-color: rgba(255, 255, 255, 0.03) !important; }
-        body.theme-dark .bg-white, body.theme-system .bg-white { background-color: rgba(255, 255, 255, 0.05) !important; }
-        body.theme-dark .bg-body-tertiary, body.theme-system .bg-body-tertiary { background-color: rgba(0, 0, 0, 0.2) !important; }
-        body.theme-dark .border-light, body.theme-dark .border-secondary, body.theme-system .border-light, body.theme-system .border-secondary { border-color: rgba(255, 255, 255, 0.1) !important; }
-        body.theme-dark .form-control, body.theme-dark .form-select, body.theme-dark .input-group-text, body.theme-dark textarea, body.theme-system .form-control, body.theme-system .form-select, body.theme-system .input-group-text, body.theme-system textarea { background-color: rgba(0, 0, 0, 0.2) !important; color: #f8fafc !important; border-color: rgba(255, 255, 255, 0.1) !important; }
-        body.theme-dark .form-control::placeholder, body.theme-dark textarea::placeholder, body.theme-system .form-control::placeholder, body.theme-system textarea::placeholder { color: rgba(255, 255, 255, 0.4) !important; }
-        body.theme-dark .btn-light, body.theme-system .btn-light { background: #1f2937 !important; border-color: #374151 !important; color: #e5e7eb; }
-        body.theme-dark .table, body.theme-system .table { --bs-table-bg: transparent !important; --bs-table-color: #f8fafc !important; }
-        body.theme-dark .table > :not(caption) > * > *, body.theme-system .table > :not(caption) > * > * { background-color: transparent !important; color: #f8fafc !important; border-bottom-color: rgba(255, 255, 255, 0.08) !important; }
-
-        /* EFECTO HOVER PREMIUM PARA TABLAS */
-        .table-prometeo tbody tr { transition: all 0.2s ease-in-out; }
-        .table-prometeo tbody tr td { transition: background-color 0.2s ease, transform 0.2s ease; }
-        .table-prometeo tbody tr:hover td { background-color: rgba(124, 58, 237, 0.05) !important; }
-        body.theme-dark .table-prometeo tbody tr:hover td, body.theme-system .table-prometeo tbody tr:hover td { background-color: rgba(124, 58, 237, 0.15) !important; }
-        .table-prometeo tbody tr:hover td:first-child div { transform: translateX(8px); }
+        body.theme-dark .text-primary, body.theme-system.system-dark .text-primary { color: #60a5fa !important; }
+        body.theme-dark .text-success, body.theme-system.system-dark .text-success { color: #34d399 !important; }
+        body.theme-dark .text-info, body.theme-system.system-dark .text-info { color: #38bdf8 !important; }
+        body.theme-dark .text-warning, body.theme-system.system-dark .text-warning { color: #fbbf24 !important; }
+        body.theme-dark .text-danger, body.theme-system.system-dark .text-danger { color: #f87171 !important; }
+        body.theme-dark .text-dark, body.theme-dark .text-body, body.theme-system.system-dark .text-dark, body.theme-system.system-dark .text-body { color: #f8fafc !important; }
+        body.theme-dark .text-secondary, body.theme-system.system-dark .text-secondary { color: #cbd5e1 !important; }
+        body.theme-dark .text-muted, body.theme-dark .text-body-secondary, body.theme-system.system-dark .text-muted, body.theme-system.system-dark .text-body-secondary { color: #94a3b8 !important; }
+        body.theme-dark .bg-light, body.theme-dark .bg-body, body.theme-system.system-dark .bg-light, body.theme-system.system-dark .bg-body { background-color: rgba(255, 255, 255, 0.03) !important; }
+        body.theme-dark .bg-white, body.theme-system.system-dark .bg-white { background-color: rgba(255, 255, 255, 0.05) !important; }
+        body.theme-dark .bg-body-tertiary, body.theme-system.system-dark .bg-body-tertiary { background-color: rgba(0, 0, 0, 0.2) !important; }
+        body.theme-dark .border-light, body.theme-dark .border-secondary, body.theme-system.system-dark .border-light, body.theme-system.system-dark .border-secondary { border-color: rgba(255, 255, 255, 0.1) !important; }
+        body.theme-dark .form-control, body.theme-dark .form-select, body.theme-dark .input-group-text, body.theme-dark textarea, body.theme-system.system-dark .form-control, body.theme-system.system-dark .form-select, body.theme-system.system-dark .input-group-text, body.theme-system.system-dark textarea { background-color: rgba(0, 0, 0, 0.2) !important; color: #f8fafc !important; border-color: rgba(255, 255, 255, 0.1) !important; }
+        body.theme-dark .form-control::placeholder, body.theme-dark textarea::placeholder, body.theme-system.system-dark .form-control::placeholder, body.theme-system.system-dark textarea::placeholder { color: rgba(255, 255, 255, 0.4) !important; }
+        body.theme-dark .btn-light, body.theme-system.system-dark .btn-light { background: #1f2937 !important; border-color: #374151 !important; color: #e5e7eb; }
+        body.theme-dark .table, body.theme-system.system-dark .table { --bs-table-bg: transparent !important; --bs-table-color: #f8fafc !important; }
+        body.theme-dark .table > :not(caption) > * > *, body.theme-system.system-dark .table > :not(caption) > * > * { background-color: transparent !important; color: #f8fafc !important; border-bottom-color: rgba(255, 255, 255, 0.08) !important; }
 
         /* ==============================================
            DISEÑO PREMIUM DEL LOGO Y HEADER SIDEBAR
            ============================================== */
         .sidebar {
             width: 280px; height: 100vh;
-            background: linear-gradient(180deg, {{ $accent['sidebar_start'] }} 0%, {{ $accent['sidebar_end'] }} 100%);
+            background: transparent;
             color: var(--app-sidebar-text);
-            position: fixed; top: 0; left: 0; z-index: 1030;
+            position: relative; top: 0; left: 0; z-index: 0; isolation: isolate;
             display: flex; flex-direction: column;
             box-shadow: 4px 0 24px rgba(46, 16, 101, 0.15);
             overflow: hidden; /* Necesario para que el canvas no sobresalga */
         }
 
         .offcanvas-sidebar {
-            background: linear-gradient(180deg, {{ $accent['sidebar_start'] }} 0%, {{ $accent['sidebar_end'] }} 100%);
+            background: transparent;
             color: #fff;
             position: relative;
             overflow: hidden;
         }
 
         /* Configuración del Canvas para Granim.js en el Sidebar */
-        #granim-canvas-sidebar, #granim-canvas-mobile {
+        #granim-sidebar, #granim-sidebar-mobile {
             position: absolute;
             top: 0;
             left: 0;
@@ -345,21 +292,27 @@
             .content-wrapper{ padding: 1.25rem; }
         }
 
-        .anime-topbar, .anime-sidebar-item, .anime-content { opacity: 0; }
+        .anime-topbar, .anime-sidebar-item, .anime-content { opacity: 1; }
         body.reduced-motion *, body.reduced-motion *::before, body.reduced-motion *::after{ animation: none !important; transition: none !important; scroll-behavior: auto !important; }
     </style>
 
     @stack('styles')
+    <noscript><style>.question-step{position:relative!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;margin-bottom:2rem}.btn-next,.btn-prev,[data-save-draft],.btn-cancelar-eval{display:none!important}#btn-submit{display:inline-block!important}</style></noscript>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('css/interface.css') }}?v={{ filemtime(public_path('css/interface.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/appearance.css') }}?v={{ filemtime(public_path('css/appearance.css')) }}">
+    <script type="application/json" id="appearance-palettes">@json(config('appearance.palettes'))</script>
 
-    <script src="{{ asset('js/granim.min.js') }}"></script>
+
+
 </head>
-<body class="{{ $themeClass }} {{ $densityClass }} {{ $motionClass }}">
+<body data-accent="{{ $appearance['accent_color'] }}" class="{{ $themeClass }} {{ $densityClass }} {{ $motionClass }}">
 <div class="app-shell">
 
+    <div class="sidebar-anchor d-none d-lg-block">
     <aside class="sidebar d-none d-lg-flex">
-        <canvas id="granim-canvas-sidebar"></canvas>
+        <canvas id="granim-sidebar" class="granim-canvas-sidebar" data-prometeo-granim aria-hidden="true" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;"></canvas>
 
         <div class="sidebar-content-wrapper">
             <div class="sidebar-header anime-sidebar-item">
@@ -506,7 +459,7 @@
                 @auth
                     <div class="bg-white bg-opacity-10 rounded-4 p-3 mb-3 border border-white border-opacity-10">
                         <div class="d-flex align-items-center gap-3">
-                            <div class="sidebar-user-icon"><i class="{{ $userAvatarClass }}"></i></div>
+                            <div class="sidebar-user-icon"><x-profile-avatar :user="$authUser" /></div>
                             <div class="min-w-0" style="flex: 1;">
                                 <div class="fw-bold fs-6 text-truncate" style="line-height: 1.2;">{{ auth()->user()->name }}</div>
                                 <small class="opacity-75 d-block text-truncate mt-1" style="font-size: 0.75rem;">
@@ -522,12 +475,14 @@
             </div>
         </div>
     </aside>
+    </div>
 
+    <a href="#main-content" class="skip-link">Saltar al contenido</a>
     <div class="main-panel">
         <header class="topbar anime-topbar">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-light d-lg-none border-0 shadow-sm" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
+                    <button class="btn btn-light d-lg-none border-0 shadow-sm" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-label="Abrir menú de navegación">
                         <i class="bi bi-list fs-5"></i>
                     </button>
                     <div>
@@ -542,6 +497,10 @@
                             <i class="bi bi-person-badge-fill"></i>
                             {{ auth()->user()->getRoleNames()->map(fn($role) => ucfirst($role))->implode(', ') ?: 'Sin rol' }}
                         </span>
+                        <a href="{{ route('avisos.index') }}" class="notification-bell {{ request()->routeIs('avisos.*') ? 'is-active' : '' }}" aria-label="Centro de notificaciones: {{ $unreadNotices }} sin leer" title="Centro de notificaciones">
+                            <i class="bi bi-bell" aria-hidden="true"></i>
+                            @if($unreadNotices)<span class="notification-count" aria-hidden="true">{{ $unreadNotices > 99 ? '99+' : $unreadNotices }}</span>@endif
+                        </a>
                         <a href="#" data-bs-toggle="modal" data-bs-target="#modalLogout" class="btn btn-outline-danger d-none d-lg-inline-flex align-items-center rounded-pill px-3">
                             <i class="bi bi-power me-2"></i>Salir
                         </a>
@@ -550,14 +509,18 @@
             </div>
         </header>
 
-        <main class="content-wrapper anime-content">
+        <main id="main-content" class="content-wrapper anime-content" tabindex="-1">
+            <div class="gradient-notice" data-gradient-notice hidden role="status">
+                <span data-gradient-message></span>
+                <a href="{{ route('perfil.index') }}">Revisar apariencia</a>
+            </div>
             @yield('content')
         </main>
     </div>
 </div>
 
 <div class="offcanvas offcanvas-start offcanvas-sidebar" tabindex="-1" id="mobileSidebar">
-    <canvas id="granim-canvas-mobile"></canvas>
+    <canvas id="granim-sidebar-mobile" class="granim-canvas-sidebar" data-prometeo-granim aria-hidden="true"></canvas>
 
     <div class="offcanvas-header border-bottom border-light border-opacity-10 p-4">
         <div class="d-flex align-items-center gap-3">
@@ -570,7 +533,7 @@
     <div class="offcanvas-body d-flex flex-column p-4 overflow-y-auto" style="scrollbar-width: none; -ms-overflow-style: none;">
         @auth
             <div class="d-flex align-items-center gap-3 mb-4">
-                <div class="sidebar-user-icon" style="width:40px; height:40px; font-size:1rem;"><i class="{{ $userAvatarClass }}"></i></div>
+                <div class="sidebar-user-icon" style="width:40px; height:40px; font-size:1rem;"><x-profile-avatar :user="$authUser" /></div>
                 <div class="min-w-0">
                     <div class="fw-bold text-truncate" style="line-height: 1;">{{ auth()->user()->name }}</div>
                     <small class="opacity-75 text-truncate d-block mt-1" style="font-size: 0.75rem;">
@@ -704,37 +667,37 @@
 
 /* Soporte para modo oscuro exclusivo del modal de logout */
 body.theme-dark #modalLogout .modal-content,
-body.theme-system #modalLogout .modal-content {
+body.theme-system.system-dark #modalLogout .modal-content {
     background-color: #1e293b !important;
     border: 1px solid rgba(255,255,255,0.1) !important;
 }
 body.theme-dark #modalLogout .modal-body,
-body.theme-system #modalLogout .modal-body {
+body.theme-system.system-dark #modalLogout .modal-body {
     background-color: #0f172a !important;
 }
 body.theme-dark #modalLogout .modal-footer,
-body.theme-system #modalLogout .modal-footer {
+body.theme-system.system-dark #modalLogout .modal-footer {
     background-color: #1e293b !important;
     border-top: 1px solid rgba(255,255,255,0.1) !important;
 }
 body.theme-dark #modalLogout h4,
-body.theme-system #modalLogout h4 {
+body.theme-system.system-dark #modalLogout h4 {
     color: #f8fafc !important;
 }
 body.theme-dark #modalLogout .btn-light,
-body.theme-system #modalLogout .btn-light {
+body.theme-system.system-dark #modalLogout .btn-light {
     background-color: #334155 !important;
     color: #f8fafc !important;
     border-color: rgba(255,255,255,0.2) !important;
 }
 body.theme-dark #modalLogout .btn-light:hover,
-body.theme-system #modalLogout .btn-light:hover {
+body.theme-system.system-dark #modalLogout .btn-light:hover {
     background-color: #475569 !important;
 }
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
@@ -751,111 +714,7 @@ body.theme-system #modalLogout .btn-light:hover {
                 .add({ targets: '.anime-content', translateY: [20, 0], opacity: [0, 1], duration: 800 }, '-=400');
         }
 
-        // ==============================================================
-        // ANIMACIÓN DE GRANIM PARA EL SIDEBAR (DESKTOP Y MÓVIL)
-        // ==============================================================
-        if (typeof Granim !== 'undefined') {
-            const granimOptions = {
-                direction: 'top-bottom', // Animación de arriba hacia abajo
-                isPausedWhenNotInView: true,
-                states : {
-                    "default-state": {
-                        gradients: [
-                            {!! $sidebarPalettes !!}
-                        ],
-                        transitionSpeed: 10000 // Muy lento para que no distraiga
-                    }
-                }
-            };
 
-            // Aplicar al sidebar de escritorio
-            if (document.getElementById('granim-canvas-sidebar')) {
-                new Granim(Object.assign({}, granimOptions, { element: '#granim-canvas-sidebar' }));
-            }
-
-            // Aplicar al sidebar de móviles
-            if (document.getElementById('granim-canvas-mobile')) {
-                new Granim(Object.assign({}, granimOptions, { element: '#granim-canvas-mobile' }));
-            }
-        }
-
-        // ==============================================================
-        // LÓGICA DEL ACORDEÓN CON PERSISTENCIA (LOCALSTORAGE)
-        // ==============================================================
-
-        document.querySelectorAll('.nav-section').forEach(section => {
-            const sectionName = section.getAttribute('data-section-name');
-            if (!sectionName) return;
-
-            const body = section.querySelector('.nav-section-body');
-            const hasActiveLink = body.querySelector('.nav-link.active') !== null;
-
-            if (hasActiveLink) {
-                localStorage.setItem('prometeo-section-' + sectionName, 'expanded');
-                section.classList.remove('is-collapsed');
-            } else if (localStorage.getItem('prometeo-section-' + sectionName) === 'collapsed') {
-                section.classList.add('is-collapsed');
-                body.style.display = 'none';
-            }
-        });
-
-        document.querySelectorAll('.nav-section-header').forEach(header => {
-            header.addEventListener('click', function() {
-                if (reducedMotion) return;
-
-                const section = this.closest('.nav-section');
-                const sectionName = section.getAttribute('data-section-name');
-                const body = section.querySelector('.nav-section-body');
-                const items = body.querySelectorAll('.nav-item-wrapper');
-                const isCollapsed = section.classList.contains('is-collapsed');
-
-                if (isCollapsed) {
-                    section.classList.remove('is-collapsed');
-                    if(sectionName) localStorage.setItem('prometeo-section-' + sectionName, 'expanded');
-
-                    anime.remove(body);
-                    anime.remove(items);
-
-                    body.style.display = 'block';
-                    const targetHeight = body.scrollHeight;
-                    body.style.height = '0px';
-
-                    anime({
-                        targets: body, height: [0, targetHeight],
-                        duration: 400, easing: 'easeOutQuint',
-                        complete: () => body.style.height = ''
-                    });
-
-                    anime({
-                        targets: items, opacity: [0, 1], translateY: [-15, 0], rotateX: [90, 0],
-                        delay: anime.stagger(45), duration: 650, easing: 'easeOutElastic(1, .6)'
-                    });
-
-                } else {
-                    section.classList.add('is-collapsed');
-                    if(sectionName) localStorage.setItem('prometeo-section-' + sectionName, 'collapsed');
-
-                    anime.remove(body);
-                    anime.remove(items);
-
-                    const currentHeight = body.scrollHeight;
-                    body.style.height = currentHeight + 'px';
-
-                    anime({
-                        targets: Array.from(items).reverse(),
-                        opacity: [1, 0], translateY: [0, -10], rotateX: [0, -45],
-                        duration: 200, delay: anime.stagger(30), easing: 'easeInQuad',
-                        complete: function() {
-                            anime({
-                                targets: body, height: [currentHeight, 0],
-                                duration: 300, easing: 'easeOutQuint',
-                                complete: () => body.style.display = 'none'
-                            });
-                        }
-                    });
-                }
-            });
-        });
     });
 </script>
 
@@ -867,14 +726,13 @@ body.theme-system #modalLogout .btn-light:hover {
 @if(auth()->check() && auth()->user()->hasRole('estudiante'))
 
     {{-- 1. Botón Flotante (FAB) --}}
-    <button class="btn btn-primary shadow-lg d-flex align-items-center justify-content-center position-fixed"
+    <button class="wellbeing-trigger btn btn-primary shadow-lg d-flex align-items-center justify-content-center position-fixed" aria-label="Abrir botiquín emocional"
             type="button"
             data-bs-toggle="offcanvas"
             data-bs-target="#offcanvasBienestar"
             aria-controls="offcanvasBienestar"
             style="bottom: 30px; right: 30px; width: 65px; height: 65px; border-radius: 50%; z-index: 1040; transition: transform 0.3s ease;"
-            onmouseover="this.style.transform='scale(1.1)'"
-            onmouseout="this.style.transform='scale(1)'">
+            >
         <i class="bi bi-stars fs-3"></i>
     </button>
 
@@ -920,7 +778,7 @@ body.theme-system #modalLogout .btn-light:hover {
 
     {{-- Dependencias Globales para el Botiquín --}}
     {{-- (Nos aseguramos de cargar anime.js y confetti solo si es estudiante) --}}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <script>
@@ -963,7 +821,7 @@ body.theme-system #modalLogout .btn-light:hover {
             btnGrat.addEventListener('click', () => {
                 if(inputGrat.value.trim() !== "") {
                     // La posición 'x' ajusta el confeti al lado derecho donde está el Offcanvas
-                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6, x: 0.8 }, colors: ['#ffc107', '#ff9800', '#ffffff'], zIndex: 1055 });
+                    if (!window.prometeoReducedMotion?.()) confetti({ particleCount: 100, spread: 70, origin: { y: 0.6, x: 0.8 }, colors: ['#ffc107', '#ff9800', '#ffffff'], zIndex: 1055 });
                     inputGrat.value = "";
                     inputGrat.placeholder = "¡Recuerdo guardado!";
                     setTimeout(() => { inputGrat.placeholder = "¿Qué fue lo mejor de hoy?"; }, 3000);
@@ -998,5 +856,8 @@ body.theme-system #modalLogout .btn-light:hover {
     </script>
 @endif
 {{-- ======================================================= --}}
+<script src="{{ asset('js/granim.min.js') }}?v={{ filemtime(public_path('js/granim.min.js')) }}"></script>
+<script src="{{ asset('js/prometeo-sidebar.js') }}?v={{ filemtime(public_path('js/prometeo-sidebar.js')) }}"></script>
+<script src="{{ asset('js/prometeo-gradients.js') }}?v={{ filemtime(public_path('js/prometeo-gradients.js')) }}"></script>
 </body>
 </html>

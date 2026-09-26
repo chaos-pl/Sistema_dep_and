@@ -21,8 +21,9 @@ class StoreDass21Request extends FormRequest
     public function rules(): array
     {
         return [
+            'draft_version' => ['nullable', 'integer', 'min:0'],
             // Validamos que 'answers' sea un array y tenga exactamente 21 respuestas
-            'answers'   => ['required', 'array', 'size:21'],
+            'answers' => ['required', 'array', 'size:21'],
 
             // Validamos que CADA respuesta sea un entero entre 0 y 3
             'answers.*' => ['required', 'integer', 'min:0', 'max:3'],

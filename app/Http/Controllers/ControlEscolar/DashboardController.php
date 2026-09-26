@@ -12,9 +12,18 @@ use App\Models\Tutor;
 use App\Models\User;
 use App\Services\Dass21CoverageService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class DashboardController extends Controller
+class DashboardController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:control_escolar.dashboard', only: ['index']),
+        ];
+    }
+
     public function index(Request $request, Dass21CoverageService $coverage)
     {
         $periodo = $coverage->period($request);

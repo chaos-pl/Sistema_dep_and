@@ -7,9 +7,11 @@ use App\Http\Requests\Estudiante\StoreEvaluacionRequest;
 use App\Models\Alerta;
 use App\Models\Evaluacion;
 use App\Models\Instrumento;
+use App\Models\QuestionnaireDraft;
 use App\Models\Respuesta;
 use App\Models\ResultadoClinico;
 use App\Services\EvaluationContextService;
+use App\Services\QuestionnaireDraftService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -31,6 +33,7 @@ class EvaluacionController extends Controller
             ]);
         }
 
+        $borradores = QuestionnaireDraft::where('estudiante_id', $estudiante->id)->where('completed', false)->get();
         $dass21Eval = $estudiante->latestDass21;
 
         $instrumentos = Instrumento::whereIn('acronimo', ['PHQ9', 'GAD7', 'phq9', 'gad7'])
@@ -61,6 +64,7 @@ class EvaluacionController extends Controller
             'user',
             'estudiante',
             'instrumentosDashboard',
+            'borradores',
             'dass21Eval'
         ));
     }
@@ -89,7 +93,7 @@ class EvaluacionController extends Controller
             'instrumento',
             'preguntas',
             'estudiante'
-        ));
+        ) + app(QuestionnaireDraftService::class)->read($estudiante, $instrumento->acronimo));
     }
 
     public function responder(StoreEvaluacionRequest $request, string $tipo)
@@ -117,7 +121,8 @@ class EvaluacionController extends Controller
             return back()->withInput();
         }
 
-        DB::transaction(function () use ($instrumento, $estudiante, $respuestas) {
+        DB::transaction(function () use ($instrumento, $estudiante, $respuestas, $request) {
+            app(QuestionnaireDraftService::class)->complete($estudiante, $instrumento->acronimo, $request->filled('draft_version') ? (int) $request->input('draft_version') : null);
             $evaluacion = Evaluacion::create([
                 'codigo_anonimo' => $estudiante->codigo_anonimo,
                 'instrumento_id' => $instrumento->id,

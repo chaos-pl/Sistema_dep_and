@@ -7,7 +7,7 @@
 @push('styles')
     <style>
         .search-input-prometeo { padding-left: 2.8rem !important; }
-        .anime-item { opacity: 0; transform: translateY(20px); }
+        .anime-item { opacity: 1; transform: translateY(20px); }
         .hover-elevate { transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .hover-elevate:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important; }
 

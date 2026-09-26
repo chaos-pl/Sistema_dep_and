@@ -1,3 +1,20 @@
+# PROMETEO — sistema de seguimiento estudiantil
+
+Laravel 12, PHP 8.2+, Blade/Vite y procesamiento IA mediante cola.
+
+- [Interfaz y borradores — entrega 6](docs/ENTREGA-6-INTERFAZ-Y-BORRADORES.md)
+- [Operación, pruebas y despliegue — entrega 5](docs/ENTREGA-5-OPERACION.md)
+- [Evolución, notificaciones y reportes — entrega 4](docs/ENTREGA-4-EVOLUCION-AVISOS-REPORTES.md)
+- [Seguimiento de casos — entrega 3](docs/ENTREGA-3-CASOS.md)
+- [Esquema y migraciones — entrega 2](docs/ENTREGA-2-ESQUEMA.md)
+- [Contrato IA y colas — entrega 1](docs/ENTREGA-1-IA.md)
+- [Integración DASS-21](docs/DASS21-INTEGRACION.md)
+
+Pruebas aisladas: php artisan test --compact. Compilación: npm run build.
+La guía de operación distingue instalaciones nuevas y bases existentes; no ejecutar composer setup ni migrate:fresh sobre datos existentes.
+
+---
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">

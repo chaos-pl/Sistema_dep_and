@@ -7,28 +7,7 @@
 @php
     $userAccentColor = auth()->user()->appearance_settings['accent_color'] ?? 'purple';
 
-    $granimPalettes = match($userAccentColor) {
-        'blue' => "
-            [ { color: '#1e3a8a', pos: 0 }, { color: '#2563eb', pos: .5 }, { color: '#93c5fd', pos: 1 } ],
-            [ { color: '#2563eb', pos: 0 }, { color: '#0284c7', pos: .5 }, { color: '#38bdf8', pos: 1 } ],
-            [ { color: '#0f172a', pos: 0 }, { color: '#1d4ed8', pos: .5 }, { color: '#3b82f6', pos: 1 } ]
-        ",
-        'green' => "
-            [ { color: '#064e3b', pos: 0 }, { color: '#059669', pos: .5 }, { color: '#6ee7b7', pos: 1 } ],
-            [ { color: '#059669', pos: 0 }, { color: '#0d9488', pos: .5 }, { color: '#2dd4bf', pos: 1 } ],
-            [ { color: '#022c22', pos: 0 }, { color: '#047857', pos: .5 }, { color: '#10b981', pos: 1 } ]
-        ",
-        'pink' => "
-            [ { color: '#831843', pos: 0 }, { color: '#db2777', pos: .5 }, { color: '#f9a8d4', pos: 1 } ],
-            [ { color: '#db2777', pos: 0 }, { color: '#e11d48', pos: .5 }, { color: '#f43f5e', pos: 1 } ],
-            [ { color: '#4c0519', pos: 0 }, { color: '#be185d', pos: .5 }, { color: '#ec4899', pos: 1 } ]
-        ",
-        default => "
-            [ { color: '#4c1d95', pos: 0 }, { color: '#7c3aed', pos: .5 }, { color: '#a78bfa', pos: 1 } ],
-            [ { color: '#7c3aed', pos: 0 }, { color: '#c026d3', pos: .5 }, { color: '#db2777', pos: 1 } ],
-            [ { color: '#1e1b4b', pos: 0 }, { color: '#6d28d9', pos: .5 }, { color: '#8b5cf6', pos: 1 } ]
-        "
-    };
+
 @endphp
 
 @push('styles')
@@ -51,7 +30,7 @@
             pointer-events: none; z-index: 2;
         }
 
-        #granim-canvas-tutor {
+        #granim-dashboard {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
@@ -59,7 +38,7 @@
         }
 
         .banner-content { position: relative; z-index: 3; }
-        .anime-item { opacity: 0; transform: translateY(20px); }
+        .anime-item { opacity: 1; transform: translateY(20px); }
         .cursor-pointer { cursor: pointer; }
 
         /* CLASES PROTECTORAS PARA MODO OSCURO */
@@ -91,13 +70,12 @@
 @endpush
 
 @section('content')
-    @include('shared.dass21-coverage', ['cobertura' => $grupos])
     <div class="row g-4">
 
         <div class="col-12 anime-item">
-            <div class="app-card bg-welcome-tutor p-4 p-md-5 rounded-4 border-0 shadow-lg text-white">
+            <div class="app-card accent-gradient granim-surface bg-welcome-tutor p-4 p-md-5 rounded-4 border-0 shadow-lg text-white">
 
-                <canvas id="granim-canvas-tutor"></canvas>
+                <canvas id="granim-dashboard" class="granim-canvas" data-prometeo-granim aria-hidden="true" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;"></canvas>
 
                 <div class="row align-items-center banner-content">
                     <div class="col-lg-8">
@@ -117,6 +95,8 @@
                 </div>
             </div>
         </div>
+<div class="col-12 dashboard-dass">@include('shared.dass21-coverage', ['cobertura' => $grupos])</div>
+
 
         <div class="col-md-4 anime-item">
             <div class="app-card p-4 h-100 border border-secondary border-opacity-10 shadow-sm rounded-4 bg-body-tertiary hover-elevate">
@@ -271,7 +251,7 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/granim.min.js') }}"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if(typeof anime !== 'undefined') {
@@ -284,21 +264,7 @@
                 });
             }
 
-            if (document.getElementById('granim-canvas-tutor') && typeof Granim !== 'undefined') {
-                new Granim({
-                    element: '#granim-canvas-tutor',
-                    direction: 'left-right',
-                    isPausedWhenNotInView: true,
-                    states : {
-                        "default-state": {
-                            gradients: [
-                                {!! $granimPalettes !!}
-                            ],
-                            transitionSpeed: 7000
-                        }
-                    }
-                });
-            }
+
         });
     </script>
 @endpush

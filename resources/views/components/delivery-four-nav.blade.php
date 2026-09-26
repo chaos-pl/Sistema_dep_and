@@ -1,4 +1,3 @@
-<div class="nav-item-wrapper"><a class="nav-link {{ request()->routeIs('avisos.*') ? 'active' : '' }}" href="{{ route('avisos.index') }}"><i class="bi bi-bell"></i> Notificaciones <span class="badge text-bg-primary">{{ $unreadNotices }}</span></a></div>
 @role('estudiante') @can('evaluaciones.historial.propio')
 <div class="nav-item-wrapper"><a class="nav-link {{ request()->routeIs('evolucion.own') ? 'active' : '' }}" href="{{ route('evolucion.own') }}"><i class="bi bi-graph-up"></i> Mi evolución</a></div>
 @endcan @endrole

@@ -1,7 +1,10 @@
+import './questionnaire';
 import './bootstrap';
 
 import Alpine from 'alpinejs';
-import { animate, stagger } from 'animejs';
+import './appearance';
+const stagger = (...args) => window.anime.stagger(...args);
+const animate = (targets, options) => window.anime({targets, ...options, easing: {inOutQuad:'easeInOutQuad',outCubic:'easeOutCubic',outExpo:'easeOutExpo',outQuad:'easeOutQuad'}[options.ease] || 'easeOutQuad', direction: options.alternate ? 'alternate' : 'normal'});
 
 window.Alpine = Alpine;
 Alpine.start();
@@ -55,6 +58,3 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
-
-import Granim from 'granim';
-window.Granim = Granim;

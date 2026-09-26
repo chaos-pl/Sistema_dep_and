@@ -7,12 +7,7 @@
 @php
     $userAccentColor = auth()->user()->appearance_settings['accent_color'] ?? 'purple';
 
-    $granimPalettes = match($userAccentColor) {
-        'blue' => "[ { color: '#1e3a8a', pos: 0 }, { color: '#2563eb', pos: .5 }, { color: '#93c5fd', pos: 1 } ], [ { color: '#2563eb', pos: 0 }, { color: '#0284c7', pos: .5 }, { color: '#38bdf8', pos: 1 } ], [ { color: '#0f172a', pos: 0 }, { color: '#1d4ed8', pos: .5 }, { color: '#3b82f6', pos: 1 } ]",
-        'green' => "[ { color: '#064e3b', pos: 0 }, { color: '#059669', pos: .5 }, { color: '#6ee7b7', pos: 1 } ], [ { color: '#059669', pos: 0 }, { color: '#0d9488', pos: .5 }, { color: '#2dd4bf', pos: 1 } ], [ { color: '#022c22', pos: 0 }, { color: '#047857', pos: .5 }, { color: '#10b981', pos: 1 } ]",
-        'pink' => "[ { color: '#831843', pos: 0 }, { color: '#db2777', pos: .5 }, { color: '#f9a8d4', pos: 1 } ], [ { color: '#db2777', pos: 0 }, { color: '#e11d48', pos: .5 }, { color: '#f43f5e', pos: 1 } ], [ { color: '#4c0519', pos: 0 }, { color: '#be185d', pos: .5 }, { color: '#ec4899', pos: 1 } ]",
-        default => "[ { color: '#4c1d95', pos: 0 }, { color: '#7c3aed', pos: .5 }, { color: '#a78bfa', pos: 1 } ], [ { color: '#7c3aed', pos: 0 }, { color: '#c026d3', pos: .5 }, { color: '#db2777', pos: 1 } ], [ { color: '#1e1b4b', pos: 0 }, { color: '#6d28d9', pos: .5 }, { color: '#8b5cf6', pos: 1 } ]"
-    };
+
 
     // Lógica para el Atajo del DASS-21
     $dass21EvalShortcut = $dass21Eval;
@@ -31,9 +26,9 @@
             opacity: 0.08; transform: rotate(-15deg); pointer-events: none; z-index: 2;
         }
 
-        #granim-canvas-student { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; border-radius: inherit; }
+        #granim-dashboard { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; border-radius: inherit; }
         .banner-content { position: relative; z-index: 3; }
-        .anime-item { opacity: 0; transform: translateY(20px); }
+        .anime-item { opacity: 1; transform: translateY(20px); }
 
         .glass-badge { background-color: rgba(255, 255, 255, 0.2) !important; color: #ffffff !important; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); }
         .glass-btn { background-color: rgba(255, 255, 255, 0.95) !important; color: var(--app-primary-dark) !important; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); transition: all 0.3s ease; }
@@ -48,8 +43,8 @@
     <div class="row g-4">
         {{-- HERO BANNER --}}
         <div class="col-12 anime-item">
-            <div class="app-card bg-welcome-student p-4 p-md-5 text-white rounded-4 border-0 shadow-lg">
-                <canvas id="granim-canvas-student"></canvas>
+            <div class="app-card accent-gradient granim-surface bg-welcome-student p-4 p-md-5 text-white rounded-4 border-0 shadow-lg">
+                <canvas id="granim-dashboard" class="granim-canvas" data-prometeo-granim aria-hidden="true" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;"></canvas>
                 <div class="row align-items-center banner-content">
                     <div class="col-lg-8">
                         <span class="badge glass-badge rounded-pill px-3 py-2 mb-3 fw-bold shadow-sm">
@@ -74,6 +69,36 @@
                 </div>
             </div>
         </div>
+
+        @if($estudiante)
+            {{-- ATAJO DASS-21 --}}
+            <div class="col-12 anime-item">
+                <div class="app-card bg-primary bg-opacity-10 border border-primary border-opacity-25 shadow-sm rounded-4 p-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-4 hover-elevate">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 60px; height: 60px;">
+                            <i class="bi bi-heart-pulse-fill fs-3"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-black text-primary mb-1">Monitoreo DASS-21</h4>
+                            <p class="text-body-secondary mb-0 small">
+                                @if(!$dass21EvalShortcut)
+                                    Aún no has realizado tu primer tamizaje emocional. ¡Toma 5 minutos para conocerte mejor!
+                                @elseif($dassRequiereAtencion)
+                                    Han pasado más de 14 días desde tu última evaluación. Es un buen momento para actualizar tu estado.
+                                @else
+                                    <i class="bi bi-check-circle-fill text-success me-1"></i> Tamizaje al día. Última evaluación: {{ $dass21EvalShortcut->completed_at->format('d/m/Y') }}
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-md-end shrink-0">
+                        <a href="{{ route('dass21.create') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm text-nowrap">
+                            <i class="bi bi-pencil-square me-2"></i> {{ !$dass21EvalShortcut ? 'Comenzar Tamizaje' : 'Actualizar Estado' }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         {{-- ESTADÍSTICAS --}}
         @if($estudiante)
@@ -111,33 +136,7 @@
                 </div>
             </div>
 
-            {{-- ATAJO DASS-21 --}}
-            <div class="col-12 anime-item">
-                <div class="app-card bg-primary bg-opacity-10 border border-primary border-opacity-25 shadow-sm rounded-4 p-4 d-flex flex-column flex-md-row justify-content-between align-items-center gap-4 hover-elevate">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 60px; height: 60px;">
-                            <i class="bi bi-heart-pulse-fill fs-3"></i>
-                        </div>
-                        <div>
-                            <h4 class="fw-black text-primary mb-1">Monitoreo DASS-21</h4>
-                            <p class="text-body-secondary mb-0 small">
-                                @if(!$dass21EvalShortcut)
-                                    Aún no has realizado tu primer tamizaje emocional. ¡Toma 5 minutos para conocerte mejor!
-                                @elseif($dassRequiereAtencion)
-                                    Han pasado más de 14 días desde tu última evaluación. Es un buen momento para actualizar tu estado.
-                                @else
-                                    <i class="bi bi-check-circle-fill text-success me-1"></i> Tamizaje al día. Última evaluación: {{ $dass21EvalShortcut->completed_at->format('d/m/Y') }}
-                                @endif
-                            </p>
-                        </div>
-                    </div>
-                    <div class="text-md-end shrink-0">
-                        <a href="{{ route('dass21.create') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm text-nowrap">
-                            <i class="bi bi-pencil-square me-2"></i> {{ !$dass21EvalShortcut ? 'Comenzar Tamizaje' : 'Actualizar Estado' }}
-                        </a>
-                    </div>
-                </div>
-            </div>
+
         @endif
 
         {{-- RESTAURADO: TARJETAS DE OTROS INSTRUMENTOS (PHQ-9, GAD-7, etc.) --}}
@@ -242,21 +241,14 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/granim.min.js') }}"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if(typeof anime !== 'undefined') {
                 anime({ targets: '.anime-item', translateY: [30, 0], opacity: [0, 1], delay: anime.stagger(150), easing: 'easeOutExpo', duration: 1000 });
             }
 
-            if (document.getElementById('granim-canvas-student') && typeof Granim !== 'undefined') {
-                new Granim({
-                    element: '#granim-canvas-student',
-                    direction: 'left-right',
-                    isPausedWhenNotInView: true,
-                    states : { "default-state": { gradients: [ {!! $granimPalettes !!} ], transitionSpeed: 7000 } }
-                });
-            }
+
         });
     </script>
 @endpush

@@ -15,9 +15,10 @@ class Dass21EvaluationService
 {
     public function __construct(private Dass21ScoringService $scoring) {}
 
-    public function submit(Estudiante $estudiante, array $answers): Dass21Evaluation
+    public function submit(Estudiante $estudiante, array $answers, ?int $draftVersion = null): Dass21Evaluation
     {
-        return DB::transaction(function () use ($estudiante, $answers) {
+        return DB::transaction(function () use ($estudiante, $answers, $draftVersion) {
+            app(QuestionnaireDraftService::class)->complete($estudiante, 'DASS21', $draftVersion);
             $instrumento = Instrumento::where('acronimo', 'DASS21')->firstOrFail();
             $questions = Dass21Question::where('instrument_id', $instrumento->id)->get();
             $ids = $questions->modelKeys();

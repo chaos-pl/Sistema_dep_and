@@ -29,7 +29,7 @@
 
 @push('styles')
     <style>
-        .anime-item { opacity: 0; transform: translateY(20px); }
+        .anime-item { opacity: 1; transform: translateY(20px); }
         .eval-hero { position: relative; overflow: hidden; background-color: var(--app-primary); }
         .eval-hero::after {
             content: '\F52A'; font-family: "bootstrap-icons"; position: absolute;
@@ -169,7 +169,7 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/granim.min.js') }}"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if(typeof anime !== 'undefined') {

@@ -6,7 +6,7 @@
 
 @push('styles')
     <style>
-        .anime-item { opacity: 0; transform: scale(0.95); }
+        .anime-item { opacity: 1; transform: scale(0.95); }
     </style>
 @endpush
 

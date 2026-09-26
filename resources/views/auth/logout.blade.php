@@ -5,9 +5,9 @@
 @push('styles')
     <style>
         /* Estados iniciales para Anime.js (ocultos) */
-        .anime-icon { opacity: 0; transform: scale(0); }
-        .anime-text { opacity: 0; transform: translateY(15px); }
-        .anime-action-btn { opacity: 0; }
+        .anime-icon { opacity: 1; transform: scale(0); }
+        .anime-text { opacity: 1; transform: translateY(15px); }
+        .anime-action-btn { opacity: 1; }
 
         /* Ajuste para que el icono se vea súper moderno */
         .logout-icon-container {
@@ -50,7 +50,7 @@
 @endsection
 
 @push('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const tl = anime.timeline({
