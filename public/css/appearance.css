@@ -94,8 +94,10 @@ body.motion-suspended .accent-gradient,body.motion-suspended .sidebar,body.motio
 .sidebar-anchor {position:fixed;top:0;left:0;width:280px;height:100vh;z-index:1030}
 body .sidebar {position:relative;overflow:hidden;isolation:isolate}
 body .granim-surface,body .sidebar,body .offcanvas-sidebar {
-    position:relative;overflow:hidden;isolation:isolate;background:transparent!important;animation:none!important;
+    overflow:hidden;isolation:isolate;background:transparent!important;animation:none!important;
 }
+/* El offcanvas móvil debe seguir siendo fixed (Bootstrap); relative lo deja en el flujo y agrega un hueco al final. */
+body .granim-surface,body .sidebar {position:relative}
 body .granim-surface {border-radius:1.5rem}
 body .granim-surface::before,body .sidebar::before,body .offcanvas-sidebar::before {
     content:"";position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:inherit;

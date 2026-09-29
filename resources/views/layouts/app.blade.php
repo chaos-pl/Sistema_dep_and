@@ -142,10 +142,10 @@
             overflow: hidden; /* Necesario para que el canvas no sobresalga */
         }
 
+        /* Conserva position: fixed de Bootstrap; con relative el menú oculto ocupa espacio al final de la página. */
         .offcanvas-sidebar {
             background: transparent;
             color: #fff;
-            position: relative;
             overflow: hidden;
         }
 
