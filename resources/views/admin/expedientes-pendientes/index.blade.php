@@ -134,15 +134,17 @@
                                 </td>
 
                                 <td class="text-end px-4 py-3 border-0">
-                                    @if($usuario->persona)
+                                    @if($usuario->persona && (auth()->user()->hasRole('admin') || auth()->user()->can('estudiantes.asignar_grupo')))
                                         <button type="button" class="btn btn-sm btn-primary rounded-pill shadow-sm fw-bold px-3 hover-elevate" data-bs-toggle="modal" data-bs-target="#modalCompletar{{ $usuario->id }}">
                                             Completar Expediente <i class="bi bi-arrow-right-circle ms-1"></i>
                                         </button>
-                                    @else
+                                    @elseif(!$usuario->persona && auth()->user()->hasRole('admin') && auth()->user()->can('personas.ver'))
                                         <a href="{{ route('admin.personas.index') }}"
                                            class="btn btn-sm btn-light border text-warning-emphasis rounded-pill shadow-sm fw-bold px-3 hover-elevate">
                                             <i class="bi bi-exclamation-triangle-fill me-1"></i> Vincular Persona Primero
                                         </a>
+                                    @elseif(!$usuario->persona)
+                                        <span>Requiere vinculación de persona por Administración.</span>
                                     @endif
                                 </td>
                             </tr>
@@ -171,7 +173,7 @@
 
     <!-- Modales para Completar Expediente -->
     @foreach($usuarios as $usuario)
-        @if($usuario->persona)
+        @if($usuario->persona && (auth()->user()->hasRole('admin') || auth()->user()->can('estudiantes.asignar_grupo')))
             <div class="modal fade" id="modalCompletar{{ $usuario->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
                     <div class="modal-content">

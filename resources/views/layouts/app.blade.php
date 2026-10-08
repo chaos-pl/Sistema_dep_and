@@ -302,12 +302,13 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="{{ asset('css/interface.css') }}?v={{ filemtime(public_path('css/interface.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/appearance.css') }}?v={{ filemtime(public_path('css/appearance.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/responsive.css') }}?v={{ filemtime(public_path('css/responsive.css')) }}">
     <script type="application/json" id="appearance-palettes">@json(config('appearance.palettes'))</script>
 
 
 
 </head>
-<body data-accent="{{ $appearance['accent_color'] }}" class="{{ $themeClass }} {{ $densityClass }} {{ $motionClass }}">
+<body data-accent="{{ $appearance['accent_color'] }}" class="{{ $themeClass }} {{ $densityClass }} {{ $motionClass }} @yield('page-class')">
 <div class="app-shell">
 
     <div class="sidebar-anchor d-none d-lg-block">
@@ -608,6 +609,23 @@
                     </div>
                 </div>
             @endif
+
+            @hasanyrole('admin|control_escolar')
+                        <div class="nav-section" data-section-name="mobile_ce_panel">
+                            <div class="nav-section-header"><span class="nav-section-title">Control Escolar</span><i class="bi bi-chevron-down nav-section-icon"></i></div>
+                            <div class="nav-section-body">
+                                <div class="nav-item-wrapper"><a href="{{ route('control_escolar.dashboard') }}" class="nav-link {{ request()->routeIs('control_escolar.dashboard') ? 'active' : '' }}"><i class="bi bi-building"></i> Panel Escolar</a></div>
+                                @can('estudiantes.ver')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.estudiantes.index') }}" class="nav-link {{ request()->routeIs('control_escolar.estudiantes.*') ? 'active' : '' }}"><i class="bi bi-mortarboard-fill"></i> Estudiantes</a></div>@endcan
+                                @can('tutores.ver')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.tutores.index') }}" class="nav-link {{ request()->routeIs('control_escolar.tutores.*') ? 'active' : '' }}"><i class="bi bi-person-video3"></i> Tutores</a></div>@endcan
+                                @can('grupos.ver')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.grupos.index') }}" class="nav-link {{ request()->routeIs('control_escolar.grupos.*') ? 'active' : '' }}"><i class="bi bi-collection-fill"></i> Grupos</a></div>@endcan
+                                @can('estudiantes.ver_pendientes')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.pendientes.index') }}" class="nav-link {{ request()->routeIs('control_escolar.pendientes.*') ? 'active' : '' }}"><i class="bi bi-person-exclamation"></i> Pendientes por asignar</a></div>@endcan
+                                @can('carreras.ver')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.carreras.index') }}" class="nav-link {{ request()->routeIs('control_escolar.carreras.*') ? 'active' : '' }}"><i class="bi bi-book-fill"></i> Carreras</a></div>@endcan
+                                @can('ciclos_escolares.ver')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.ciclos-escolares.index') }}" class="nav-link {{ request()->routeIs('control_escolar.ciclos-escolares.*') ? 'active' : '' }}"><i class="bi bi-calendar-event-fill"></i> Ciclos Escolares</a></div>@endcan
+                                @can('tutores.asignar_grupo')<div class="nav-item-wrapper"><a href="{{ route('control_escolar.asignaciones.index') }}" class="nav-link {{ request()->routeIs('control_escolar.asignaciones.*') ? 'active' : '' }}"><i class="bi bi-arrow-left-right"></i> Asignaciones</a></div>@endcan
+                            </div>
+                        </div>
+
+            @endhasanyrole
 
             <div class="nav-section" data-section-name="mobile_global_ajustes">
                 <div class="nav-section-header"><span class="nav-section-title">Ajustes</span><i class="bi bi-chevron-down nav-section-icon"></i></div>

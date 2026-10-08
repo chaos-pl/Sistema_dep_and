@@ -298,18 +298,23 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
+    // Expedientes compartidos: no ampliar el acceso al resto del módulo admin.
+    Route::prefix('admin/expedientes-pendientes')
+        ->name('admin.expedientes-pendientes.')
+        ->middleware('role:admin|control_escolar')
+        ->group(function () {
+            Route::get('/', [ExpedientePendienteController::class, 'index'])
+                ->middleware('role_or_permission:admin|estudiantes.ver_pendientes')->name('index');
+            Route::get('/{user}/edit', [ExpedientePendienteController::class, 'edit'])
+                ->middleware('role_or_permission:admin|estudiantes.ver_pendientes')->name('edit');
+            Route::put('/{user}', [ExpedientePendienteController::class, 'update'])
+                ->middleware('role_or_permission:admin|estudiantes.asignar_grupo')->name('update');
+        });
+
     Route::prefix('admin')
         ->name('admin.')
         ->middleware('role:admin')
         ->group(function () {
-            Route::prefix('expedientes-pendientes')
-                ->name('expedientes-pendientes.')
-                ->group(function () {
-                    Route::get('/', [ExpedientePendienteController::class, 'index'])->name('index');
-                    Route::get('/{user}/edit', [ExpedientePendienteController::class, 'edit'])->name('edit');
-                    Route::put('/{user}', [ExpedientePendienteController::class, 'update'])->name('update');
-                });
-
             Route::prefix('usuarios-sin-persona')
                 ->name('usuarios-sin-persona.')
                 ->group(function () {

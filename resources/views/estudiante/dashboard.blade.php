@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('page-class', 'student-page')
 
 @section('title', 'Dashboard Estudiante - PROMETEO')
 @section('page-title', 'Inicio del Estudiante')
@@ -91,7 +92,7 @@
                             </p>
                         </div>
                     </div>
-                    <div class="text-md-end shrink-0">
+                    <div class="text-md-end flex-shrink-0 student-cta">
                         <a href="{{ route('dass21.create') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm text-nowrap">
                             <i class="bi bi-pencil-square me-2"></i> {{ !$dass21EvalShortcut ? 'Comenzar Tamizaje' : 'Actualizar Estado' }}
                         </a>
@@ -119,7 +120,7 @@
             <div class="col-md-8 anime-item">
                 <div class="app-card p-4 border-0 shadow-sm rounded-4 bg-body-tertiary h-100 hover-elevate">
                     <h5 class="fw-black text-body mb-3">Resumen académico</h5>
-                    <div class="row g-3">
+                    <div class="row g-3 academic-summary">
                         <div class="col-md-4">
                             <small class="text-body-secondary fw-bold text-uppercase d-block" style="letter-spacing: 0.5px;">Código anónimo</small>
                             <span class="fw-bold text-body fs-5">{{ $estudiante->codigo_anonimo }}</span>
@@ -219,7 +220,7 @@
                     <div class="alert bg-body-tertiary border border-secondary border-opacity-10 rounded-4 mb-4 shadow-sm">
                         <div class="fw-bold text-body mb-1">Última entrada registrada</div>
                         <div class="text-body-secondary small mb-2">{{ $ultimaEntrada->created_at?->format('d/m/Y H:i') }}</div>
-                        <div class="text-body">{{ \Illuminate\Support\Str::limit($ultimaEntrada->texto_ingresado, 180) }}</div>
+                        <div class="text-body diario-texto">{{ \Illuminate\Support\Str::limit($ultimaEntrada->texto_ingresado, 180) }}</div>
                     </div>
                 @endif
 

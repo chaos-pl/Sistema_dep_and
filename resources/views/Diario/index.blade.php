@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('page-class', 'student-page')
 
 @section('title', 'Diario Emocional - PROMETEO')
 @section('page-title', 'Diario Emocional')
@@ -119,7 +120,7 @@
 
         <div class="col-12 anime-item">
             <div class="app-card p-4 p-md-5 border-0 shadow-sm rounded-4">
-                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary border-opacity-10 pb-3">
+                <div class="diary-history-heading d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary border-opacity-10 pb-3">
                     <div>
                         <h4 class="fw-black mb-1 text-body">Historial de entradas</h4>
                         <p class="text-body-secondary mb-0 small">Solo puedes ver tus propios registros.</p>
@@ -132,7 +133,7 @@
 
                 @forelse($entradas as $entrada)
                     <div class="diario-card bg-body-tertiary rounded-4 p-4 mb-3 shadow-sm border border-secondary border-opacity-10">
-                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+                        <div class="diary-entry-heading d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
                             <div class="fw-bold text-body">
                                 <i class="bi bi-calendar-event me-2 text-primary"></i>
                                 {{ $entrada->created_at?->format('d/m/Y H:i') }}

@@ -151,7 +151,7 @@
                                             2 => 'Bastante / Buena parte del tiempo',
                                             3 => 'Mucho / La mayor parte del tiempo'
                                         ] as $valor => $texto)
-                                            <div class="col-6 col-lg-3">
+                                            <div class="col-12 col-sm-6 col-lg-3">
                                                 <label class="option-tile w-100" for="p{{ $question->id }}_{{ $valor }}">
                                                     <input class="option-input step-radio" type="radio" name="answers[{{ $question->id }}]" @checked((string) old("answers.$question->id", $draftAnswers[$question->id] ?? '') === (string) $valor) id="p{{ $question->id }}_{{ $valor }}" value="{{ $valor }}" data-step="{{ $loop->parent->iteration }}">
                                                     <div class="reactivo-valor">{{ $valor }}</div>

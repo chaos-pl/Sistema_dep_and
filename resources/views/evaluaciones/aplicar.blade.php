@@ -285,7 +285,7 @@
                                             2 => 'Más de la mitad de los días',
                                             3 => 'Casi todos los días'
                                         ] as $valor => $texto)
-                                            <div class="col-6 col-lg-3">
+                                            <div class="col-12 col-sm-6 col-lg-3">
                                                 <label class="option-tile w-100" for="p{{ $numero }}_{{ $valor }}">
                                                     <input class="option-input step-radio"
                                                            type="radio"

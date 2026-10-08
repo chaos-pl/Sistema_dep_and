@@ -74,9 +74,11 @@
                         <a href="{{ route('admin.expedientes-pendientes.index') }}" class="btn btn-light border px-4 rounded-pill fw-bold text-body-secondary shadow-sm">
                             <i class="bi bi-arrow-left me-2"></i>Cancelar
                         </a>
+                        @if((auth()->user()->hasRole('admin') || auth()->user()->can('estudiantes.asignar_grupo')))
                         <button type="submit" class="btn btn-primary px-5 rounded-pill fw-bold shadow-sm">
                             <i class="bi bi-save me-2"></i>Guardar Expediente
                         </button>
+                        @endif
                     </div>
                 </form>
             </div>

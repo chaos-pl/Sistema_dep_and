@@ -8,7 +8,10 @@ class CompletarExpedienteEstudianteRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return auth()->check() && auth()->user()->hasRole('admin');
+        $user = $this->user();
+
+        return $user && ($user->hasRole('admin')
+            || ($user->hasRole('control_escolar') && $user->can('estudiantes.asignar_grupo')));
     }
 
     public function rules(): array

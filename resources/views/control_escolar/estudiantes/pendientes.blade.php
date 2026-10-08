@@ -51,10 +51,12 @@ body.theme-dark .modal-content,body.theme-system .modal-content{background-color
                         @endif
                     </td>
                     <td class="text-end px-4 py-3 border-0">
-                        @if($usuario->persona)
+                        @if($usuario->persona && (auth()->user()->hasRole('admin') || auth()->user()->can('estudiantes.asignar_grupo')))
                             <button data-bs-toggle="modal" data-bs-target="#modalExpediente{{ $usuario->id }}" class="btn btn-sm btn-primary rounded-pill fw-bold shadow-sm px-3" title="Completar expediente"><i class="bi bi-file-earmark-plus me-1"></i>Crear Expediente</button>
-                        @else
+                        @elseif(!$usuario->persona && auth()->user()->hasRole('admin') && auth()->user()->can('personas.ver'))
                             <a href="{{ route('admin.personas.index') }}" class="btn btn-sm btn-warning text-dark rounded-pill fw-bold shadow-sm px-3"><i class="bi bi-exclamation-triangle me-1"></i>Vincular Persona</a>
+                        @elseif(!$usuario->persona)
+                            <span>Requiere vinculación de persona por Administración.</span>
                         @endif
                     </td>
                 </tr>
@@ -122,7 +124,7 @@ body.theme-dark .modal-content,body.theme-system .modal-content{background-color
 {{-- =============================================== --}}
 @php $gruposForm = $grupos; @endphp
 @foreach($sinExpediente as $usuario)
-    @if($usuario->persona)
+    @if($usuario->persona && (auth()->user()->hasRole('admin') || auth()->user()->can('estudiantes.asignar_grupo')))
     <div class="modal fade" id="modalExpediente{{ $usuario->id }}" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
         <div class="modal-header modal-header-custom"><h5 class="modal-title fw-black mb-0"><i class="bi bi-file-earmark-plus me-2"></i>Crear Expediente</h5><button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal"></button></div>
         <form action="{{ route('admin.expedientes-pendientes.update', $usuario->id) }}" method="POST">@csrf @method('PUT')
