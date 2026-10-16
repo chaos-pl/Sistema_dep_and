@@ -12,9 +12,26 @@ class EvolucionController extends Controller
 {
     public function own(Request $request)
     {
-        abort_unless($request->user()->hasRole('estudiante') && $request->user()->can('evaluaciones.historial.propio'), 403);
-        $student = $request->user()->persona?->estudiante;
-        abort_unless($student, 403);
+        $user = $request->user();
+
+        abort_unless(
+            $user->hasRole('estudiante')
+            && $user->can('evaluaciones.historial.propio'),
+            403
+        );
+
+        $student = $user->persona?->estudiante;
+
+        if (! $student) {
+            \RealRashid\SweetAlert\Facades\Alert::info(
+                'Expediente pendiente',
+                'Tu cuenta fue registrada correctamente. '
+                .'Mi evolución estará disponible cuando administración '
+                .'o control escolar complete tu expediente de estudiante.'
+            );
+
+            return redirect()->route('estudiante.dashboard');
+        }
 
         return $this->render($request, $student);
     }
