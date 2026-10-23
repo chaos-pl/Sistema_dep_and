@@ -12,13 +12,20 @@ class RegisterStudentRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if (is_string($this->input('matricula'))) {
+            $this->merge(['matricula' => strtoupper($this->input('matricula'))]);
+        }
+    }
+
     public function rules(): array
     {
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::default()],
-            'matricula' => ['bail', 'required', 'string', 'regex:/\A[0-9]{9}\z/', 'unique:estudiantes,matricula'],
+            'matricula' => ['bail', 'required', 'string', 'regex:/\A[0-9]{9}C?\z/', 'unique:estudiantes,matricula'],
 
             'nombre' => ['required', 'string', 'max:100'],
             'apellido_paterno' => ['required', 'string', 'max:100'],
@@ -33,8 +40,8 @@ class RegisterStudentRequest extends FormRequest
     {
         return [
             'matricula.required' => 'El número de cuenta es obligatorio.',
-            'matricula.string' => 'El número de cuenta debe contener exactamente 9 dígitos.',
-            'matricula.regex' => 'El número de cuenta debe contener exactamente 9 dígitos, sin letras ni espacios.',
+            'matricula.string' => 'El número de cuenta debe contener 9 dígitos y, si eres estudiante de cambio, una C al final.',
+            'matricula.regex' => 'Ingresa 9 dígitos, opcionalmente seguidos de una C para estudiantes de cambio, sin espacios ni otras letras.',
             'matricula.unique' => 'Este número de cuenta ya está registrado.',
         ];
     }

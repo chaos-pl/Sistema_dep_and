@@ -80,8 +80,8 @@
 
                             <div class="col-12 anime-input">
                                 <label for="matricula" class="form-label fw-bold text-secondary">Número de cuenta</label>
-                                <input type="text" id="matricula" name="matricula" class="form-control" value="{{ old('matricula') }}" placeholder="Ej. 202307036" inputmode="numeric" pattern="[0-9]{9}" minlength="9" maxlength="9" aria-describedby="matricula-help" required>
-                                <small id="matricula-help" class="text-muted">Ingresa los 9 dígitos de tu número de cuenta, sin letras ni espacios.</small>
+                                <input type="text" id="matricula" name="matricula" class="form-control" value="{{ old('matricula') }}" placeholder="Ej. 202307036 o 202307036C" pattern="[0-9]{9}[Cc]?" minlength="9" maxlength="10" aria-describedby="matricula-help" required>
+                                <small id="matricula-help" class="text-muted">Ingresa 9 dígitos. Si eres estudiante de cambio, agrega la C al final (10 caracteres). Sin espacios ni otras letras.</small>
                                 @error('matricula')<small class="text-danger fw-bold mt-1 d-block"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</small>@enderror
                             </div>
 
