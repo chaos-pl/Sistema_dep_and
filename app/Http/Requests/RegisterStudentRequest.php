@@ -25,7 +25,7 @@ class RegisterStudentRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::default()],
-            'matricula' => ['bail', 'required', 'string', 'regex:/\A[0-9]{9}C?\z/', 'unique:estudiantes,matricula'],
+            'matricula' => ['bail', 'required', 'string', 'regex:/\AC?[0-9]{9}\z/', 'unique:estudiantes,matricula'],
 
             'nombre' => ['required', 'string', 'max:100'],
             'apellido_paterno' => ['required', 'string', 'max:100'],
@@ -40,8 +40,8 @@ class RegisterStudentRequest extends FormRequest
     {
         return [
             'matricula.required' => 'El número de cuenta es obligatorio.',
-            'matricula.string' => 'El número de cuenta debe contener 9 dígitos y, si eres estudiante de cambio, una C al final.',
-            'matricula.regex' => 'Ingresa 9 dígitos, opcionalmente seguidos de una C para estudiantes de cambio, sin espacios ni otras letras.',
+            'matricula.string' => 'El número de cuenta debe contener 9 dígitos y, si eres estudiante de cambio, una C al inicio.',
+            'matricula.regex' => 'Ingresa 9 dígitos, opcionalmente precedidos de una C para estudiantes de cambio, sin espacios ni otras letras.',
             'matricula.unique' => 'Este número de cuenta ya está registrado.',
         ];
     }

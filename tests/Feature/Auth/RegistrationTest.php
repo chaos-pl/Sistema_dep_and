@@ -62,12 +62,12 @@ class RegistrationTest extends TestCase
 
     public static function invalidAccountNumbers(): array
     {
-        return [[''], ['20230703'], ['2023070360'], ['20230703A'], ['202 07036'], ['202307.36'], ['202307036'."\n".'1'], ['C202307036'], ['20230703C'], ['202307036CC'], ['202307036A'], ['202307036 C']];
+        return [[''], ['20230703'], ['2023070360'], ['20230703A'], ['202 07036'], ['202307.36'], ['202307036'."\n".'1'], ['202307036C'], ['C20230703'], ['CC202307036'], ['C2023070360'], ['C 202307036'], ['A202307036'], ['20230703C'], ['202307036CC'], ['202307036A'], ['202307036 C']];
     }
 
     public static function transferAccountNumbers(): array
     {
-        return [['002307036C'], ['002307036c']];
+        return [['C002307036'], ['c002307036']];
     }
 
     #[DataProvider('transferAccountNumbers')]
@@ -75,10 +75,10 @@ class RegistrationTest extends TestCase
     {
         $this->seed(RolesAndPermissionsSeeder::class);
         $this->post('/register', $this->registrationData($matricula))->assertSessionHasNoErrors();
-        $this->assertDatabaseHas('estudiantes', ['matricula' => '002307036C']);
+        $this->assertDatabaseHas('estudiantes', ['matricula' => 'C002307036']);
         $this->post('/logout');
 
-        $data = $this->registrationData('002307036c');
+        $data = $this->registrationData('c002307036');
         $data['email'] = 'another@example.com';
         $this->post('/register', $data)->assertSessionHasErrors('matricula');
         $this->assertDatabaseCount('users', 1);
