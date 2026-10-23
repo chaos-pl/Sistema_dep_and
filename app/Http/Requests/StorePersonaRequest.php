@@ -20,7 +20,7 @@ class StorePersonaRequest extends FormRequest
             'apellido_materno' => ['nullable', 'string', 'max:100'],
             'fecha_nacimiento' => ['required', 'date'],
             'genero' => ['required', 'in:masculino,femenino,otro,prefiero_no_decirlo'],
-            'telefono' => ['nullable', 'string', 'max:20'],
+            'telefono' => ['nullable', new \App\Rules\PhoneNumber],
         ];
     }
 }

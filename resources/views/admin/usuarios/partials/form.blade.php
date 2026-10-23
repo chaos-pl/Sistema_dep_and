@@ -1,3 +1,4 @@
+<p class="small text-muted">Para una contraseña nueva: mínimo 8 caracteres, con mayúsculas, minúsculas, números y un carácter especial.</p>
 <div class="row g-4">
 
     <div class="col-12">
@@ -65,7 +66,7 @@
             </span>
             <input
                 type="password"
-                name="password"
+                name="password" minlength="8" title="Mínimo 8 caracteres, con mayúsculas, minúsculas, números y un carácter especial."
                 id="password"
                 class="form-control form-control-lg bg-light border-start-0 ps-0"
                 placeholder="••••••••"

@@ -1,4 +1,5 @@
 @csrf
+<p class="small text-muted">Para una contraseña nueva: mínimo 8 caracteres, con mayúsculas, minúsculas, números y un carácter especial.</p>
 @if(isset($method) && strtoupper($method) !== 'POST')
     @method($method)
 @endif
@@ -56,7 +57,7 @@
         <label class="form-label fw-bold text-body-secondary">Teléfono <span class="fw-normal text-body-secondary">(Opcional)</span></label>
         <div class="input-group">
             <span class="input-group-text bg-body-tertiary border-end-0 text-body-secondary"><i class="bi bi-telephone"></i></span>
-            <input type="text" name="telefono" value="{{ old('telefono', $psicologo->persona->telefono ?? '') }}" class="form-control form-control-lg bg-body-tertiary border-start-0 ps-0" placeholder="10 dígitos">
+            <input type="text" name="telefono" inputmode="numeric" minlength="10" maxlength="10" pattern="[0-9]{10}" title="Ingresa exactamente 10 dígitos, sin letras, espacios ni guiones." value="{{ old('telefono', $psicologo->persona->telefono ?? '') }}" class="form-control form-control-lg bg-body-tertiary border-start-0 ps-0" placeholder="10 dígitos">
         </div>
         @error('telefono') <small class="text-danger fw-bold mt-1 d-block"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</small> @enderror
     </div>
@@ -91,7 +92,7 @@
             @if(isset($psicologo)) <span class="fw-normal text-body-secondary">(Opcional)</span> @endif
         </label>
         <div class="position-relative">
-            <input type="password" name="password" id="password" class="form-control form-control-lg bg-body-tertiary {{ isset($psicologo) ? '' : 'pe-5' }}" placeholder="Mínimo 8 caracteres" {{ isset($psicologo) ? '' : 'required' }}>
+            <input type="password" name="password" minlength="8" title="Mínimo 8 caracteres, con mayúsculas, minúsculas, números y un carácter especial." id="password" class="form-control form-control-lg bg-body-tertiary {{ isset($psicologo) ? '' : 'pe-5' }}" placeholder="Mínimo 8 caracteres" {{ isset($psicologo) ? '' : 'required' }}>
             @if(!isset($psicologo))
                 <button type="button" class="btn position-absolute end-0 top-50 translate-middle-y text-body-secondary border-0 bg-transparent me-2" onclick="togglePasswordVisibility('password', 'togglePasswordIcon')">
                     <i class="bi bi-eye" id="togglePasswordIcon"></i>

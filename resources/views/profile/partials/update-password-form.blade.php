@@ -11,6 +11,7 @@
 
     <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-6">
         @csrf
+<p class="small text-muted">Para una contraseña nueva: mínimo 8 caracteres, con mayúsculas, minúsculas, números y un carácter especial.</p>
         @method('put')
 
         <div>
@@ -21,7 +22,7 @@
 
         <div>
             <x-input-label for="update_password_password" :value="__('New Password')" />
-            <x-text-input id="update_password_password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password" />
+            <x-text-input id="update_password_password" name="password" minlength="8" title="Mínimo 8 caracteres, con mayúsculas, minúsculas, números y un carácter especial." type="password" class="mt-1 block w-full" autocomplete="new-password" />
             <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2" />
         </div>
 

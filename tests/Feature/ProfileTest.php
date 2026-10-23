@@ -119,13 +119,13 @@ class ProfileTest extends TestCase
     {
         $user = User::factory()->create(['acepto_consentimiento' => true]);
         $this->actingAs($user)->from('/perfil')->put('/perfil/password', [
-            'current_password' => 'wrong', 'password' => 'new-password', 'password_confirmation' => 'new-password',
+            'current_password' => 'wrong', 'password' => 'NuevaClave2026!', 'password_confirmation' => 'NuevaClave2026!',
         ])->assertSessionHasErrorsIn('updatePassword', 'current_password');
         $this->assertTrue(Hash::check('password', $user->fresh()->password));
         $this->put('/perfil/password', [
-            'current_password' => 'password', 'password' => 'new-password', 'password_confirmation' => 'new-password',
+            'current_password' => 'password', 'password' => 'NuevaClave2026!', 'password_confirmation' => 'NuevaClave2026!',
         ])->assertSessionHasNoErrors();
-        $this->assertTrue(Hash::check('new-password', $user->fresh()->password));
+        $this->assertTrue(Hash::check('NuevaClave2026!', $user->fresh()->password));
     }
 
     public function test_appearance_rejects_arbitrary_values_and_saves_valid_preferences(): void

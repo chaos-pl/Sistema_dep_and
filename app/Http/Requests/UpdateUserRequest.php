@@ -30,7 +30,7 @@ class UpdateUserRequest extends FormRequest
         ];
 
         if ($this->filled('password')) {
-            $rules['password'] = ['required', 'string', 'min:8', 'confirmed'];
+            $rules['password'] = ['required', 'string', \Illuminate\Validation\Rules\Password::defaults(), 'confirmed'];
         } else {
             $rules['password'] = ['nullable'];
         }

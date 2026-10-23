@@ -20,9 +20,9 @@ class StorePsicologoRequest extends FormRequest
             'apellido_materno' => ['nullable', 'string', 'max:100'],
             'fecha_nacimiento' => ['required', 'date'],
             'genero' => ['required', Rule::in(['masculino', 'femenino', 'otro', 'prefiero_no_decirlo'])],
-            'telefono' => ['nullable', 'string', 'max:20'],
+            'telefono' => ['nullable', new \App\Rules\PhoneNumber],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', \Illuminate\Validation\Rules\Password::defaults(), 'confirmed'],
             'cedula_profesional' => ['required', 'string', 'max:50', 'unique:psicologos,cedula_profesional'],
         ];
     }

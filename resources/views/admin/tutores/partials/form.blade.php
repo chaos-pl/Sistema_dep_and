@@ -62,6 +62,7 @@
 @endphp
 
 @csrf
+<p class="small text-muted">Para una contraseña nueva: mínimo 8 caracteres, con mayúsculas, minúsculas, números y un carácter especial.</p>
 @if(isset($method) && strtoupper($method) !== 'POST')
     @method($method)
 @endif
@@ -184,7 +185,7 @@
                     <i class="bi bi-telephone"></i>
                 </span>
                 <input type="text"
-                       name="telefono"
+                       name="telefono" inputmode="numeric" minlength="10" maxlength="10" pattern="[0-9]{10}" title="Ingresa exactamente 10 dígitos, sin letras, espacios ni guiones."
                        value="{{ $telefonoValue }}"
                        class="form-control form-control-lg bg-body-tertiary border-start-0 ps-0 @if($isCurrentModalError) @error('telefono') is-invalid @enderror @endif"
                        placeholder="10 dígitos">
@@ -257,7 +258,7 @@
             </label>
             <div class="position-relative">
                 <input type="password"
-                       name="password"
+                       name="password" minlength="8" title="Mínimo 8 caracteres, con mayúsculas, minúsculas, números y un carácter especial."
                        id="{{ $passwordId }}"
                        class="form-control form-control-lg bg-body-tertiary pe-5 @if($isCurrentModalError) @error('password') is-invalid @enderror @endif"
                        placeholder="Mínimo 8 caracteres"

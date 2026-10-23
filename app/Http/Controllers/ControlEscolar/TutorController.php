@@ -50,10 +50,10 @@ class TutorController extends Controller implements HasMiddleware
             'apellido_materno' => 'nullable|string|max:100',
             'fecha_nacimiento' => 'required|date',
             'genero' => 'required|in:masculino,femenino,otro,prefiero_no_decirlo',
-            'telefono' => 'nullable|string|max:20',
+            'telefono' => ['nullable', new \App\Rules\PhoneNumber],
             'numero_empleado' => 'required|string|max:50|unique:tutores,numero_empleado',
             'email' => 'required|email|max:255|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'string', \Illuminate\Validation\Rules\Password::defaults(), 'confirmed'],
         ]);
 
         DB::transaction(function () use ($request) {

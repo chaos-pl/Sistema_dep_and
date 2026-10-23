@@ -30,6 +30,7 @@
 
                     <form method="POST" action="{{ route('register') }}">
                         @csrf
+<p class="small text-muted">Para una contraseña nueva: mínimo 8 caracteres, con mayúsculas, minúsculas, números y un carácter especial.</p>
 
                         <div class="row g-4">
                             <div class="col-12 anime-input">
@@ -53,7 +54,7 @@
                             <div class="col-md-6 anime-input">
                                 <label class="form-label fw-bold text-secondary">Contraseña</label>
                                 <div class="position-relative">
-                                    <input type="password" name="password" id="password" class="form-control pe-5" placeholder="Mínimo 8 caracteres" required>
+                                    <input type="password" name="password" minlength="8" title="Mínimo 8 caracteres, con mayúsculas, minúsculas, números y un carácter especial." id="password" class="form-control pe-5" placeholder="Mínimo 8 caracteres" required>
                                     <button type="button" class="btn position-absolute end-0 top-50 translate-middle-y text-muted border-0 bg-transparent me-2" onclick="togglePasswordVisibility('password', 'togglePasswordIcon')">
                                         <i class="bi bi-eye" id="togglePasswordIcon"></i>
                                     </button>
@@ -75,6 +76,13 @@
                                 <h5 class="fw-bold section-title">
                                     <i class="bi bi-person-vcard-fill me-2"></i>Expediente Personal
                                 </h5>
+                            </div>
+
+                            <div class="col-12 anime-input">
+                                <label for="matricula" class="form-label fw-bold text-secondary">Número de cuenta</label>
+                                <input type="text" id="matricula" name="matricula" class="form-control" value="{{ old('matricula') }}" placeholder="Ej. 202307036" inputmode="numeric" pattern="[0-9]{9}" minlength="9" maxlength="9" aria-describedby="matricula-help" required>
+                                <small id="matricula-help" class="text-muted">Ingresa los 9 dígitos de tu número de cuenta, sin letras ni espacios.</small>
+                                @error('matricula')<small class="text-danger fw-bold mt-1 d-block"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</small>@enderror
                             </div>
 
                             <div class="col-md-4 anime-input">
@@ -115,7 +123,7 @@
 
                             <div class="col-md-4 anime-input">
                                 <label class="form-label fw-bold text-secondary">Teléfono <span class="fw-normal text-muted">(Opcional)</span></label>
-                                <input type="text" name="telefono" class="form-control" value="{{ old('telefono') }}" placeholder="10 dígitos">
+                                <input type="text" name="telefono" inputmode="numeric" minlength="10" maxlength="10" pattern="[0-9]{10}" title="Ingresa exactamente 10 dígitos, sin letras, espacios ni guiones." class="form-control" value="{{ old('telefono') }}" placeholder="10 dígitos">
                                 @error('telefono')<small class="text-danger fw-bold mt-1 d-block"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</small>@enderror
                             </div>
                         </div>

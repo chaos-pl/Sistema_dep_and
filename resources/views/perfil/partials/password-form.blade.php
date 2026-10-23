@@ -11,6 +11,7 @@
 
     <form method="POST" action="{{ route('perfil.password.update') }}">
         @csrf
+<p class="small text-muted">Para una contraseña nueva: mínimo 8 caracteres, con mayúsculas, minúsculas, números y un carácter especial.</p>
         @method('PUT')
 
         <div class="row g-4">
@@ -32,7 +33,7 @@
                 <label for="password" class="form-label fw-bold text-secondary">Nueva contraseña</label>
                 <div class="input-group">
                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock-fill"></i></span>
-                    <input id="password" name="password" type="password" class="form-control form-control-lg bg-light border-start-0 border-end-0 ps-0 @if($errors->updatePassword->has('password')) is-invalid @endif" required placeholder="Min. 8 caracteres">
+                    <input id="password" name="password" minlength="8" title="Mínimo 8 caracteres, con mayúsculas, minúsculas, números y un carácter especial." type="password" class="form-control form-control-lg bg-light border-start-0 border-end-0 ps-0 @if($errors->updatePassword->has('password')) is-invalid @endif" required placeholder="Min. 8 caracteres">
                     <button class="input-group-text bg-light border-start-0 text-muted" type="button" onclick="togglePasswordVisibility('password', 'icon_new_pwd')">
                         <i class="bi bi-eye-fill" id="icon_new_pwd"></i>
                     </button>

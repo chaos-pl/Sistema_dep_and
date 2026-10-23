@@ -55,7 +55,7 @@ class ProfileController extends Controller
             'apellido_materno' => ['nullable', 'string', 'max:100'],
             'fecha_nacimiento' => ['required', 'date'],
             'genero' => ['required', 'in:masculino,femenino,otro,prefiero_no_decirlo'],
-            'telefono' => ['nullable', 'string', 'max:20'],
+            'telefono' => ['nullable', new \App\Rules\PhoneNumber],
         ]);
 
         // Guardamos en la tabla personas y la relacionamos con este user_id

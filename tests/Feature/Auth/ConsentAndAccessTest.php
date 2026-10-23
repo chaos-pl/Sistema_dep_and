@@ -64,11 +64,11 @@ class ConsentAndAccessTest extends TestCase
     public function test_registration_rejects_incomplete_data_and_ignores_injected_privileges(): void
     {
         $this->seed(RolesAndPermissionsSeeder::class);
-        $data = ['name' => 'Synthetic', 'email' => 'synthetic@example.test', 'password' => 'password', 'password_confirmation' => 'password'];
+        $data = ['name' => 'Synthetic', 'email' => 'synthetic@example.test', 'password' => 'Prueba2026!', 'password_confirmation' => 'Prueba2026!'];
         $this->post('/register', $data)->assertSessionHasErrors(['nombre', 'apellido_paterno', 'fecha_nacimiento', 'genero']);
         $this->assertDatabaseCount('users', 0);
         $this->post('/register', $data + ['nombre' => 'Synthetic', 'apellido_paterno' => 'Test', 'fecha_nacimiento' => '2000-01-01',
-            'genero' => 'otro', 'role' => 'admin', 'acepto_consentimiento' => true])->assertRedirect(route('consentimiento.create'));
+            'genero' => 'otro', 'matricula' => '202307036', 'role' => 'admin', 'acepto_consentimiento' => true])->assertRedirect(route('consentimiento.create'));
         $user = User::firstOrFail();
         $this->assertTrue($user->hasRole('estudiante'));
         $this->assertFalse($user->hasRole('admin'));

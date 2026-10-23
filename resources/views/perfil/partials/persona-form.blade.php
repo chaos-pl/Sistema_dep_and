@@ -53,7 +53,7 @@
 
             <div class="col-md-4">
                 <label class="form-label fw-bold text-secondary">Teléfono <span class="text-muted fw-normal">(Opc.)</span></label>
-                <input type="text" name="telefono" class="form-control form-control-lg bg-light" value="{{ old('telefono', $persona->telefono ?? '') }}" placeholder="10 dígitos">
+                <input type="text" name="telefono" inputmode="numeric" minlength="10" maxlength="10" pattern="[0-9]{10}" title="Ingresa exactamente 10 dígitos, sin letras, espacios ni guiones." class="form-control form-control-lg bg-light" value="{{ old('telefono', $persona->telefono ?? '') }}" placeholder="10 dígitos">
                 @error('telefono')<small class="text-danger fw-bold mt-1 d-block">{{ $message }}</small>@enderror
             </div>
         </div>
