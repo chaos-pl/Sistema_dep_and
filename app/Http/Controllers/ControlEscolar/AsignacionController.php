@@ -44,28 +44,19 @@ class AsignacionController extends Controller implements HasMiddleware
             'ciclo_escolar_id' => 'nullable|exists:ciclos_escolares,id',
         ]);
 
-        $exists = GrupoTutor::where('grupo_id', $request->grupo_id)
-            ->where('tutor_id', $request->tutor_id)
-            ->where('ciclo_escolar_id', $request->ciclo_escolar_id)
-            ->whereNull('deleted_at')
-            ->exists();
-
-        if ($exists) {
-            Alert::warning('Ya existe', 'Esta asignación de tutor-grupo ya está registrada.');
-
-            return redirect()->route('control_escolar.asignaciones.index');
-        }
-
-        GrupoTutor::create($request->only('grupo_id', 'tutor_id', 'ciclo_escolar_id'));
-
+        $grupo = Grupo::findOrFail($request->grupo_id);
+        app(\App\Services\GroupTutorAssignmentService::class)->save($grupo, [
+            'tutor_id' => $request->tutor_id,
+            'ciclo_escolar_id' => $request->ciclo_escolar_id ?? $grupo->ciclo_escolar_id,
+        ]);
         Alert::success('Asignación creada', 'El tutor fue asignado al grupo correctamente.');
 
         return redirect()->route('control_escolar.asignaciones.index');
     }
 
-    public function destroy(GrupoTutor $asignacione)
+    public function destroy(GrupoTutor $asignacion)
     {
-        $asignacione->delete();
+        app(\App\Services\GroupTutorAssignmentService::class)->remove($asignacion);
 
         Alert::success('Asignación eliminada', 'La asignación fue removida correctamente.');
 

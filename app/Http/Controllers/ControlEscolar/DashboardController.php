@@ -39,6 +39,7 @@ class DashboardController extends Controller implements HasMiddleware
         $carrerasActivas = Carrera::where('estado', 'activo')->count();
         $totalTutores = Tutor::count();
         $ciclosActivos = CicloEscolar::where('estado', 'activo')->count();
+        $ciclosRecientes = CicloEscolar::withCount('grupos')->orderByDesc('fecha_inicio')->take(6)->get();
 
         // Consultas corregidas: incluir users sin expediente
         $sinExpediente = User::role('estudiante')
@@ -84,6 +85,7 @@ class DashboardController extends Controller implements HasMiddleware
             'carrerasActivas',
             'totalTutores',
             'ciclosActivos',
+            'ciclosRecientes',
             'sinExpediente',
             'tutoresSinGrupo',
             'totalPendientes',

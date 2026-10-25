@@ -44,33 +44,39 @@ class CicloEscolarController extends Controller implements HasMiddleware
         return redirect()->route('control_escolar.ciclos-escolares.index');
     }
 
-    public function update(Request $request, CicloEscolar $ciclos_escolare)
+    public function show(CicloEscolar $cicloEscolar)
+    {
+        $grupos = $cicloEscolar->grupos()->with(['carrera', 'tutor.persona'])->withCount('estudiantes')->orderBy('nombre')->paginate(15);
+        return view('control_escolar.ciclos_escolares.show', compact('cicloEscolar', 'grupos'));
+    }
+
+    public function update(Request $request, CicloEscolar $cicloEscolar)
     {
         $request->validate([
-            'nombre' => 'required|string|max:100|unique:ciclos_escolares,nombre,'.$ciclos_escolare->id,
+            'nombre' => 'required|string|max:100|unique:ciclos_escolares,nombre,'.$cicloEscolar->id,
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after:fecha_inicio',
             'estado' => 'required|in:activo,inactivo,cerrado',
         ]);
 
-        $ciclos_escolare->update($request->only('nombre', 'fecha_inicio', 'fecha_fin', 'estado'));
+        $cicloEscolar->update($request->only('nombre', 'fecha_inicio', 'fecha_fin', 'estado'));
 
         Alert::success('Ciclo actualizado', 'El ciclo escolar fue actualizado correctamente.');
 
         return redirect()->route('control_escolar.ciclos-escolares.index');
     }
 
-    public function destroy(CicloEscolar $ciclos_escolare)
+    public function destroy(CicloEscolar $cicloEscolar)
     {
-        $ciclos_escolare->loadCount('grupos');
+        $cicloEscolar->loadCount('grupos');
 
-        if ($ciclos_escolare->grupos_count > 0) {
+        if ($cicloEscolar->grupos_count > 0) {
             Alert::warning('No permitido', 'No puedes eliminar un ciclo que tiene grupos asociados.');
 
             return redirect()->route('control_escolar.ciclos-escolares.index');
         }
 
-        $ciclos_escolare->delete();
+        $cicloEscolar->delete();
 
         Alert::success('Ciclo eliminado', 'El ciclo escolar fue eliminado correctamente.');
 

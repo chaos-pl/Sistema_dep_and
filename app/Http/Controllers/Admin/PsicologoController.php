@@ -20,17 +20,46 @@ class PsicologoController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('admin.psicologos.index', compact('psicologos'));
+        $personasDisponibles = $this->personasDisponibles();
+
+        return view('admin.psicologos.index', compact('psicologos', 'personasDisponibles'));
     }
 
     public function create()
     {
-        return view('admin.psicologos.create');
+        return view('admin.psicologos.create', ['personasDisponibles' => $this->personasDisponibles()]);
+    }
+
+    private function personasDisponibles()
+    {
+        return Persona::with('user.roles')->whereHas('user')->whereDoesntHave('psicologo')
+            ->orderBy('nombre')->orderBy('apellido_paterno')->get();
     }
 
     public function store(StorePsicologoRequest $request)
     {
         DB::transaction(function () use ($request) {
+            if ($request->validated('tipo_registro') === 'existente') {
+                $persona = Persona::whereKey($request->validated('persona_id'))->lockForUpdate()->firstOrFail();
+                if ($persona->psicologo()->exists() || ! $persona->user) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'persona_id' => 'La persona ya tiene perfil de psicólogo o no tiene una cuenta activa.',
+                    ]);
+                }
+
+                // El contacto existente se conserva; aquí solo se completa si falta.
+                if (! $persona->telefono && $request->filled('telefono')) {
+                    $persona->update(['telefono' => $request->validated('telefono')]);
+                }
+                Psicologo::create([
+                    'persona_id' => $persona->id,
+                    'cedula_profesional' => $request->validated('cedula_profesional'),
+                ]);
+                $persona->user->assignRole('psicologo');
+
+                return;
+            }
+
             $nombreCompleto = trim(
                 $request->nombre . ' ' .
                 $request->apellido_paterno . ' ' .
@@ -136,16 +165,12 @@ class PsicologoController extends Controller
 
             $psicologo->delete();
 
-            if ($persona) {
-                $persona->delete();
-            }
-
             if ($user) {
-                $user->delete();
+                $user->removeRole('psicologo');
             }
         });
 
-        Alert::success('Psicólogo eliminado', 'El psicólogo fue eliminado correctamente.');
+        Alert::success('Perfil eliminado', 'Se retiró el perfil de psicólogo. La persona, su cuenta y sus otros roles se conservan.');
 
         return redirect()->route('admin.psicologos.index');
     }

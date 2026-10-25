@@ -75,6 +75,10 @@
 @endif
 
 <div class="modal-body modal-body-custom">
+    @if(!$tutor->exists)
+        @include('admin.tutores.partials.persona-selector')
+    @endif
+    <fieldset data-new-person @if(!$tutor->exists && old('tipo_registro') === 'existente') disabled hidden @endif>
     <div class="row g-4">
         <div class="col-12">
             <h6 class="fw-bold text-primary border-bottom border-primary border-opacity-25 pb-2 mb-2">
@@ -295,6 +299,7 @@
             </div>
         </div>
     </div>
+    </fieldset>
 </div>
 
 <div class="modal-footer modal-footer-custom d-flex justify-content-between gap-2">

@@ -1,4 +1,10 @@
 @csrf
+@if(!isset($psicologo))
+    @include('admin.psicologos.partials.persona-selector')
+@else
+    <p class="text-body-secondary">Los datos personales y de acceso se comparten con los demás perfiles de esta persona.</p>
+@endif
+<fieldset data-new-person @if(!isset($psicologo) && old('tipo_registro') === 'existente') disabled hidden @endif>
 <p class="small text-muted">Para una contraseña nueva: mínimo 8 caracteres, con mayúsculas, minúsculas, números y un carácter especial.</p>
 @if(isset($method) && strtoupper($method) !== 'POST')
     @method($method)
@@ -114,5 +120,4 @@
         </div>
     </div>
 </div>
-
-
+</fieldset>

@@ -345,6 +345,7 @@
             </div>
         </div>
     @endforeach
+<x-tutor-modal-navigation />
 @endsection
 
 @push('scripts')
@@ -430,7 +431,7 @@
                 if (modalType === 'create') {
                     const modalElement = document.getElementById('modalCreateTutor');
                     if (modalElement) {
-                        const modal = new bootstrap.Modal(modalElement);
+                        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
                         modal.show();
                     }
                 }
@@ -438,7 +439,7 @@
                 if (modalType === 'edit' && modalId) {
                     const modalElement = document.getElementById('modalEditTutor' + modalId);
                     if (modalElement) {
-                        const modal = new bootstrap.Modal(modalElement);
+                        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
                         modal.show();
                     }
                 }

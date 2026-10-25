@@ -403,7 +403,7 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
 
             Route::resource('ciclos-escolares', CECicloEscolarController::class)
                 ->parameters(['ciclos-escolares' => 'cicloEscolar'])
-                ->except(['create', 'edit', 'show']);
+                ->except(['create', 'edit']);
 
             /*
             |--------------------------------------------------------------------------
@@ -477,6 +477,9 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
 
             Route::get('tutores/{tutor}/edit', [CETutorController::class, 'edit'])
                 ->name('tutores.edit');
+
+            Route::get('tutores/{tutor}', [CETutorController::class, 'show'])
+                ->name('tutores.show');
 
             Route::put('tutores/{tutor}', [CETutorController::class, 'update'])
                 ->name('tutores.update');

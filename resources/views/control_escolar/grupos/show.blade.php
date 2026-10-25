@@ -12,6 +12,10 @@
             <h4 class="fw-black text-body mb-1"><i class="bi bi-collection-fill text-primary me-2"></i>{{ $grupo->nombre }}</h4>
             <p class="text-body-secondary mb-0">Carrera: <strong>{{ $grupo->carrera?->nombre ?? '—' }}</strong> · Periodo: <strong>{{ $grupo->periodo }}</strong> · Ciclo: <strong>{{ $grupo->cicloEscolar?->nombre ?? '—' }}</strong></p>
             <p class="text-body-secondary mb-0">Tutor: <strong>{{ $grupo->tutor?->persona?->nombre ?? 'Sin asignar' }} {{ $grupo->tutor?->persona?->apellido_paterno ?? '' }}</strong></p>
+            <div class="d-flex gap-2 mt-3">
+                @can('tutores.ver') @if($grupo->tutor)<a class="btn btn-sm btn-outline-primary" href="{{ route('control_escolar.tutores.show', $grupo->tutor) }}">Ver tutor</a>@endif @endcan
+                @can('ciclos_escolares.ver') @if($grupo->cicloEscolar)<a class="btn btn-sm btn-outline-primary" href="{{ route('control_escolar.ciclos-escolares.show', $grupo->cicloEscolar) }}">Ver ciclo escolar</a>@endif @endcan
+            </div>
         </div>
         <a href="{{ route('control_escolar.grupos.index') }}" class="btn btn-light rounded-pill fw-bold shadow-sm px-4"><i class="bi bi-arrow-left me-2"></i>Volver a Grupos</a>
     </div>

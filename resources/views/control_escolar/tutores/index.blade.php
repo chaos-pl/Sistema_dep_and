@@ -13,7 +13,7 @@
         <div class="col-lg-5"><h4 class="fw-black text-body mb-1"><i class="bi bi-person-video3 text-primary me-2"></i>Tutores</h4><p class="text-body-secondary mb-0">Gestión académica del personal de tutoría.</p></div>
         <div class="col-lg-7 d-flex flex-column flex-sm-row justify-content-lg-end gap-3">
             <div class="position-relative w-100" style="max-width:280px"><div class="position-absolute top-50 start-0 translate-middle-y ms-3 text-primary z-2"><i class="bi bi-search"></i></div><input type="text" id="searchInput" class="form-control bg-body-tertiary rounded-pill border-0 shadow-sm search-input-prometeo" placeholder="Buscar tutor..." onkeyup="filterRows()"></div>
-            @can('tutores.crear')<a href="{{ route('control_escolar.tutores.create') }}" class="btn btn-primary rounded-pill fw-bold shadow-sm px-4"><i class="bi bi-plus-lg me-2"></i>Nuevo Tutor</a>@endcan
+            @can('tutores.crear')<button type="button" data-bs-toggle="modal" data-bs-target="#modalCreateTutor" class="btn btn-primary rounded-pill fw-bold shadow-sm px-4"><i class="bi bi-plus-lg me-2"></i>Nuevo Tutor</button>@endcan
         </div>
     </div>
     <div class="table-responsive">
@@ -33,7 +33,9 @@
                     <td class="text-center py-3 border-0"><span class="badge bg-body-tertiary text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 fw-semibold shadow-sm"><i class="bi bi-collection-fill me-1"></i>{{ $tutor->grupos_count ?? 0 }}</span></td>
                     <td class="text-center py-3 border-0"><span class="badge {{ ($tutor->estado ?? 'activo')==='activo'?'bg-success':'bg-secondary' }} rounded-pill px-3 py-2">{{ ucfirst($tutor->estado ?? 'activo') }}</span></td>
                     <td class="text-end px-4 py-3 border-0"><div class="d-flex justify-content-end gap-2">
-                        @can('tutores.editar')<a href="{{ route('control_escolar.tutores.edit', $tutor) }}" class="btn btn-sm btn-light border text-warning rounded-circle shadow-sm hover-elevate" style="width:35px;height:35px;display:inline-flex;align-items:center;justify-content:center" title="Editar"><i class="bi bi-pencil-fill"></i></a>@endcan
+                        <button type="button" class="btn btn-sm btn-light border rounded-circle" data-bs-toggle="modal" data-bs-target="#modalShowTutor{{ $tutor->id }}" title="Ver detalle"><i class="bi bi-eye"></i></button>
+                        @can('usuarios.eliminar')<button type="button" class="btn btn-sm btn-light border text-danger rounded-circle" data-bs-toggle="modal" data-bs-target="#modalDeleteTutor{{ $tutor->id }}" title="Dar de baja"><i class="bi bi-trash"></i></button>@endcan
+                        @can('tutores.editar')<button type="button" data-bs-toggle="modal" data-bs-target="#modalEditTutor{{ $tutor->id }}" class="btn btn-sm btn-light border text-warning rounded-circle shadow-sm hover-elevate" style="width:35px;height:35px;display:inline-flex;align-items:center;justify-content:center" title="Editar"><i class="bi bi-pencil-fill"></i></button>@endcan
                     </div></td>
                 </tr>
             @empty
@@ -44,7 +46,39 @@
     </div>
     <div class="mt-4">{{ $tutores->links() }}</div>
 </div>
+@can('tutores.crear')
+<div class="modal fade" id="modalCreateTutor" tabindex="-1" aria-labelledby="modalCreateTutorTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCreateTutorTitle">Registrar Tutor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form action="{{ route('control_escolar.tutores.store') }}" method="POST" class="d-flex flex-column overflow-hidden">
+                @include('admin.tutores.partials.form', [
+                    'tutor' => new \App\Models\Tutor(), 'submitText' => 'Guardar Tutor',
+                    'method' => 'POST', 'isModal' => true, 'modalType' => 'create'
+                ])
+            </form>
+        </div>
+    </div>
+</div>
+@endcan
+@include('control_escolar.tutores.modals')
+<x-tutor-modal-navigation />
 @endsection
 @push('scripts')
 <script>function filterRows(){let f=document.getElementById('searchInput').value.toLowerCase();document.querySelectorAll('.data-row').forEach(r=>{r.style.display=r.querySelector('.row-name').textContent.toLowerCase().includes(f)?'':'none'})}</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.modal').forEach(modal => document.body.appendChild(modal));
+});
+function togglePasswordVisibility(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    input.type = input.type === 'password' ? 'text' : 'password';
+    icon.classList.toggle('bi-eye', input.type === 'password');
+    icon.classList.toggle('bi-eye-slash', input.type === 'text');
+}
+</script>
 @endpush

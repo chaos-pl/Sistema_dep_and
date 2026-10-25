@@ -23,6 +23,7 @@
                         'submitText' => 'Guardar Psicólogo',
                         'method' => 'POST'
                     ])
+                    <button type="submit" class="btn btn-primary mt-4">Guardar Psicólogo</button>
                 </form>
             </div>
         </div>

@@ -146,6 +146,21 @@
         {{-- ============================= --}}
         {{-- DISTRIBUCIÓN POR GRUPOS --}}
         {{-- ============================= --}}
+        @can('ciclos_escolares.ver')
+        <div class="col-12">
+            <div class="app-card p-4 rounded-4">
+                <h5>Ciclos escolares</h5>
+                <p class="text-body-secondary">Abre un ciclo para consultar sus grupos, estudiantes y tutores.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    @forelse($ciclosRecientes as $ciclo)
+                        <a class="btn btn-outline-primary" href="{{ route('control_escolar.ciclos-escolares.show', $ciclo) }}">{{ $ciclo->nombre }} · {{ $ciclo->grupos_count }} grupos · {{ ucfirst($ciclo->estado) }}</a>
+                    @empty
+                        <span>No hay ciclos registrados.</span>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+        @endcan
         @if($gruposConEstudiantes->count() > 0)
         <div class="col-lg-7 anime-item">
             <div class="app-card p-4 border-0 shadow-sm rounded-4 h-100">
@@ -161,7 +176,11 @@
                 <div class="mb-3">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <div class="d-flex align-items-center gap-2">
-                            <span class="fw-bold text-body small">{{ $g->nombre }}</span>
+                            @can('grupos.ver')
+                                <a class="fw-bold small" href="{{ route('control_escolar.grupos.show', $g) }}">{{ $g->nombre }} <i class="bi bi-arrow-right"></i></a>
+                            @else
+                                <span class="fw-bold text-body small">{{ $g->nombre }}</span>
+                            @endcan
                             <span class="text-body-secondary small">{{ $g->carrera?->nombre }}</span>
                         </div>
                         <span class="badge bg-body-tertiary text-primary border border-primary border-opacity-25 rounded-pill px-2 py-1 fw-bold small">{{ $g->estudiantes_count }}</span>

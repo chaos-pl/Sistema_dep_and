@@ -31,7 +31,7 @@ body.theme-dark .modal-content,body.theme-system .modal-content{background-color
             <tbody class="border-top-0">
             @forelse($ciclos as $ciclo)
                 <tr class="data-row border-bottom border-secondary border-opacity-10">
-                    <td class="px-4 py-3 border-0"><div class="d-flex align-items-center gap-3" style="transition:transform .2s"><div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width:40px;height:40px"><i class="bi bi-calendar-event-fill"></i></div><div><h6 class="fw-bold mb-0 text-body row-name">{{ $ciclo->nombre }}</h6><small class="text-body-secondary">ID: #{{ $ciclo->id }}</small></div></div></td>
+                    <td class="px-4 py-3 border-0"><div class="d-flex align-items-center gap-3" style="transition:transform .2s"><div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width:40px;height:40px"><i class="bi bi-calendar-event-fill"></i></div><div><h6 class="fw-bold mb-0 text-body row-name"><a href="{{ route('control_escolar.ciclos-escolares.show', $ciclo) }}">{{ $ciclo->nombre }}</a></h6><small class="text-body-secondary">ID: #{{ $ciclo->id }}</small></div></div></td>
                     <td class="text-center py-3 border-0 text-body">{{ $ciclo->fecha_inicio->format('d/m/Y') }}</td>
                     <td class="text-center py-3 border-0 text-body">{{ $ciclo->fecha_fin->format('d/m/Y') }}</td>
                     <td class="text-center py-3 border-0">

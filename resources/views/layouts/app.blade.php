@@ -432,7 +432,8 @@
                             </div>
                         </div>
 
-                    @elseif(auth()->user()->hasRole('psicologo'))
+                    @endif
+                    @if(auth()->user()->hasRole('psicologo'))
                         <div class="nav-section anime-sidebar-item" data-section-name="psico_clinica">
                             <div class="nav-section-header"><span class="nav-section-title">Clínica</span><i class="bi bi-chevron-down nav-section-icon"></i></div>
                             <div class="nav-section-body">
@@ -597,7 +598,8 @@
                         @endcan
                     </div>
                 </div>
-            @elseif(auth()->user()->hasRole('psicologo'))
+            @endif
+                    @if(auth()->user()->hasRole('psicologo'))
                 <div class="nav-section" data-section-name="mobile_psico_clinica">
                     <div class="nav-section-header"><span class="nav-section-title">Clínica</span><i class="bi bi-chevron-down nav-section-icon"></i></div>
                     <div class="nav-section-body">

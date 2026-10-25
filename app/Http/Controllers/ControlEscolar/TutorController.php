@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\ControlEscolar;
 
 use App\Http\Controllers\Controller;
+use App\Services\ExistingTutorRegistrationService;
 use App\Models\Persona;
+use App\Http\Requests\Admin\StoreTutorRequest;
+use App\Http\Requests\Admin\UpdateTutorRequest;
 use App\Models\Tutor;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -18,7 +21,7 @@ class TutorController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('permission:tutores.ver', only: ['index']),
+            new Middleware('permission:tutores.ver', only: ['index', 'show']),
             new Middleware('permission:tutores.crear', only: ['create']),
             new Middleware('permission:tutores.crear', only: ['store']),
             new Middleware('permission:tutores.editar', only: ['edit']),
@@ -29,33 +32,26 @@ class TutorController extends Controller implements HasMiddleware
 
     public function index()
     {
-        $tutores = Tutor::with(['persona.user'])
+        $tutores = Tutor::with(['persona.user', 'grupos.carrera'])
             ->withCount('grupos')
-            ->latest()
+            ->orderByDesc('id')
             ->paginate(10);
 
-        return view('control_escolar.tutores.index', compact('tutores'));
+        return view('control_escolar.tutores.index', ['tutores' => $tutores, 'personasDisponibles' => app(ExistingTutorRegistrationService::class)->availablePeople()]);
     }
 
     public function create()
     {
-        return view('control_escolar.tutores.create');
+        return redirect()->route('control_escolar.tutores.index', ['crear' => 1]);
     }
 
-    public function store(Request $request)
+    public function store(StoreTutorRequest $request)
     {
-        $request->validate([
-            'nombre' => 'required|string|max:100',
-            'apellido_paterno' => 'required|string|max:100',
-            'apellido_materno' => 'nullable|string|max:100',
-            'fecha_nacimiento' => 'required|date',
-            'genero' => 'required|in:masculino,femenino,otro,prefiero_no_decirlo',
-            'telefono' => ['nullable', new \App\Rules\PhoneNumber],
-            'numero_empleado' => 'required|string|max:50|unique:tutores,numero_empleado',
-            'email' => 'required|email|max:255|unique:users,email',
-            'password' => ['required', 'string', \Illuminate\Validation\Rules\Password::defaults(), 'confirmed'],
-        ]);
-
+        if ($request->validated('tipo_registro') === 'existente') {
+            app(ExistingTutorRegistrationService::class)->register($request->validated());
+            Alert::success('Tutor vinculado', 'Se completó su expediente conservando su cuenta y sus otros roles.');
+            return redirect()->route('control_escolar.tutores.index');
+        }
         DB::transaction(function () use ($request) {
             $nombreCompleto = trim($request->nombre.' '.$request->apellido_paterno.' '.($request->apellido_materno ?? ''));
 
@@ -88,37 +84,50 @@ class TutorController extends Controller implements HasMiddleware
         return redirect()->route('control_escolar.tutores.index');
     }
 
-    public function edit(Tutor $tutor)
+    public function show(Tutor $tutor)
     {
-        $tutor->load('persona.user');
-
-        return view('control_escolar.tutores.edit', compact('tutor'));
+        $page = intdiv(Tutor::where('id', '>', $tutor->id)->count(), 10) + 1;
+        return redirect()->route('control_escolar.tutores.index', ['ver' => $tutor->id, 'page' => $page]);
     }
 
-    public function update(Request $request, Tutor $tutor)
+    public function edit(Tutor $tutor)
     {
-        $tutor->load('persona.user');
+        $page = intdiv(Tutor::where('id', '>', $tutor->id)->count(), 10) + 1;
+        return redirect()->route('control_escolar.tutores.index', ['editar' => $tutor->id, 'page' => $page]);
+    }
 
-        $request->validate([
-            'nombre' => 'required|string|max:100',
-            'apellido_paterno' => 'required|string|max:100',
-            'apellido_materno' => 'nullable|string|max:100',
-            'numero_empleado' => 'required|string|max:50|unique:tutores,numero_empleado,'.$tutor->id,
-            'email' => 'required|email|max:255|unique:users,email,'.$tutor->persona->user->id,
-        ]);
+    public function update(UpdateTutorRequest $request, Tutor $tutor)
+    {
+        $tutor->load(['persona.user', 'grupos.carrera']);
 
         DB::transaction(function () use ($request, $tutor) {
-            $nombreCompleto = trim($request->nombre.' '.$request->apellido_paterno.' '.($request->apellido_materno ?? ''));
+            $persona = $tutor->persona;
+            $user = $persona->user;
 
-            $tutor->persona->user->update([
+            $nombreCompleto = trim(
+                $request->nombre . ' ' .
+                $request->apellido_paterno . ' ' .
+                ($request->apellido_materno ?? '')
+            );
+
+            $user->update([
                 'name' => $nombreCompleto,
                 'email' => $request->email,
             ]);
 
-            $tutor->persona->update([
+            if ($request->filled('password')) {
+                $user->update([
+                    'password' => Hash::make($request->password),
+                ]);
+            }
+
+            $persona->update([
                 'nombre' => $request->nombre,
                 'apellido_paterno' => $request->apellido_paterno,
                 'apellido_materno' => $request->apellido_materno,
+                'fecha_nacimiento' => $request->fecha_nacimiento,
+                'genero' => $request->genero,
+                'telefono' => $request->telefono,
             ]);
 
             $tutor->update([
@@ -131,9 +140,6 @@ class TutorController extends Controller implements HasMiddleware
         return redirect()->route('control_escolar.tutores.index');
     }
 
-    /**
-     * Soft-delete: control_escolar NO puede eliminar definitivamente.
-     */
     public function destroy(Tutor $tutor)
     {
         $tutor->loadCount('grupos');
@@ -144,7 +150,12 @@ class TutorController extends Controller implements HasMiddleware
             return redirect()->route('control_escolar.tutores.index');
         }
 
-        $tutor->delete(); // soft-delete
+        DB::transaction(function () use ($tutor) {
+            $tutor->delete(); // soft-delete
+            if ($tutor->persona?->psicologo) {
+                $tutor->persona->user?->removeRole('tutor');
+            }
+        });
 
         Alert::success('Tutor dado de baja', 'El tutor fue dado de baja del sistema.');
 

@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\StoreGrupoRequest;
 use App\Http\Requests\Admin\UpdateGrupoRequest;
 use App\Models\Carrera;
 use App\Models\Grupo;
+use App\Services\GroupTutorAssignmentService;
 use App\Models\Tutor;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -39,7 +40,7 @@ class GrupoController extends Controller
 
     public function store(StoreGrupoRequest $request)
     {
-        Grupo::create([
+        app(GroupTutorAssignmentService::class)->save(new Grupo(), [
             'carrera_id' => $request->carrera_id,
             'tutor_id' => $request->tutor_id,
             'nombre' => $request->nombre,
@@ -63,7 +64,7 @@ class GrupoController extends Controller
 
     public function update(UpdateGrupoRequest $request, Grupo $grupo)
     {
-        $grupo->update([
+        app(GroupTutorAssignmentService::class)->save($grupo, [
             'carrera_id' => $request->carrera_id,
             'tutor_id' => $request->tutor_id,
             'nombre' => $request->nombre,

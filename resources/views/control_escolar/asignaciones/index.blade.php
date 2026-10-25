@@ -55,10 +55,12 @@ body.theme-dark .modal-content,body.theme-system .modal-content{background-color
 <div class="modal fade" id="modalCreate" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content">
     <div class="modal-header modal-header-custom"><h5 class="modal-title fw-black mb-0"><i class="bi bi-plus-lg me-2"></i>Nueva Asignación</h5><button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal"></button></div>
     <form action="{{ route('control_escolar.asignaciones.store') }}" method="POST">@csrf
-        <div class="modal-body modal-body-custom"><div class="row g-4">
+        <div class="modal-body modal-body-custom">
+            <p class="text-body-secondary">El tutor seleccionado será el responsable actual del grupo. La asignación anterior quedará inactiva como historial. Si seleccionas otro ciclo, también se actualizará el ciclo del grupo.</p>
+            <div class="row g-4">
             <div class="col-md-4"><label class="form-label fw-bold text-body-secondary">Tutor</label><select name="tutor_id" class="form-select form-select-lg bg-body-tertiary" required><option value="">Seleccionar...</option>@foreach($tutores as $t)<option value="{{ $t->id }}">{{ $t->persona?->nombre }} {{ $t->persona?->apellido_paterno }}</option>@endforeach</select></div>
             <div class="col-md-4"><label class="form-label fw-bold text-body-secondary">Grupo</label><select name="grupo_id" class="form-select form-select-lg bg-body-tertiary" required><option value="">Seleccionar...</option>@foreach($grupos as $g)<option value="{{ $g->id }}">{{ $g->nombre }}</option>@endforeach</select></div>
-            <div class="col-md-4"><label class="form-label fw-bold text-body-secondary">Ciclo Escolar</label><select name="ciclo_escolar_id" class="form-select form-select-lg bg-body-tertiary"><option value="">Sin ciclo</option>@foreach($ciclos as $ci)<option value="{{ $ci->id }}">{{ $ci->nombre }}</option>@endforeach</select></div>
+            <div class="col-md-4"><label class="form-label fw-bold text-body-secondary">Ciclo Escolar</label><select name="ciclo_escolar_id" class="form-select form-select-lg bg-body-tertiary"><option value="">Conservar ciclo del grupo</option>@foreach($ciclos as $ci)<option value="{{ $ci->id }}">{{ $ci->nombre }}</option>@endforeach</select></div>
         </div></div>
         <div class="modal-footer modal-footer-custom d-flex justify-content-end gap-2"><button type="button" class="btn btn-light rounded-pill px-4 fw-bold shadow-sm" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm"><i class="bi bi-floppy-fill me-2"></i>Guardar</button></div>
     </form>

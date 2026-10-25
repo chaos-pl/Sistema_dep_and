@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreTutorRequest;
 use App\Http\Requests\Admin\UpdateTutorRequest;
+use App\Services\ExistingTutorRegistrationService;
 use App\Models\Persona;
 use App\Models\Tutor;
 use App\Models\User;
@@ -16,21 +17,26 @@ class TutorController extends Controller
 {
     public function index()
     {
-        $tutores = Tutor::with(['persona.user'])
+        $tutores = Tutor::with(['persona.user', 'grupos.carrera'])
             ->withCount('grupos')
-            ->latest()
+            ->orderByDesc('id')
             ->paginate(10);
 
-        return view('admin.tutores.index', compact('tutores'));
+        return view('admin.tutores.index', ['tutores' => $tutores, 'personasDisponibles' => app(ExistingTutorRegistrationService::class)->availablePeople()]);
     }
 
     public function create()
     {
-        return view('admin.tutores.create');
+        return redirect()->route('admin.tutores.index', ['crear' => 1]);
     }
 
     public function store(StoreTutorRequest $request)
     {
+        if ($request->validated('tipo_registro') === 'existente') {
+            app(ExistingTutorRegistrationService::class)->register($request->validated());
+            Alert::success('Tutor vinculado', 'Se completó su expediente conservando su cuenta y sus otros roles.');
+            return redirect()->route('admin.tutores.index');
+        }
         DB::transaction(function () use ($request) {
             $nombreCompleto = trim(
                 $request->nombre . ' ' .
@@ -72,30 +78,19 @@ class TutorController extends Controller
      */
     public function show(Tutor $tutor)
     {
-        // Cargamos la información personal y del usuario asociado
-        $tutor->loadMissing(['persona.user']);
-
-        // Verificamos de forma segura si el modelo Tutor tiene la relación 'grupos'
-        if (method_exists($tutor, 'grupos')) {
-            $tutor->loadCount('grupos');
-        } else {
-            // Valor por defecto en caso de que la relación aún no exista en el modelo
-            $tutor->grupos_count = 0;
-        }
-
-        return view('admin.tutores.show', compact('tutor'));
+        $page = intdiv(Tutor::where('id', '>', $tutor->id)->count(), 10) + 1;
+        return redirect()->route('admin.tutores.index', ['ver' => $tutor->id, 'page' => $page]);
     }
 
     public function edit(Tutor $tutor)
     {
-        $tutor->load(['persona.user']);
-
-        return view('admin.tutores.edit', compact('tutor'));
+        $page = intdiv(Tutor::where('id', '>', $tutor->id)->count(), 10) + 1;
+        return redirect()->route('admin.tutores.index', ['editar' => $tutor->id, 'page' => $page]);
     }
 
     public function update(UpdateTutorRequest $request, Tutor $tutor)
     {
-        $tutor->load(['persona.user']);
+        $tutor->load(['persona.user', 'grupos.carrera']);
 
         DB::transaction(function () use ($request, $tutor) {
             $persona = $tutor->persona;
@@ -156,6 +151,11 @@ class TutorController extends Controller
             $user = $persona?->user;
 
             $tutor->delete();
+
+            if ($persona?->psicologo) {
+                $user?->removeRole('tutor');
+                return;
+            }
 
             if ($persona) {
                 $persona->delete();

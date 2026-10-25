@@ -9,7 +9,7 @@ class UpdateTutorRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return auth()->check() && auth()->user()->hasRole('admin');
+        return $this->user() && ($this->user()->hasRole('admin') || ($this->user()->hasRole('control_escolar') && $this->user()->can('tutores.editar')));
     }
 
     public function rules(): array

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Carrera;
 use App\Models\CicloEscolar;
 use App\Models\Grupo;
+use App\Services\GroupTutorAssignmentService;
 use App\Models\Tutor;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -49,7 +50,7 @@ class GrupoController extends Controller implements HasMiddleware
             'periodo' => 'required|string|max:20',
         ]);
 
-        Grupo::create($request->only('nombre', 'carrera_id', 'tutor_id', 'ciclo_escolar_id', 'periodo'));
+        app(GroupTutorAssignmentService::class)->save(new Grupo(), $request->only('nombre', 'carrera_id', 'tutor_id', 'ciclo_escolar_id', 'periodo'));
 
         Alert::success('Grupo creado', 'El grupo fue registrado correctamente.');
 
@@ -79,7 +80,7 @@ class GrupoController extends Controller implements HasMiddleware
             'estado' => 'required|in:activo,inactivo',
         ]);
 
-        $grupo->update($request->only('nombre', 'carrera_id', 'tutor_id', 'ciclo_escolar_id', 'periodo', 'estado'));
+        app(GroupTutorAssignmentService::class)->save($grupo, $request->only('nombre', 'carrera_id', 'tutor_id', 'ciclo_escolar_id', 'periodo', 'estado'));
 
         Alert::success('Grupo actualizado', 'Los datos del grupo fueron actualizados.');
 

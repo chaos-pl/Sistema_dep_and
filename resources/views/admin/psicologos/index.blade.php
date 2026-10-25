@@ -147,7 +147,7 @@
                                     <i class="bi bi-pencil-fill"></i>
                                 </button>
 
-                                <form action="{{ route('admin.psicologos.destroy', $psicologo->id) }}" method="POST" onsubmit="return confirm('ATENCIÓN: ¿Deseas eliminar permanentemente a este psicólogo del sistema?');">
+                                <form action="{{ route('admin.psicologos.destroy', $psicologo->id) }}" method="POST" onsubmit="return confirm('¿Deseas retirar el perfil de psicólogo? Su cuenta y sus otros roles se conservarán.');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-light border text-danger rounded-circle shadow-sm" style="width: 35px; height: 35px; display: inline-flex; align-items: center; justify-content: center;" title="Eliminar">
@@ -187,7 +187,7 @@
 
                 <form action="{{ route('admin.psicologos.store') }}" method="POST">
                     <div class="modal-body modal-body-custom">
-                        @include('admin.psicologos.partials.form', ['submitText' => 'Guardar Psicólogo', 'method' => 'POST'])
+                        @include('admin.psicologos.partials.form', ['psicologo' => null, 'submitText' => 'Guardar Psicólogo', 'method' => 'POST'])
                     </div>
                     <div class="modal-footer modal-footer-custom d-flex justify-content-end gap-2">
                         <button type="button" class="btn btn-light rounded-pill px-4 fw-bold shadow-sm" data-bs-dismiss="modal">Cancelar</button>
