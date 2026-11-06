@@ -48,6 +48,21 @@ class CasoAtencion extends Model
         return $this->evaluacion_id ? ($this->evaluacion?->instrumento?->acronimo ?? 'Cuestionario') : 'Diario IA';
     }
 
+    public function actividadClinica()
+    {
+        return $this->seguimientos()->whereIn('tipo', ['valoracion', 'nota']);
+    }
+
+    public function scopeBandeja($query, string $bandeja, Psicologo $psicologo)
+    {
+        return match ($bandeja) {
+            'sin_asignar' => $query->whereNull('psicologo_id')->where('estado', '!=', 'cerrado'),
+            'por_revisar' => $query->where('psicologo_id', $psicologo->id)->where('estado', '!=', 'cerrado')
+                ->doesntHave('actividadClinica')->whereDoesntHave('evaluacion.diagnostico'),
+            'seguimientos' => $query->where('psicologo_id', $psicologo->id)->where('estado', 'seguimiento'),
+        };
+    }
+
     public function getEstudianteAttribute()
     {
         return $this->evaluacion_id ? $this->evaluacion?->estudiante : $this->analisisNlp?->estudiante;

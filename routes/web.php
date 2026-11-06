@@ -246,6 +246,7 @@ Route::middleware(['auth', 'consent.accepted', 'no.cache'])->group(function () {
             Route::get('/casos/{caso}', [CasoAtencionController::class, 'show'])->name('casos.show');
             Route::post('/casos/{caso}', [CasoAtencionController::class, 'update'])->middleware('permission:diagnosticos.crear')->name('casos.update');
             Route::get('/tamizajes', [TamizajeController::class, 'index'])->middleware('permission:evaluaciones.historial.global')->name('tamizajes.index');
+            Route::get('/tamizajes/ultimos-severos', [TamizajeController::class, 'ultimosSeveros'])->middleware('permission:evaluaciones.historial.global')->name('tamizajes.ultimos-severos');
             Route::get('/tamizajes/{evaluacion}', [TamizajeController::class, 'show'])->middleware(['permission:evaluaciones.historial.global', 'permission:evaluaciones.respuestas.detalle'])->name('tamizajes.show');
             Route::get('/dashboard', [PsicologoDashboardController::class, 'index'])
                 ->name('dashboard');

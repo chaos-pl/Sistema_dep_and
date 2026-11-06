@@ -23,6 +23,13 @@
             background-color: var(--app-primary);
         }
 
+        .clinical-metric { display:flex; flex-direction:column; height:100%; gap:.55rem; padding:1.35rem; border:1px solid var(--app-border); border-top:4px solid var(--metric-color); border-radius:1.15rem; background:linear-gradient(145deg,color-mix(in srgb,var(--metric-color) 9%,transparent),transparent 65%),var(--app-surface); color:var(--app-text); text-decoration:none; }
+        .clinical-metric:hover, .clinical-metric:focus-visible { outline:2px solid var(--metric-color); outline-offset:2px; color:var(--app-text); }
+        .clinical-metric .metric-icon { display:grid; place-items:center; width:2.65rem; height:2.65rem; border-radius:.85rem; background:color-mix(in srgb,var(--metric-color) 18%,transparent); font-size:1.25rem; }
+        .clinical-metric strong { font-size:2.35rem; font-weight:800; line-height:1; font-variant-numeric:tabular-nums; }
+        .clinical-chart-bar { height:.65rem; border-radius:1rem; overflow:hidden; background:var(--app-border); }
+        .clinical-chart-bar span { display:block; height:100%; border-radius:inherit; background:var(--chart-color); }
+
         .bg-welcome-psicologo::after {
             content: '\F4B8'; font-family: "bootstrap-icons"; position: absolute;
             top: -10%; right: -5%; font-size: 15rem; color: #ffffff;
@@ -94,8 +101,10 @@
                 </div>
             </div>
         </div>
-<div class="col-12 dashboard-dass">    @canany(['evaluaciones.historial.global', 'resultados_ia.ver'])
-    <div class="d-flex justify-content-end mb-3"><a class="btn btn-primary tm-action" href="{{ route('psicologo.casos.index') }}"><i class="bi bi-journal-medical"></i> Asignar y dar seguimiento a casos</a></div>
+<div class="col-12 dashboard-dass">
+    @canany(['evaluaciones.historial.global', 'resultados_ia.ver'])
+        @include('psicologo.metricas')
+        <div class="d-flex justify-content-end mb-3"><a class="btn btn-primary tm-action" href="{{ route('psicologo.casos.index') }}">Asignar y dar seguimiento a casos</a></div>
     @endcanany
 @include('psicologo.tamizajes.dashboard')</div>
 
@@ -139,18 +148,6 @@
             </div>
         </div>
 
-        <div class="col-md-6 col-xl-3 anime-item">
-            <div class="app-card bg-body-tertiary p-4 h-100 border border-secondary border-opacity-10 shadow-sm rounded-4 hover-elevate">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="text-body-secondary fw-bold text-uppercase mb-0" style="font-size: 0.8rem; letter-spacing: 0.5px;">Casos Severos Totales</h6>
-                    <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width:48px;height:48px;">
-                        <i class="bi bi-activity fs-5"></i>
-                    </div>
-                </div>
-                <h2 class="fw-black mb-1 text-body">{{ $totalCasosSeveros ?? 0 }}</h2>
-                <p class="text-body-secondary mb-0 small">Resultados de alto riesgo global.</p>
-            </div>
-        </div>
 
         <div class="col-12 col-xl-6 anime-item">
             <div class="app-card p-4 p-md-5 border-0 shadow-sm rounded-4 h-100">

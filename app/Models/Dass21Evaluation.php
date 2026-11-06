@@ -75,4 +75,20 @@ class Dass21Evaluation extends Model
     {
         return in_array($this->max_severity_level, ['Severo', 'Extremadamente severo'], true);
     }
+
+    public function scopeUltimoSeveroPorEstudiante($query)
+    {
+        return $query->ultimoPorEstudiante()->whereIn('max_severity_level', ['Severo', 'Extremadamente severo']);
+    }
+
+    public function scopeUltimoPorEstudiante($query)
+    {
+        return $query->whereHas('estudiante')
+            ->where('id', '=', function ($latest) {
+                $latest->from('dass21_evaluations as aplicaciones')->select('aplicaciones.id')
+                    ->whereColumn('aplicaciones.codigo_anonimo', 'dass21_evaluations.codigo_anonimo')
+                    ->whereNotNull('aplicaciones.completed_at')
+                    ->orderByDesc('aplicaciones.completed_at')->orderByDesc('aplicaciones.id')->limit(1);
+            });
+    }
 }

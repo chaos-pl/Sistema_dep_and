@@ -15,15 +15,19 @@
 </div>
 <section class="tm-panel tm-body">
     <form method="GET" class="row g-3 align-items-end mb-4">
+        @if(request('bandeja'))
+            <input type="hidden" name="bandeja" value="{{ request('bandeja') }}">
+            <h3 class="h5">{{ ['sin_asignar' => 'Casos sin asignar', 'por_revisar' => 'Mis casos por revisar', 'seguimientos' => 'Mis seguimientos'][request('bandeja')] }}</h3>
+        @endif
         <div class="col-md-3"><label class="form-label" for="estado">Estado</label><select class="form-select" name="estado" id="estado"><option value="">Todos</option>@foreach(['pendiente'=>'Por asignar','asignado'=>'Asignado','seguimiento'=>'En seguimiento','cerrado'=>'Cerrado'] as $value=>$label)<option value="{{ $value }}" @selected(request('estado') === $value)>{{ $label }}</option>@endforeach</select></div>
         <div class="col-md-3"><label class="form-label" for="origen">Origen</label><select class="form-select" name="origen" id="origen"><option value="">Todos</option><option value="evaluacion" @selected(request('origen') === 'evaluacion')>Cuestionarios</option><option value="diario" @selected(request('origen') === 'diario')>Diarios IA</option></select></div>
         <div class="col-md-3"><label class="form-label" for="responsable">Responsable</label><select class="form-select" name="responsable" id="responsable"><option value="">Todos</option><option value="mios" @selected(request('responsable') === 'mios')>Mis casos</option><option value="sin_asignar" @selected(request('responsable') === 'sin_asignar')>Sin asignar</option></select></div>
         <div class="col-md-3 d-flex gap-2"><button class="btn btn-primary tm-action">Filtrar</button><a href="{{ route('psicologo.casos.index') }}" class="btn btn-outline-secondary tm-action">Limpiar</a></div>
     </form>
     @foreach($errors->all() as $error)<p class="text-danger">{{ $error }}</p>@endforeach
-    <div class="table-responsive"><table class="table tm-table"><thead><tr><th>Estudiante</th><th>Origen</th><th>Estado</th><th>Responsable</th><th>Actualizado</th><th>Acción</th></tr></thead><tbody>
+    <div class="table-responsive"><table class="table tm-table"><thead><tr><th>Estudiante</th><th>Origen</th><th>Estado</th><th>Responsable</th><th>{{ match(request('bandeja')) { 'sin_asignar' => 'En espera desde', 'por_revisar' => 'Tiempo desde asignación', 'seguimientos' => 'Última valoración o nota', default => 'Actualizado' } }}</th><th>Acción</th></tr></thead><tbody>
     @forelse($casos as $caso)
-        <tr><td>{{ $caso->estudiante?->persona?->nombre ?? 'Expediente no disponible' }} {{ $caso->estudiante?->persona?->apellido_paterno }}</td><td>{{ $caso->origen_texto }}</td><td><span class="badge {{ $caso->estado === 'cerrado' ? 'text-bg-secondary' : 'text-bg-primary' }}">{{ ucfirst($caso->estado) }}</span></td><td>{{ $caso->psicologo?->persona?->nombre ?? 'Sin asignar' }} {{ $caso->psicologo?->persona?->apellido_paterno }}</td><td>{{ $caso->updated_at?->format('d/m/Y H:i') }}</td><td><a class="btn btn-outline-primary tm-action" href="{{ route('psicologo.casos.show', $caso) }}">Abrir caso</a></td></tr>
+        <tr><td>{{ $caso->estudiante?->persona?->nombre ?? 'Expediente no disponible' }} {{ $caso->estudiante?->persona?->apellido_paterno }}</td><td>{{ $caso->origen_texto }}</td><td><span class="badge {{ $caso->estado === 'cerrado' ? 'text-bg-secondary' : 'text-bg-primary' }}">{{ ucfirst($caso->estado) }}</span></td><td>{{ $caso->psicologo?->persona?->nombre ?? 'Sin asignar' }} {{ $caso->psicologo?->persona?->apellido_paterno }}</td><td>{{ match(request('bandeja')) { 'sin_asignar' => $caso->created_at?->format('d/m/Y H:i'), 'por_revisar' => $caso->asignado_at?->diffForHumans() ?? 'Sin fecha registrada', 'seguimientos' => $caso->ultima_actividad?->format('d/m/Y H:i') ?? 'Sin fecha registrada', default => $caso->updated_at?->format('d/m/Y H:i') } }}</td><td><a class="btn btn-outline-primary tm-action" href="{{ route('psicologo.casos.show', $caso) }}">Abrir caso</a></td></tr>
     @empty<tr><td colspan="6"><div class="tm-empty"><i class="bi bi-journal-check"></i><p>No hay casos que coincidan con estos filtros.</p></div></td></tr>@endforelse
     </tbody></table></div>{{ $casos->links() }}
 </section>

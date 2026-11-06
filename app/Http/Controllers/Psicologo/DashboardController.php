@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Psicologo;
 
 use App\Http\Controllers\Controller;
 use App\Models\Alerta;
+use App\Models\CasoAtencion;
 use App\Models\AnalisisNlp;
 use App\Models\Dass21Evaluation;
 use App\Models\Diagnostico;
@@ -31,8 +32,18 @@ class DashboardController extends Controller
         $totalAlertasAtendidas = Alerta::where('estado', 'atendida')->count();
         $totalDiagnosticosPropios = Diagnostico::where('psicologo_id', $psicologo->id)->count();
 
-        $totalCasosSeveros = ResultadoClinico::where('nivel_riesgo', 'severo')->count()
-            + Dass21Evaluation::whereIn('max_severity_level', ['Severo', 'Extremadamente severo'])->count();
+        $casos = CasoAtencion::visibleTo($user);
+        $sinAsignar = (clone $casos)->bandeja('sin_asignar', $psicologo)
+            ->selectRaw('COUNT(*) as total, MIN(created_at) as primero')->first();
+        $porRevisar = (clone $casos)->bandeja('por_revisar', $psicologo)->count();
+        $misSeguimientos = (clone $casos)->bandeja('seguimientos', $psicologo)->count();
+        $casosPorEstado = (clone $casos)->where('psicologo_id', $psicologo->id)
+            ->selectRaw('estado, COUNT(*) as total')->groupBy('estado')->pluck('total', 'estado');
+        $nivelesDass = $user->can('evaluaciones.historial.global')
+            ? Dass21Evaluation::ultimoPorEstudiante()->selectRaw('max_severity_level, COUNT(*) as total')
+                ->groupBy('max_severity_level')->pluck('total', 'max_severity_level')
+            : collect();
+        $estudiantesSeveros = $nivelesDass->get('Severo', 0) + $nivelesDass->get('Extremadamente severo', 0);
 
         $dass21Recientes = Dass21Evaluation::with(['estudiante.persona', 'evaluacion.alerta'])
             ->latest('completed_at')->latest('id')->take(6)->get();
@@ -75,7 +86,8 @@ class DashboardController extends Controller
             'totalAlertasPendientes',
             'totalAlertasAtendidas',
             'totalDiagnosticosPropios',
-            'totalCasosSeveros',
+            'sinAsignar', 'porRevisar', 'misSeguimientos', 'estudiantesSeveros',
+            'casosPorEstado', 'nivelesDass',
             'totalResultadosIaRiesgo'
         ));
     }

@@ -4,12 +4,23 @@ namespace App\Http\Controllers\Psicologo;
 
 use App\Http\Controllers\Controller;
 use App\Models\Evaluacion;
+use App\Models\Dass21Evaluation;
 use App\Models\Grupo;
 use App\Services\Dass21CoverageService;
 use Illuminate\Http\Request;
 
 class TamizajeController extends Controller
 {
+    public function ultimosSeveros(Request $request)
+    {
+        abort_unless($request->user()->persona?->psicologo, 403, 'Expediente profesional pendiente.');
+        $resultados = Dass21Evaluation::ultimoSeveroPorEstudiante()
+            ->with(['estudiante.persona', 'evaluacion.casoAtencion'])
+            ->latest('completed_at')->latest('id')->paginate(20);
+
+        return view('psicologo.tamizajes.ultimos-severos', compact('resultados'));
+    }
+
     public function index(Request $request, Dass21CoverageService $coverage)
     {
         abort_unless($request->user()->persona?->psicologo, 403, 'Expediente profesional pendiente.');

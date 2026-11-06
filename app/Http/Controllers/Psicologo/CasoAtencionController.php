@@ -19,6 +19,7 @@ class CasoAtencionController extends Controller
     {
         $this->professional($request);
         $filters = $request->validate([
+            'bandeja' => ['nullable', 'in:sin_asignar,por_revisar,seguimientos'],
             'estado' => ['nullable', 'in:pendiente,asignado,seguimiento,cerrado'],
             'origen' => ['nullable', 'in:evaluacion,diario'],
             'responsable' => ['nullable', 'in:mios,sin_asignar'],
@@ -30,8 +31,19 @@ class CasoAtencionController extends Controller
             ->when(($filters['origen'] ?? null) === 'evaluacion', fn ($q) => $q->whereNotNull('evaluacion_id'))
             ->when(($filters['origen'] ?? null) === 'diario', fn ($q) => $q->whereNotNull('analisis_nlp_id'))
             ->when(($filters['responsable'] ?? null) === 'mios', fn ($q) => $q->where('psicologo_id', $request->user()->persona->psicologo->id))
-            ->when(($filters['responsable'] ?? null) === 'sin_asignar', fn ($q) => $q->whereNull('psicologo_id'))
-            ->latest('updated_at')->latest('id')->paginate(20)->withQueryString();
+            ->when(($filters['responsable'] ?? null) === 'sin_asignar', fn ($q) => $q->whereNull('psicologo_id'));
+        $bandeja = $filters['bandeja'] ?? null;
+        if ($bandeja) {
+            $casos->bandeja($bandeja, $request->user()->persona->psicologo);
+        }
+        match ($bandeja) {
+            'sin_asignar' => $casos->oldest('created_at'),
+            'por_revisar' => $casos->oldest('asignado_at'),
+            'seguimientos' => $casos->withMax('actividadClinica as ultima_actividad', 'created_at')
+                ->withCasts(['ultima_actividad' => 'datetime'])->oldest('ultima_actividad'),
+            default => $casos->latest('updated_at'),
+        };
+        $casos = $casos->latest('id')->paginate(20)->withQueryString();
 
         return view('psicologo.casos.index', compact('casos', 'counts'));
     }

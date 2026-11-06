@@ -133,6 +133,35 @@ class AttentionCaseTest extends TestCase
         $this->assertSame(5, $case->seguimientos()->count());
     }
 
+    public function test_dashboard_metrics_and_lists_use_the_same_cases_and_latest_screening(): void
+    {
+        $psych = $this->account('psicologo');
+        $other = $this->account('psicologo');
+        $student = $this->student();
+        $this->submit($student);
+        $this->submit($student, 0);
+        $newStudent = $this->student();
+        $otherCase = $this->submit($newStudent)->evaluacion->casoAtencion;
+        $latest = $this->submit($newStudent);
+        $myCase = $latest->evaluacion->casoAtencion;
+        $this->actingAs($psych);
+        $this->action($otherCase, 'asignar', ['psicologo_id' => $other->persona->psicologo->id])->assertSessionHasNoErrors();
+        $this->action($myCase, 'asignar', ['psicologo_id' => $psych->persona->psicologo->id])->assertSessionHasNoErrors();
+        $this->get(route('psicologo.dashboard'))->assertOk()->assertViewHas('porRevisar', 1)
+            ->assertViewHas('estudiantesSeveros', 1)->assertViewHas('misSeguimientos', 0)
+            ->assertViewHas('casosPorEstado', fn ($counts) => $counts->sum() === 1 && $counts['asignado'] === 1)
+            ->assertViewHas('nivelesDass', fn ($counts) => $counts->sum() === 2 && $counts['Normal'] === 1)
+            ->assertSee('Mis casos por estado')->assertSee('Último DASS-21 por estudiante');
+        $this->get(route('psicologo.casos.index', ['bandeja' => 'por_revisar']))->assertOk()
+            ->assertViewHas('casos', fn ($cases) => $cases->pluck('id')->all() === [$myCase->id]);
+        $this->get(route('psicologo.tamizajes.ultimos-severos'))->assertOk()
+            ->assertViewHas('resultados', fn ($results) => $results->pluck('id')->all() === [$latest->id]);
+        $this->action($myCase, 'nota')->assertSessionHasNoErrors();
+        $this->get(route('psicologo.casos.index', ['bandeja' => 'seguimientos']))->assertOk()
+            ->assertViewHas('casos', fn ($cases) => $cases->first()->ultima_actividad !== null);
+        $this->get(route('psicologo.dashboard'))->assertOk()->assertViewHas('porRevisar', 0)->assertViewHas('misSeguimientos', 1);
+    }
+
     public function test_assignment_is_exclusive_and_stale_changes_cannot_overwrite_it(): void
     {
         $a = $this->account('psicologo');
